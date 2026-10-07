@@ -10,7 +10,8 @@ const UI = {
     nextExam: 'Volgende eksamen', weekXpShort: 'XP hierdie week', chestSub: 'Doen 3 toetse vandag om die skatkis oop te sluit.',
     coachHelloText: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Tik jou vraag oor jou skoolwerk – of tik die vraag uit jou boek of vraestel oor. Ek help jou om dit **self** uit te werk, met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachCtaText: 'Sukkel jy met iets? Tik jou vraag – die afrigter help jou om dit self te verstaan.', coachPhotosL: 'Laat foto’s toe (die seuns kan ’n foto van hul werk stuur)',
     coachT: 'Leerhoek-afrigter', coachCta: 'Neem ’n foto van ’n vraag of jou werk – die afrigter help jou om dit self te verstaan.', coachAsk: 'Verstaan jy iets nie? Vra die afrigter', coachDisclose: 'Jy gesels met ’n KI (Claude), nie met ’n mens nie. Die afrigter help jou om SELF te dink en te leer – dit doen nie jou werk vir jou nie. Pa en Ma kan die gesprekke sien.', coachSubj: 'Watter vak?', coachNew: 'Nuwe gesprek', coachPh: 'Tik jou vraag, of wat jy al gedoen het…', coachPhoto: 'Foto', coachSend: 'Stuur', coachLeft: 'vrae oor vandag', coachHello: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Stuur vir my ’n **foto** van ’n vraag, ’n bladsy uit jou boek of jou eie werk, of tik jou vraag. Ek gaan jou help om dit self uit te werk – met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachImgErr: 'Kon nie die foto oopmaak nie – probeer weer.', coachLimit: 'Jy het vandag se {n} vrae gebruik. Môre is daar weer! Probeer intussen ’n toets of speletjie.', coachOff: 'Die afrigter is nog nie aangeskakel nie – Pa moet nog die sleutel byvoeg.', coachErr: 'Kon nie die afrigter bereik nie. Kyk of die internet werk en probeer weer.', coachOnlyWeb: 'Die afrigter werk net op die gesin se Leerhoek-webwerf (met jou skakel).', coachParentT: 'Afrigter-gesprekke', coachParentSub: 'Alles wat die seuns die KI-afrigter vra, en wat dit antwoord (laaste 7 dae). Die afrigter verduidelik en gee wenke, maar skryf nie hul werk vir hulle nie.', coachLimitL: 'Vrae per kind per dag:', coachNone: 'Nog geen gesprekke nie.',
-    ntfyT: 'Kennisgewings op jou foon', ntfySub: 'Leerhoek stuur kennisgewings deur die gratis ntfy-app. Elke ouer moet dit een keer op sy of haar eie foon opstel:', ntfy1: 'Laai die gratis <b>ntfy</b>-app af (knoppies hieronder).', ntfy2: 'Maak dit oop, tik <b>+</b> en tik hierdie onderwerp in (of kopieer dit): laat “Use another server” <b>af</b> en tik <b>Subscribe</b>.', ntfy3: 'Laat kennisgewings toe as die foon vra. Tik dan hier op <b>Stuur toets</b> – jy moet binne sekondes ’n kennisgewing kry.', ntfyCopy: 'Kopieer', ntfyOpen: 'Open in ntfy (Android)', ntfyTest: 'Stuur toets', ntfyTestMsg: 'As jy dit sien, werk die Leerhoek-kennisgewings! 🎉', ntfySent: 'Toets gestuur – kyk op jou foon.', ntfyWhen: 'Jy kry ’n kennisgewing as ’n seun begin leer, as hy klaar is (met ’n opsomming), na elke toets en vraestel, en die eerste keer per dag dat hy die afrigter vra.',
+    ntfyT: 'Kennisgewings op jou foon', ntfySub: 'Leerhoek stuur kennisgewings deur die gratis ntfy-app. Elke ouer moet dit een keer op sy of haar eie foon opstel:', ntfy1: 'Laai die gratis <b>ntfy</b>-app af (knoppies hieronder).', ntfy2: 'Maak dit oop, tik <b>+</b> en tik hierdie onderwerp in (of kopieer dit): laat “Use another server” <b>af</b> en tik <b>Subscribe</b>.', ntfy3: 'Laat kennisgewings toe as die foon vra. Tik dan hier op <b>Stuur toets</b> – jy moet binne sekondes ’n kennisgewing kry.', ntfyCopy: 'Kopieer', ntfyOpen: 'Open in ntfy (Android)', ntfyTest: 'Stuur toets', ntfyTestMsg: 'As jy dit sien, werk die Leerhoek-kennisgewings! 🎉', ntfySent: 'Toets gestuur – kyk op jou foon.', ntfyWhen: 'Jy kry ’n kennisgewing elke keer as ’n seun Leerhoek oopmaak en weer toemaak of wegsit (met ’n opsomming: minute, toetse en XP), na elke toets en vraestel, en die eerste keer per dag dat hy die afrigter vra.',
+    pushT: 'Kennisgewings', pushSub: 'Leerhoek stuur self kennisgewings na jou foon – geen ekstra app nodig nie. Doen dit een keer op elke ouer se foon (Pa en Ma): maak Leerhoek oop met sy ikoon, gaan na Ouer en tik die knoppie hieronder.', pushOn: 'Skakel kennisgewings aan op hierdie foon', pushIsOn: 'Hierdie toestel kry Leerhoek-kennisgewings.', pushOff: 'Skakel af op hierdie toestel', pushTest: 'Stuur toets', pushSent: 'Toets gestuur na {n} toestel(le) – kyk op jou foon.', pushDevs: 'Toestelle wat kennisgewings kry', pushNone: 'Nog geen toestelle nie.', pushName: 'Naam vir hierdie toestel', pushWelcome: 'Dis reg! Leerhoek-kennisgewings is aan op {d}. 🎉', pushIosHome: 'Op ’n iPhone werk kennisgewings net binne die Leerhoek-app: maak Leerhoek oop met sy ikoon op jou tuisskerm (nie in Safari of Chrome nie), gaan na Ouer en tik dan hier.', pushIosOld: 'Jou iPhone moet iOS 16.4 of nuwer hê vir kennisgewings: Instellings → Algemeen → Sagteware-opdatering.', pushNoSupport: 'Hierdie blaaier kan nie kennisgewings kry nie. Gebruik Chrome (Android of rekenaar) of die Leerhoek-app op ’n iPhone.', pushDenied: 'Kennisgewings vir Leerhoek is in die foon se instellings afgeskakel. iPhone: Instellings → Kennisgewings → Leerhoek → Laat kennisgewings toe. Android: hou die Leerhoek-ikoon in → ⓘ App-inligting → Kennisgewings → aan. Kom dan terug en tik weer.', pushFail: 'Kon nie aanskakel nie', pushNotReady: 'Die kennisgewing-diens (lh-notify) is nog nie op Supabase opgestel nie.', pushParentNote: 'Hierdie toestel stuur self nie “oopgemaak/toegemaak”-kennisgewings nie (dis ’n ouer-toestel).', pushNtfyMore: 'Ander opsie: die ntfy-app', pushNtfyAlso: 'Stuur ook na die ntfy-app',
     passL: 'Slaag', goalL: 'Doel', myMarks: 'My punte', myMarksSub: 'Jou jongste skoolpunt per vak, die slaagpunt en jou doel.', legBad: 'onder slaag', legHi: 'geslaag, nog nie doel nie', legGood: 'doel bereik', showAllSubj: 'Wys al die vakke', goalsT: 'Doelpunte (gewenste punt)', goalsHelp: 'Kies die punt waarna elke seun per vak moet mik – byvoorbeeld 60 %. Laat ’n vak leeg om die standaard te gebruik. Die seuns sien hul punt, die slaagpunt en die doel op hul tuisblad en by elke vak.', goalDefault: 'Standaard doel %', saveGoals: 'Stoor doelpunte',
     marksT: 'Skoolpunte invoer (van die rapport)', marksHelp: 'Tik die punte van die rapport in – Kwartaal 3 nou, Kwartaal 4 aan die einde van die jaar. Die fokusvakke en die dagplan pas outomaties aan. Laat leeg wat nie op die rapport is nie.', marksSave: 'Stoor punte',
     navExams: 'Eksamen', navPlay: 'Speel', navDict: 'Woorde', termNow: 'Kwartaal', finalTerm: 'laaste kwartaal – eindeksamens kom!', now: 'nou', exam1: 'eksamen', focusShort: 'fokusvak',
@@ -48,7 +49,7 @@ const UI = {
     dashboard: 'Ouerpaneel', lastActive: 'Laas aktief', never: 'nog nooit', thisWeek: 'hierdie week', timeOn: 'Tyd op platform', mastery: 'Bemeestering per vak', weak: 'Onderwerpe wat aandag nodig het', noWeak: 'Niks dringend nie – alles bo 70 %.', activity: 'Aktiwiteit', noActivity: 'Nog geen aktiwiteit nie.',
     copyReport: 'Kopieer verslag', settings: 'Instellings', examDate: 'Eksamendatum (eerste vraestel)', examTitle: 'Byskrif', save: 'Stoor', saved: 'Gestoor', changePin: 'Verander PIN', importCode: 'Voer vorderingskode in', importHint: 'Plak die kode wat ’n seun van ’n ander toestel gekopieer het.', importBtn: 'Voer in', imported: 'Vordering ingevoer',
     storage: 'Stoorplek', storageDb: 'Gedeelde stoor (sinkroniseer op alle toestelle)', storageLocal: 'Slegs hierdie toestel', today: 'Vandag', yesterday: 'Gister',
-    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Aangemeld', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis', coach: 'Afrigter gevra' },
+    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Leerhoek oopgemaak', logout: 'Leerhoek toegemaak', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis', coach: 'Afrigter gevra' },
     resourcesIntro: 'Gratis handboeke, werkboeke en ou vraestelle. Unika se eie eksamenomvang en klasnotas kom in die “Gedeel – Unika dokumente” vouer op Pa se rekenaar.',
     allBadges: 'Kentekens', loading: 'Laai die vakke…', switchUser: 'Ruil gebruiker', continueAs: 'Gaan voort', of: 'van', min: 'min', mixed: 'Gemengde vrae', chooseGrade: 'Graad',
     hint: 'Wenk', showMemo: 'Wys memo & merk myself', memo: 'Memo', selfMark: 'Hoeveel punte verdien jou antwoord?', papers: 'Oefenvraestelle', paper: 'Oefenvraestel', examFormatT: 'Hoe lyk Unika se vraestel', startPaper: 'Begin vraestel', timeLeft: 'Tyd oor', marks: 'punte', section: 'Afdeling', paperDone: 'Vraestel voltooi!', perSection: 'Punte per afdeling', paperSub: 'Dieselfde formaat, tyd en punte as die skool se vraestel – nuwe vrae. Skryf lang antwoorde op papier of tik hulle, wys dan die memo en merk jouself eerlik.', bestMark: 'Beste', skipQ: 'Slaan oor', focus: 'Fokusvakke', focusSub: 'Volgens jou skoolrapport – hier tel elke punt die meeste.', target: 'teiken', school: 'Skool', schoolMarks: 'Skoolpunte vs platform', schoolSub: 'Rapportpunte per kwartaal, die slaagteiken en die platform se bemeestering.', termShort: 'Kw', passRules: 'Slaagvereistes: 50 % in Huistaal, 40 % in Engels EAT, 40 % in Wiskunde, 40 % in nog 3 vakke en 30 % in nog 2 vakke.', avgShort: 'Gemiddeld', platform: 'Platform', gap: 'tekort',
@@ -58,7 +59,8 @@ const UI = {
     nextExam: 'Next exam', weekXpShort: 'XP this week', chestSub: 'Do 3 tests today to unlock the treasure chest.',
     coachHelloText: "Hi {name}! 👋 I'm your **Leerhoek coach**. Type your question about your schoolwork – or type out the question from your book or paper. I'll help you work it out **yourself**, with explanations and hints, not ready-made answers. 💪", coachCtaText: 'Stuck on something? Type your question – the coach helps you understand it yourself.', coachPhotosL: 'Allow photos (the boys can send a photo of their work)',
     coachT: 'Leerhoek coach', coachCta: 'Take a photo of a question or your work – the coach helps you understand it yourself.', coachAsk: "Don't understand something? Ask the coach", coachDisclose: 'You are chatting with an AI (Claude), not a person. The coach helps you think and learn YOURSELF – it does not do your work for you. Mom and Dad can see the chats.', coachSubj: 'Which subject?', coachNew: 'New chat', coachPh: 'Type your question, or what you have done so far…', coachPhoto: 'Photo', coachSend: 'Send', coachLeft: 'questions left today', coachHello: "Hi {name}! 👋 I'm your **Leerhoek coach**. Send me a **photo** of a question, a page from your book or your own work, or type your question. I'll help you work it out yourself – with explanations and hints, not ready-made answers. 💪", coachImgErr: "Couldn't open the photo – try again.", coachLimit: "You've used today's {n} questions. More tomorrow! Try a test or a game in the meantime.", coachOff: "The coach isn't switched on yet – Dad still needs to add the key.", coachErr: "Couldn't reach the coach. Check the internet and try again.", coachOnlyWeb: "The coach only works on the family's Leerhoek website (with your link).", coachParentT: 'Coach conversations', coachParentSub: 'Everything the boys ask the AI coach, and what it answers (last 7 days). The coach explains and gives hints, but does not write their work for them.', coachLimitL: 'Questions per child per day:', coachNone: 'No conversations yet.',
-    ntfyT: 'Notifications on your phone', ntfySub: 'Leerhoek sends notifications through the free ntfy app. Each parent sets it up once on their own phone:', ntfy1: 'Install the free <b>ntfy</b> app (buttons below).', ntfy2: 'Open it, tap <b>+</b> and type this topic (or copy it): leave “Use another server” <b>off</b> and tap <b>Subscribe</b>.', ntfy3: 'Allow notifications when the phone asks. Then tap <b>Send test</b> here – you should get a notification within seconds.', ntfyCopy: 'Copy', ntfyOpen: 'Open in ntfy (Android)', ntfyTest: 'Send test', ntfyTestMsg: 'If you see this, Leerhoek notifications work! 🎉', ntfySent: 'Test sent – check your phone.', ntfyWhen: 'You get a notification when a boy starts studying, when he stops (with a summary), after every test and paper, and the first time each day he asks the coach.',
+    ntfyT: 'Notifications on your phone', ntfySub: 'Leerhoek sends notifications through the free ntfy app. Each parent sets it up once on their own phone:', ntfy1: 'Install the free <b>ntfy</b> app (buttons below).', ntfy2: 'Open it, tap <b>+</b> and type this topic (or copy it): leave “Use another server” <b>off</b> and tap <b>Subscribe</b>.', ntfy3: 'Allow notifications when the phone asks. Then tap <b>Send test</b> here – you should get a notification within seconds.', ntfyCopy: 'Copy', ntfyOpen: 'Open in ntfy (Android)', ntfyTest: 'Send test', ntfyTestMsg: 'If you see this, Leerhoek notifications work! 🎉', ntfySent: 'Test sent – check your phone.', ntfyWhen: 'You get a notification every time a boy opens Leerhoek and every time he closes it or switches away (with a summary: minutes, tests and XP), after every test and paper, and the first time each day he asks the coach.',
+    pushT: 'Notifications', pushSub: 'Leerhoek sends notifications to your phone itself – no extra app needed. Do this once on each parent’s phone (Dad and Mom): open Leerhoek from its icon, go to Parent and tap the button below.', pushOn: 'Turn on notifications on this phone', pushIsOn: 'This device gets Leerhoek notifications.', pushOff: 'Turn off on this device', pushTest: 'Send test', pushSent: 'Test sent to {n} device(s) – check your phone.', pushDevs: 'Devices that get notifications', pushNone: 'No devices yet.', pushName: 'Name for this device', pushWelcome: 'All set! Leerhoek notifications are on for {d}. 🎉', pushIosHome: 'On an iPhone, notifications only work inside the Leerhoek app: open Leerhoek from its icon on your home screen (not in Safari or Chrome), go to Parent and tap here.', pushIosOld: 'Your iPhone needs iOS 16.4 or newer for notifications: Settings → General → Software Update.', pushNoSupport: 'This browser can’t receive notifications. Use Chrome (Android or computer) or the Leerhoek app on an iPhone.', pushDenied: 'Notifications for Leerhoek are switched off in the phone’s settings. iPhone: Settings → Notifications → Leerhoek → Allow Notifications. Android: long-press the Leerhoek icon → ⓘ App info → Notifications → on. Then come back and tap again.', pushFail: 'Could not turn on', pushNotReady: 'The notification service (lh-notify) is not set up on Supabase yet.', pushParentNote: 'This device does not send “opened/closed” notifications itself (it is a parent device).', pushNtfyMore: 'Other option: the ntfy app', pushNtfyAlso: 'Also send to the ntfy app',
     passL: 'Pass', goalL: 'Goal', myMarks: 'My marks', myMarksSub: 'Your latest school mark per subject, the pass mark and your goal.', legBad: 'below pass', legHi: 'passed, not yet goal', legGood: 'goal reached', showAllSubj: 'Show all subjects', goalsT: 'Goal marks (desired mark)', goalsHelp: 'Choose the mark each boy should aim for per subject – for example 60%. Leave a subject blank to use the default. The boys see their mark, the pass mark and the goal on their home screen and on every subject.', goalDefault: 'Default goal %', saveGoals: 'Save goals',
     marksT: 'Enter school marks (from the report)', marksHelp: 'Type in the marks from the report – Term 3 now, Term 4 at the end of the year. The focus subjects and the daily plan adjust automatically. Leave blank what is not on the report.', marksSave: 'Save marks',
     navExams: 'Exams', navPlay: 'Play', navDict: 'Words', termNow: 'Term', finalTerm: 'final term – exams are coming!', now: 'now', exam1: 'exam', focusShort: 'focus subject',
@@ -96,7 +98,7 @@ const UI = {
     dashboard: 'Parent panel', lastActive: 'Last active', never: 'never', thisWeek: 'this week', timeOn: 'Time on platform', mastery: 'Mastery per subject', weak: 'Topics that need attention', noWeak: 'Nothing urgent – everything above 70 %.', activity: 'Activity', noActivity: 'No activity yet.',
     copyReport: 'Copy report', settings: 'Settings', examDate: 'Exam date (first paper)', examTitle: 'Caption', save: 'Save', saved: 'Saved', changePin: 'Change PIN', importCode: 'Import progress code', importHint: 'Paste the code a boy copied from another device.', importBtn: 'Import', imported: 'Progress imported',
     storage: 'Storage', storageDb: 'Shared store (syncs on all devices)', storageLocal: 'This device only', today: 'Today', yesterday: 'Yesterday',
-    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Signed in', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest', coach: 'Asked the coach' },
+    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Opened Leerhoek', logout: 'Closed Leerhoek', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest', coach: 'Asked the coach' },
     resourcesIntro: "Free textbooks, workbooks and past papers. Unika's own exam scope and class notes go in the “Gedeel – Unika dokumente” folder on Dad's computer.",
     allBadges: 'Badges', loading: 'Loading subjects…', switchUser: 'Switch user', continueAs: 'Continue', of: 'of', min: 'min', mixed: 'Mixed questions', chooseGrade: 'Grade',
     hint: 'Hint', showMemo: 'Show memo & mark myself', memo: 'Memo', selfMark: 'How many marks does your answer earn?', papers: 'Practice papers', paper: 'Practice paper', examFormatT: "What Unika's paper looks like", startPaper: 'Start paper', timeLeft: 'Time left', marks: 'marks', section: 'Section', paperDone: 'Paper complete!', perSection: 'Marks per section', paperSub: 'Same format, time and marks as the school paper – new questions. Write long answers on paper or type them, then show the memo and mark yourself honestly.', bestMark: 'Best', skipQ: 'Skip', focus: 'Focus subjects', focusSub: 'Based on your school report – every mark counts most here.', target: 'target', school: 'School', schoolMarks: 'School marks vs platform', schoolSub: 'Report marks per term, the pass target and the platform mastery.', termShort: 'T', passRules: 'Pass requirements: 50 % in Home Language, 40 % in English FAL, 40 % in Mathematics, 40 % in 3 more subjects and 30 % in 2 more.', avgShort: 'Average', platform: 'Platform', gap: 'short',
@@ -269,9 +271,9 @@ function readFamilyKey() {
   try { return localStorage.getItem('lh.fk'); } catch (e) { return null; }
 }
 function notify(kid, ev) {
-  // phone push via ntfy.sh (own-website mode only); simple request (no preflight)
-  const topic = S.settings && S.settings.ntfyTopic; if (S.storeKind !== 'supa' || !topic || !ev) return;
-  const A = UI.af; let title, message, tags;
+  // own-website mode only: built-in Web Push (Supabase function lh-notify) and/or the ntfy app; simple requests (no preflight)
+  const st = S.settings || {}; if (S.storeKind !== 'supa' || !ev || !kid) return;
+  const A = UI.af, hm = new Date().toTimeString().slice(0, 5); let title, message, tags, tag = '', log = null;
   if (['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) {
     title = `${kid.name}: ${A.ev[ev.type]} ${ev.score}%`; message = `${ev.label || ''}\n${ev.correct}/${ev.total} · +${ev.xp} XP · ${Math.max(1, Math.round((ev.secs || 0) / 60))} min`;
     tags = [ev.score >= 80 ? 'tada' : ev.score >= 50 ? 'books' : 'warning'];
@@ -279,34 +281,50 @@ function notify(kid, ev) {
     const key = 'lh.ntfy.coach.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
     title = `${kid.name} vra die afrigter`; message = (ev.label || '') + '\nKyk in die ouerpaneel → Afrigter-gesprekke'; tags = ['robot'];
   } else if (ev.type === 'login') {
-    title = `${kid.name} het begin leer`; message = `Leerhoek · ${new Date().toTimeString().slice(0, 5)}`; tags = ['wave'];
+    title = `🟢 ${kid.name} het Leerhoek oopgemaak`; message = `Begin leer · ${hm}`; tags = ['green_circle']; tag = 'sess-' + kid.id;
   } else if (ev.type === 'logout') {
-    title = `${kid.name} het klaar geleer`; message = `${ev.mins} min · ${ev.tests} ${ev.tests === 1 ? 'toets' : 'toetse'} · +${ev.xp} XP · ${new Date().toTimeString().slice(0, 5)}`; tags = ['white_check_mark'];
+    title = `⚪ ${kid.name} het Leerhoek toegemaak`; message = `${ev.mins < 1 ? '<1' : ev.mins} min · ${ev.tests} ${ev.tests === 1 ? 'toets' : 'toetse'} · +${ev.xp} XP · ${hm}`; tags = ['white_circle']; tag = 'sess-' + kid.id;
+    log = { type: 'logout', mins: ev.mins, tests: ev.tests, xp: ev.xp };
   } else return;
-  pushNtfy({ topic, title, message, tags }, ev.type === 'logout');
+  const beacon = ev.type === 'logout';
+  if (st.push) pushSend({ title, body: message, tag, url: './#ouer', kid: kid.id, log }, beacon);
+  else if (log) S.store.appendLog(kid.id, Object.assign({ t: Date.now() }, log)).catch(() => {});
+  if (useNtfy()) pushNtfy({ topic: st.ntfyTopic, title: title.replace(/^[🟢⚪] /u, ''), message, tags }, beacon);
 }
+function useNtfy() { const st = S.settings || {}; return !!st.ntfyTopic && (st.ntfyOn === true || (st.ntfyOn === undefined && !st.push)); }
 function pushNtfy(obj, beacon) {
   const body = JSON.stringify(obj);
   try { if (beacon && navigator.sendBeacon && navigator.sendBeacon('https://ntfy.sh/', body)) return; } catch (e) {}
   try { fetch('https://ntfy.sh/', { method: 'POST', body, keepalive: true }).catch(() => {}); } catch (e) {}
 }
-/* study sessions: "begin leer" when a boy opens his screens (again after 2 h), "klaar geleer" with a summary when he puts the app away */
+/* built-in notifications: the Supabase Edge Function "lh-notify" keeps the parents' devices and sends Web Push to them */
+function pushUrl() { const c = window.LH_CONFIG; return c && c.supabaseUrl ? c.supabaseUrl.replace(/\/$/, '') + '/functions/v1/lh-notify' : null; }
+function pushBody(action, extra) { return JSON.stringify(Object.assign({ action, fk: S.store.fk, apikey: S.store.key }, extra || {})); }
+function pushSend(msg, beacon) {
+  const url = pushUrl(); if (!url || !S.store || !S.store.fk) return;
+  const body = pushBody('send', msg);
+  try { if (beacon && navigator.sendBeacon && navigator.sendBeacon(url, body)) return; } catch (e) {}
+  try { fetch(url, { method: 'POST', body, keepalive: true }).catch(() => {}); } catch (e) {}
+}
+async function pushCall(action, extra) {
+  const r = await fetch(pushUrl(), { method: 'POST', body: pushBody(action, extra) });
+  let j = null; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) { const err = new Error((j && j.error) || ('HTTP ' + r.status)); err.status = r.status; err.data = j; throw err; }
+  return j || {};
+}
+/* study sessions: a push each time a boy opens Leerhoek, and one with a summary each time he closes it or switches away */
+const isParentDevice = () => { try { return localStorage.getItem('lh.parentDevice') === '1'; } catch (e) { return false; } };
 function ensureSession() {
-  if (!S.kid || S.storeKind !== 'supa' || ['parent', 'gate'].includes(S.route.s)) return;
+  if (!S.kid || S.storeKind !== 'supa' || ['parent', 'gate'].includes(S.route.s) || document.hidden || isParentDevice()) return;
   if (S.sess && S.sess.kid === S.kid.id) return;
-  S.sess = { kid: S.kid.id, start: Date.now(), tests: 0, xp: 0 };
-  const key = 'lh.login.' + S.kid.id; let last = 0; try { last = +localStorage.getItem(key) || 0; } catch (e) {}
-  if (Date.now() - last > 2 * 3600000) {
-    try { localStorage.setItem(key, String(Date.now())); } catch (e) {}
-    const ev = { type: 'login', t: Date.now() }; S.store.appendLog(S.kid.id, ev).catch(() => {}); notify(S.kid, ev);
-  }
+  if (S.sess) endSession(); // switched to the other boy on the same device
+  S.sess = { kid: S.kid.id, name: S.kid.name, start: Date.now(), tests: 0, xp: 0 };
+  const ev = { type: 'login', t: Date.now() }; S.store.appendLog(S.kid.id, ev).catch(() => {}); notify(S.kid, ev);
 }
 function endSession() {
-  const se = S.sess; S.sess = null; if (!se || !S.kid || se.kid !== S.kid.id) return;
-  const mins = Math.round((Date.now() - se.start) / 60000);
-  if (mins < 3 && !se.tests) return;
-  try { localStorage.setItem('lh.login.' + se.kid, String(Date.now())); } catch (e) {} // coming back soon is the same study session
-  notify(S.kid, { type: 'logout', mins: Math.max(1, mins), tests: se.tests, xp: se.xp });
+  const se = S.sess; S.sess = null; if (!se) return;
+  const mins = Math.floor((Date.now() - se.start) / 60000);
+  notify({ id: se.kid, name: se.name }, { type: 'logout', mins, tests: se.tests, xp: se.xp });
 }
 async function initStore() {
   S.store = new LocalStore(); S.storeKind = 'local';
@@ -901,6 +919,7 @@ function fmtDay(date) { const td = today(); if (date === td) return t('today'); 
 function evText(ev) {
   const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? S.content.subjects[ev.subject] : null;
   const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
+  if (ev.type === 'logout') return what + ` — <b class="num">${ev.mins < 1 ? '&lt;1' : ev.mins} min</b>` + (ev.tests ? ` · ${ev.tests} ${esc(t('quizzes').toLowerCase())}` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
   return what + (ev.score !== undefined ? ` — <b class="num">${ev.score}%</b> (${ev.correct}/${ev.total})` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
 }
 function reportText(kid, subjects) {
@@ -1602,19 +1621,87 @@ function renderCoach(main) {
 function coachCta(extraCls) { return S.storeKind === 'supa' ? `<button class="card coachcta ${extraCls || ''}" data-go="afrigter"><span class="ti">🤖</span><span><b>${esc(t('coachT'))}</b><br><span class="small muted">${esc(t(coachPhotos() ? 'coachCta' : 'coachCtaText'))}</span></span></button>` : ''; }
 /* parent: coach conversations + daily limit */
 function notifyCard() {
+  if (S.storeKind !== 'supa' || !pushUrl()) return '';
   const topic = (S.settings && S.settings.ntfyTopic) || '';
-  if (S.storeKind !== 'supa' || !topic) return '';
-  return `<div class="card" style="margin-top:14px" id="ntfyCard"><h3>🔔 ${esc(t('ntfyT'))}</h3><p class="small muted" style="margin:6px 0 10px;max-width:75ch">${esc(t('ntfySub'))}</p>
+  const ntfy = topic ? `<details class="small" style="margin-top:12px"><summary class="muted">${esc(t('pushNtfyMore'))}</summary><div style="padding-top:8px">
+  <p class="small muted" style="margin:0 0 8px;max-width:75ch">${esc(t('ntfySub'))}</p>
   <ol class="small" style="margin:0 0 10px;padding-left:20px;line-height:1.6"><li>${t('ntfy1')}</li><li>${t('ntfy2')}</li><li>${t('ntfy3')}</li></ol>
   <div class="row" style="gap:8px;margin-bottom:10px"><code class="topic">${esc(topic)}</code><button class="btn sm" id="ntfyCopy">📋 ${esc(t('ntfyCopy'))}</button></div>
-  <div class="row" style="gap:8px"><a class="btn sm" href="https://apps.apple.com/us/app/ntfy/id1625396347" target="_blank" rel="noopener"> iPhone</a><a class="btn sm" href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">▶ Android</a><a class="btn sm" href="ntfy://ntfy.sh/${esc(topic)}">${esc(t('ntfyOpen'))}</a><button class="btn sm primary" id="ntfyTest">🔔 ${esc(t('ntfyTest'))}</button></div>
-  <p class="small muted" style="margin-top:10px">${esc(t('ntfyWhen'))}</p></div>`;
+  <div class="row" style="gap:8px"><a class="btn sm" href="https://apps.apple.com/us/app/ntfy/id1625396347" target="_blank" rel="noopener"> iPhone</a><a class="btn sm" href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">▶ Android</a><a class="btn sm" href="ntfy://ntfy.sh/${esc(topic)}">${esc(t('ntfyOpen'))}</a><button class="btn sm" id="ntfyTest">🔔 ${esc(t('ntfyTest'))}</button></div>
+  <label class="ck" style="padding:10px 0 0"><input type="checkbox" id="ntfyOn" ${useNtfy() ? 'checked' : ''}> <span>${esc(t('pushNtfyAlso'))}</span></label></div></details>` : '';
+  return `<div class="card" style="margin-top:14px" id="ntfyCard"><h3>🔔 ${esc(t('pushT'))}</h3><p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('pushSub'))}</p>
+  <div id="pushHere" class="pushhere">…</div>
+  <div class="small" style="margin-top:12px"><b>${esc(t('pushDevs'))}:</b> <span id="pushDevs" class="muted">…</span></div>
+  <p class="small muted" style="margin-top:10px">${esc(t('ntfyWhen'))}</p>${ntfy}</div>`;
 }
-function wireNotifyCard(root) {
-  const c = $('#ntfyCopy', root); if (!c) return;
-  const topic = S.settings.ntfyTopic;
-  c.onclick = async () => { if (await copyText(topic)) toast(t('copied')); };
-  $('#ntfyTest', root).onclick = () => { pushNtfy({ topic, title: 'Leerhoek ✅', message: t('ntfyTestMsg'), tags: ['bell'] }); toast(t('ntfySent')); };
+const u8key = (s) => { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const b = atob(s), o = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) o[i] = b.charCodeAt(i); return o; };
+const keyB64u = (buf) => { if (!buf) return ''; const b = new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+function pushSupport() {
+  const k = devKind(); if (k.startsWith('ios') && !isStandalone()) return 'ios-home'; // iPhone: only the home-screen app may get notifications
+  if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && window.isSecureContext) return Notification.permission === 'denied' ? 'denied' : 'ok';
+  return k.startsWith('ios') ? 'ios-old' : 'none';
+}
+async function swReg() {
+  let reg = await navigator.serviceWorker.getRegistration();
+  if (!reg) reg = await navigator.serviceWorker.register('sw.js');
+  return await Promise.race([navigator.serviceWorker.ready, new Promise((_, rej) => setTimeout(() => rej(new Error('service worker')), 15000))]);
+}
+function devLabel() { const k = devKind(); return k.startsWith('ios') ? 'iPhone' : k === 'desktop' ? (L === 'en' ? 'Computer' : 'Rekenaar') : (k === 'samsung' || /Samsung|SM-/.test(navigator.userAgent) ? 'Samsung' : 'Android'); }
+async function wireNotifyCard(root) {
+  const here = $('#pushHere', root); if (!here) return;
+  const devsEl = $('#pushDevs', root);
+  const c = $('#ntfyCopy', root);
+  if (c) {
+    const topic = S.settings.ntfyTopic;
+    c.onclick = async () => { if (await copyText(topic)) toast(t('copied')); };
+    $('#ntfyTest', root).onclick = () => { pushNtfy({ topic, title: 'Leerhoek ✅', message: t('ntfyTestMsg'), tags: ['bell'] }); toast(t('ntfySent')); };
+    $('#ntfyOn', root).onchange = async (e) => { S.settings.ntfyOn = e.target.checked; await S.store.saveSettings(S.settings); toast(t('saved')); };
+  }
+  let info = null;
+  const showDevs = (list) => { devsEl.textContent = list && list.length ? list.join(' · ') : t('pushNone'); };
+  const syncFlag = async (list) => { const on = !!(list && list.length); if (!!S.settings.push !== on) { S.settings.push = on; await S.store.saveSettings(S.settings).catch(() => {}); } };
+  try { info = await pushCall('list'); S.vapid = info.publicKey; showDevs(info.devices); syncFlag(info.devices); }
+  catch (e) { devsEl.textContent = e.status === 404 ? t('pushNotReady') : '–'; }
+  const msg = (k) => { here.innerHTML = `<div class="banner" style="margin:0">${esc(t(k))}</div>`; };
+  const state = pushSupport();
+  if (state === 'ios-home') return msg('pushIosHome');
+  if (state === 'ios-old') return msg('pushIosOld');
+  if (state === 'none') return msg('pushNoSupport');
+  if (state === 'denied') return msg('pushDenied');
+  if (!info) { here.innerHTML = ''; return; }
+  let sub = null; try { const reg = await navigator.serviceWorker.getRegistration(); sub = reg && await reg.pushManager.getSubscription(); } catch (e) {}
+  if (sub && keyB64u(sub.options && sub.options.applicationServerKey) !== info.publicKey) sub = null;
+  if (sub && Notification.permission === 'granted') {
+    try { localStorage.setItem('lh.parentDevice', '1'); } catch (e) {}
+    here.innerHTML = `<div class="row" style="gap:8px;align-items:center"><span class="chip good">✅ ${esc(t('pushIsOn'))}</span><button class="btn sm primary" id="pushTest">🔔 ${esc(t('pushTest'))}</button><button class="btn sm" id="pushOff">${esc(t('pushOff'))}</button></div><p class="small muted" style="margin:8px 0 0">${esc(t('pushParentNote'))}</p>`;
+    $('#pushTest', here).onclick = async (e) => { e.target.disabled = true; try { const r = await pushCall('send', { title: 'Leerhoek ✅', body: t('ntfyTestMsg'), tag: 'test' }); toast(t('pushSent').replace('{n}', r.sent)); } catch (err) { toast(t('pushFail') + ': ' + err.message); } e.target.disabled = false; };
+    $('#pushOff', here).onclick = async (e) => {
+      e.target.disabled = true;
+      try { const r = await pushCall('unsubscribe', { endpoint: sub.endpoint }); await sub.unsubscribe().catch(() => {}); try { localStorage.removeItem('lh.parentDevice'); } catch (x) {} await syncFlag(r.devices); toast(t('saved')); }
+      catch (err) { toast(t('pushFail') + ': ' + err.message); }
+      wireNotifyCard(root);
+    };
+    return;
+  }
+  here.innerHTML = `<div class="row" style="gap:8px;align-items:flex-end"><label class="small" style="display:grid;gap:4px"><span>${esc(t('pushName'))}</span><input id="pushLabel" maxlength="30" style="width:200px" value="${esc(devLabel())}"></label><button class="btn primary" id="pushOn">🔔 ${esc(t('pushOn'))}</button></div>`;
+  $('#pushOn', here).onclick = async (e) => {
+    const btn = e.currentTarget; btn.disabled = true;
+    try {
+      const perm = await Notification.requestPermission(); // first, while the tap still counts (iPhone)
+      if (perm !== 'granted') { if (perm === 'denied') return msg('pushDenied'); btn.disabled = false; return; }
+      const reg = await swReg();
+      let s = await reg.pushManager.getSubscription();
+      if (s && keyB64u(s.options && s.options.applicationServerKey) !== info.publicKey) { await s.unsubscribe().catch(() => {}); s = null; }
+      if (!s) s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8key(info.publicKey) });
+      const label = ($('#pushLabel', here).value || devLabel()).trim().slice(0, 30);
+      const r = await pushCall('subscribe', { sub: s.toJSON(), label, key: info.publicKey });
+      try { localStorage.setItem('lh.parentDevice', '1'); } catch (x) {}
+      await syncFlag(r.devices); showDevs(r.devices);
+      pushCall('send', { title: 'Leerhoek ✅', body: t('pushWelcome').replace('{d}', label), tag: 'test' }).catch(() => {});
+      toast(t('saved'));
+    } catch (err) { toast(t('pushFail') + ': ' + (err.message || err)); }
+    wireNotifyCard(root);
+  };
 }
 function coachParentCard() {
   if (S.storeKind !== 'supa') return '';
@@ -1795,6 +1882,7 @@ async function boot() {
   $('#whoBtn').onclick = () => go('profiel');
   window.addEventListener('hashchange', render);
   window.addEventListener('pagehide', () => endSession());
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.go) go(e.data.go); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { flushTime(); if (S.kid) S.store.saveKid(S.kid).catch(() => {}); endSession(); } else { if (S.content && S.route) ensureSession(); S.tStart = Date.now(); if (S.store) S.store.loadSettings().then(st => { if (st) S.settings = st; }).catch(() => {}); } });
   render(); // splash
   const [content] = await Promise.all([loadContent(), initStore()]);
