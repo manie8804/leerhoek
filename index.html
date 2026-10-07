@@ -8,9 +8,9 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<script>window.LH_VERSION="368086c9b0";</script>
-<script src="config.js?v=368086c9b0"></script>
-<script src="content.js?v=368086c9b0"></script>
+<script>window.LH_VERSION="7cd434c220";</script>
+<script src="config.js?v=7cd434c220"></script>
+<script src="content.js?v=7cd434c220"></script>
 </head><body>
 <title>Leerhoek</title>
 <meta name="description" content="Diaan en Stefan se Graad 7 studieplatform – opsommings, voorbeelde en toetse vir elke vak, in Afrikaans en Engels.">
@@ -479,6 +479,26 @@ textarea { font: inherit; width: 100%; border: 1.5px solid var(--line); border-r
 .clog { background: var(--surface-2); border-radius: 10px; padding: 8px 10px; font-size: .88rem; }
 .clog summary { cursor: pointer; }
 .cthumb { max-width: 220px; width: 100%; border-radius: 10px; margin-top: 8px; display: block; }
+.mrows { display: grid; gap: 8px; margin-top: 10px; }
+.mrow { display: grid; grid-template-columns: 92px minmax(0, 1fr) 48px; grid-template-rows: auto auto; column-gap: 10px; row-gap: 2px; align-items: center; text-align: left; background: var(--surface-2); border-radius: 12px; padding: 8px 10px; color: var(--ink); width: 100%; }
+.mrow .mn { font-weight: 800; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mrow .mv { font-weight: 800; text-align: right; font-size: 1rem; }
+.mrow .ms { grid-column: 2 / 4; }
+.mv.bad { color: var(--bad); } .mv.hi { color: #b7791f; } .mv.good { color: var(--good); }
+.mbar { position: relative; height: 12px; background: var(--surface); border-radius: 999px; overflow: visible; }
+.mbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--muted); }
+.mbar i.bad { background: var(--bad); } .mbar i.hi { background: var(--hi); } .mbar i.good { background: var(--good); }
+.mbar b, .mlegend b { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 2px; transform: translateX(-1px); }
+.mbar b.pm, .mlegend b.pm { background: var(--ink); }
+.mbar b.gm, .mlegend b.gm { background: var(--good); box-shadow: 0 0 0 1px var(--surface); }
+.mlegend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; }
+.mlegend span { display: inline-flex; align-items: center; gap: 5px; }
+.mlegend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.mlegend i.bad { background: var(--bad); } .mlegend i.hi { background: var(--hi); } .mlegend i.good { background: var(--good); }
+.mlegend b { position: static; display: inline-block; height: 14px; transform: none; }
+.mmore summary { cursor: pointer; margin-top: 10px; font-weight: 800; }
+table.marks tr.hi td { background: color-mix(in srgb, var(--hi) 18%, transparent); }
+table.marks tr.good td:first-child { box-shadow: inset 4px 0 0 var(--good); }
 .overlay { position: fixed; inset: 0; background: rgba(15,20,36,0.55); display: grid; place-items: center; z-index: 70; padding: 16px; }
 .modal { background: var(--surface); border-radius: var(--radius); padding: 26px; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow); animation: pop .4s cubic-bezier(.2,.8,.2,1) both; }
 .modal .big { font-size: 64px; animation: bounce 1s ease-in-out infinite; }
@@ -521,6 +541,6 @@ textarea { font: inherit; width: 100%; border: 1.5px solid var(--line); border-r
   <div class="toast" id="toast"></div>
   <canvas id="confetti" hidden></canvas>
 </div>
-<script src="app.js?v=368086c9b0"></script>
+<script src="app.js?v=7cd434c220"></script>
 
 </body></html>
