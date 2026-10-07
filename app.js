@@ -8,6 +8,7 @@
 const UI = {
   af: {
     nextExam: 'Volgende eksamen', weekXpShort: 'XP hierdie week', chestSub: 'Doen 3 toetse vandag om die skatkis oop te sluit.',
+    coachT: 'Leerhoek-afrigter', coachCta: 'Neem ’n foto van ’n vraag of jou werk – die afrigter help jou om dit self te verstaan.', coachAsk: 'Verstaan jy iets nie? Vra die afrigter', coachDisclose: 'Jy gesels met ’n KI (Claude), nie met ’n mens nie. Die afrigter help jou om SELF te dink en te leer – dit doen nie jou werk vir jou nie. Pa en Ma kan die gesprekke sien.', coachSubj: 'Watter vak?', coachNew: 'Nuwe gesprek', coachPh: 'Tik jou vraag, of wat jy al gedoen het…', coachPhoto: 'Foto', coachSend: 'Stuur', coachLeft: 'vrae oor vandag', coachHello: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Stuur vir my ’n **foto** van ’n vraag, ’n bladsy uit jou boek of jou eie werk, of tik jou vraag. Ek gaan jou help om dit self uit te werk – met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachImgErr: 'Kon nie die foto oopmaak nie – probeer weer.', coachLimit: 'Jy het vandag se {n} vrae gebruik. Môre is daar weer! Probeer intussen ’n toets of speletjie.', coachOff: 'Die afrigter is nog nie aangeskakel nie – Pa moet nog die sleutel byvoeg.', coachErr: 'Kon nie die afrigter bereik nie. Kyk of die internet werk en probeer weer.', coachOnlyWeb: 'Die afrigter werk net op die gesin se Leerhoek-webwerf (met jou skakel).', coachParentT: 'Afrigter-gesprekke', coachParentSub: 'Alles wat die seuns die KI-afrigter vra, en wat dit antwoord (laaste 7 dae). Die afrigter verduidelik en gee wenke, maar skryf nie hul werk vir hulle nie.', coachLimitL: 'Vrae per kind per dag:', coachNone: 'Nog geen gesprekke nie.',
     marksT: 'Skoolpunte invoer (van die rapport)', marksHelp: 'Tik die punte van die rapport in – Kwartaal 3 nou, Kwartaal 4 aan die einde van die jaar. Die fokusvakke en die dagplan pas outomaties aan. Laat leeg wat nie op die rapport is nie.', marksSave: 'Stoor punte',
     navExams: 'Eksamen', navPlay: 'Speel', navDict: 'Woorde', termNow: 'Kwartaal', finalTerm: 'laaste kwartaal – eindeksamens kom!', now: 'nou', exam1: 'eksamen', focusShort: 'fokusvak',
     planT: 'Vandag se studieplan', planSub: 'Gekies uit jou afbakening, jou eksamendatums en die vakke wat die meeste aandag nodig het.', planDone: 'Alles klaar vir vandag – sterk gedoen!',
@@ -44,7 +45,7 @@ const UI = {
     dashboard: 'Ouerpaneel', lastActive: 'Laas aktief', never: 'nog nooit', thisWeek: 'hierdie week', timeOn: 'Tyd op platform', mastery: 'Bemeestering per vak', weak: 'Onderwerpe wat aandag nodig het', noWeak: 'Niks dringend nie – alles bo 70 %.', activity: 'Aktiwiteit', noActivity: 'Nog geen aktiwiteit nie.',
     copyReport: 'Kopieer verslag', settings: 'Instellings', examDate: 'Eksamendatum (eerste vraestel)', examTitle: 'Byskrif', save: 'Stoor', saved: 'Gestoor', changePin: 'Verander PIN', importCode: 'Voer vorderingskode in', importHint: 'Plak die kode wat ’n seun van ’n ander toestel gekopieer het.', importBtn: 'Voer in', imported: 'Vordering ingevoer',
     storage: 'Stoorplek', storageDb: 'Gedeelde stoor (sinkroniseer op alle toestelle)', storageLocal: 'Slegs hierdie toestel', today: 'Vandag', yesterday: 'Gister',
-    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Aangemeld', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis' },
+    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Aangemeld', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis', coach: 'Afrigter gevra' },
     resourcesIntro: 'Gratis handboeke, werkboeke en ou vraestelle. Unika se eie eksamenomvang en klasnotas kom in die “Gedeel – Unika dokumente” vouer op Pa se rekenaar.',
     allBadges: 'Kentekens', loading: 'Laai die vakke…', switchUser: 'Ruil gebruiker', continueAs: 'Gaan voort', of: 'van', min: 'min', mixed: 'Gemengde vrae', chooseGrade: 'Graad',
     hint: 'Wenk', showMemo: 'Wys memo & merk myself', memo: 'Memo', selfMark: 'Hoeveel punte verdien jou antwoord?', papers: 'Oefenvraestelle', paper: 'Oefenvraestel', examFormatT: 'Hoe lyk Unika se vraestel', startPaper: 'Begin vraestel', timeLeft: 'Tyd oor', marks: 'punte', section: 'Afdeling', paperDone: 'Vraestel voltooi!', perSection: 'Punte per afdeling', paperSub: 'Dieselfde formaat, tyd en punte as die skool se vraestel – nuwe vrae. Skryf lang antwoorde op papier of tik hulle, wys dan die memo en merk jouself eerlik.', bestMark: 'Beste', skipQ: 'Slaan oor', focus: 'Fokusvakke', focusSub: 'Volgens jou skoolrapport – hier tel elke punt die meeste.', target: 'teiken', school: 'Skool', schoolMarks: 'Skoolpunte vs platform', schoolSub: 'Rapportpunte per kwartaal, die slaagteiken en die platform se bemeestering.', termShort: 'Kw', passRules: 'Slaagvereistes: 50 % in Huistaal, 40 % in Engels EAT, 40 % in Wiskunde, 40 % in nog 3 vakke en 30 % in nog 2 vakke.', avgShort: 'Gemiddeld', platform: 'Platform', gap: 'tekort',
@@ -52,6 +53,7 @@ const UI = {
   },
   en: {
     nextExam: 'Next exam', weekXpShort: 'XP this week', chestSub: 'Do 3 tests today to unlock the treasure chest.',
+    coachT: 'Leerhoek coach', coachCta: 'Take a photo of a question or your work – the coach helps you understand it yourself.', coachAsk: "Don't understand something? Ask the coach", coachDisclose: 'You are chatting with an AI (Claude), not a person. The coach helps you think and learn YOURSELF – it does not do your work for you. Mom and Dad can see the chats.', coachSubj: 'Which subject?', coachNew: 'New chat', coachPh: 'Type your question, or what you have done so far…', coachPhoto: 'Photo', coachSend: 'Send', coachLeft: 'questions left today', coachHello: "Hi {name}! 👋 I'm your **Leerhoek coach**. Send me a **photo** of a question, a page from your book or your own work, or type your question. I'll help you work it out yourself – with explanations and hints, not ready-made answers. 💪", coachImgErr: "Couldn't open the photo – try again.", coachLimit: "You've used today's {n} questions. More tomorrow! Try a test or a game in the meantime.", coachOff: "The coach isn't switched on yet – Dad still needs to add the key.", coachErr: "Couldn't reach the coach. Check the internet and try again.", coachOnlyWeb: "The coach only works on the family's Leerhoek website (with your link).", coachParentT: 'Coach conversations', coachParentSub: 'Everything the boys ask the AI coach, and what it answers (last 7 days). The coach explains and gives hints, but does not write their work for them.', coachLimitL: 'Questions per child per day:', coachNone: 'No conversations yet.',
     marksT: 'Enter school marks (from the report)', marksHelp: 'Type in the marks from the report – Term 3 now, Term 4 at the end of the year. The focus subjects and the daily plan adjust automatically. Leave blank what is not on the report.', marksSave: 'Save marks',
     navExams: 'Exams', navPlay: 'Play', navDict: 'Words', termNow: 'Term', finalTerm: 'final term – exams are coming!', now: 'now', exam1: 'exam', focusShort: 'focus subject',
     planT: "Today's study plan", planSub: 'Picked from your exam scope, your exam dates and the subjects that need the most attention.', planDone: 'All done for today – great work!',
@@ -88,7 +90,7 @@ const UI = {
     dashboard: 'Parent panel', lastActive: 'Last active', never: 'never', thisWeek: 'this week', timeOn: 'Time on platform', mastery: 'Mastery per subject', weak: 'Topics that need attention', noWeak: 'Nothing urgent – everything above 70 %.', activity: 'Activity', noActivity: 'No activity yet.',
     copyReport: 'Copy report', settings: 'Settings', examDate: 'Exam date (first paper)', examTitle: 'Caption', save: 'Save', saved: 'Saved', changePin: 'Change PIN', importCode: 'Import progress code', importHint: 'Paste the code a boy copied from another device.', importBtn: 'Import', imported: 'Progress imported',
     storage: 'Storage', storageDb: 'Shared store (syncs on all devices)', storageLocal: 'This device only', today: 'Today', yesterday: 'Yesterday',
-    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Signed in', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest' },
+    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Signed in', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest', coach: 'Asked the coach' },
     resourcesIntro: "Free textbooks, workbooks and past papers. Unika's own exam scope and class notes go in the “Gedeel – Unika dokumente” folder on Dad's computer.",
     allBadges: 'Badges', loading: 'Loading subjects…', switchUser: 'Switch user', continueAs: 'Continue', of: 'of', min: 'min', mixed: 'Mixed questions', chooseGrade: 'Grade',
     hint: 'Hint', showMemo: 'Show memo & mark myself', memo: 'Memo', selfMark: 'How many marks does your answer earn?', papers: 'Practice papers', paper: 'Practice paper', examFormatT: "What Unika's paper looks like", startPaper: 'Start paper', timeLeft: 'Time left', marks: 'marks', section: 'Section', paperDone: 'Paper complete!', perSection: 'Marks per section', paperSub: 'Same format, time and marks as the school paper – new questions. Write long answers on paper or type them, then show the memo and mark yourself honestly.', bestMark: 'Best', skipQ: 'Skip', focus: 'Focus subjects', focusSub: 'Based on your school report – every mark counts most here.', target: 'target', school: 'School', schoolMarks: 'School marks vs platform', schoolSub: 'Report marks per term, the pass target and the platform mastery.', termShort: 'T', passRules: 'Pass requirements: 50 % in Home Language, 40 % in English FAL, 40 % in Mathematics, 40 % in 3 more subjects and 30 % in 2 more.', avgShort: 'Average', platform: 'Platform', gap: 'short',
@@ -242,6 +244,7 @@ class SupaStore {
   async saveKid(kid) { kid.updated = Date.now(); return this.put('kids/' + kid.id, JSON.parse(JSON.stringify(kid))); }
   appendLog(kidId, ev) { return this._chain(() => this.rpc('lh_log', { k: 'kids/' + kidId + '/logs/' + today(), ev })); }
   async loadLogs(kidId, days = 14) { const rows = await this.rpc('lh_list', { prefix: 'kids/' + kidId + '/logs/', lim: days }); return (rows || []).map(r => r.value).reverse(); }
+  async loadPrefix(prefix, lim = 7) { return (await this.rpc('lh_list', { prefix, lim })) || []; }
   async loadSettings() { return Object.assign({ pinHash: null, examDate: null, examTitle: '' }, (await this.get('settings/main')) || {}); }
   saveSettings(st) { return this.put('settings/main', JSON.parse(JSON.stringify(st))); }
   _poll(fn) { const h = setInterval(() => { if (!document.hidden) fn().catch(() => {}); }, 20000); return () => clearInterval(h); }
@@ -266,6 +269,9 @@ function notify(kid, ev) {
   if (['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) {
     title = `${kid.name}: ${A.ev[ev.type]} ${ev.score}%`; message = `${ev.label || ''}\n${ev.correct}/${ev.total} · +${ev.xp} XP · ${Math.max(1, Math.round((ev.secs || 0) / 60))} min`;
     tags = [ev.score >= 80 ? 'tada' : ev.score >= 50 ? 'books' : 'warning'];
+  } else if (ev.type === 'coach') {
+    const key = 'lh.ntfy.coach.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
+    title = `${kid.name} vra die afrigter`; message = (ev.label || '') + '\nKyk in die ouerpaneel → Afrigter-gesprekke'; tags = ['robot'];
   } else if (ev.type === 'login') {
     const key = 'lh.ntfy.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
     title = `${kid.name} het begin leer`; message = `Leerhoek · ${new Date().toTimeString().slice(0, 5)}`; tags = ['wave'];
@@ -424,6 +430,7 @@ function parseRoute() {
   if (h === 'speel') return { s: 'games' };
   if (h === 'uitdaging') return { s: 'week' };
   if (h === 'woordeboek') return { s: 'dict' };
+  if (h === 'afrigter') return { s: 'coach' };
   let m;
   if ((m = h.match(/^afbakening-(.+)$/))) return { s: 'scope', id: m[1] };
   if ((m = h.match(/^herdoen(?:-(.+))?$/))) return { s: 'redo', id: m[1] || 'all' };
@@ -486,6 +493,7 @@ async function render() {
     case 'games': return renderGames(main);
     case 'game': return renderGame(main, r.id);
     case 'dict': return renderDict(main);
+    case 'coach': return renderCoach(main);
     case 'paper': return renderPaper(main, r.id);
     case 'badges': return renderBadges(main);
     default: return renderHome(main);
@@ -555,7 +563,7 @@ function renderHome(main) {
     <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
     <button class="card tile" id="wotdT" style="--subject:${wd ? wd.s.color : 'var(--brand)'}"><span class="ti">📖</span><b>${esc(t('wotd'))}</b>${wd ? `<span class="wotd">${esc(dWord(wd))}</span><span class="small muted">${esc(dOther(wd))}</span>` : ''}</button>
     <button class="card tile" data-go="foute"><span class="ti">❌</span><b>${esc(t('mistakesT'))}</b><span class="big2 num">${mc}</span><span class="small muted">${esc(mc ? t('tapToRedo') : t('noMistakesShort'))}</span></button>
-  </div>
+  </div>${coachCta()}
   ${focus.length ? `<div class="card" style="margin-top:18px"><div class="row" style="justify-content:space-between"><h2>🎓 ${esc(t('focus'))}</h2><span class="small muted">${esc(t('focusSub'))}</span></div>
     <div class="row" style="margin-top:10px">${focus.map(f => `<button class="chip ${f.margin < 0 ? 'bad' : f.margin < 10 ? 'hi' : 'good'}" data-subj="${f.s.id}" style="font-size:0.85rem;padding:6px 12px">${f.s.icon} ${esc(tx(f.s.short))} <span class="num">${f.mark}%</span> → ${esc(t('target'))} <span class="num">${f.target}%</span></button>`).join('')}</div></div>` : ''}
   <div class="card mission" style="margin-top:18px"><div class="row" style="justify-content:space-between"><h2>🎯 ${esc(t('planT'))}</h2><span class="chip num">${doneN}/${plan.length}</span></div><p class="small muted">${esc(t('planSub'))}</p>
@@ -619,10 +627,11 @@ function renderTopic(main, tid) {
     const tabs = [['summary', '📖', t('summary'), p.read], ['terms', '🃏', t('keyTerms'), p.flash], ['examples', '🧮', t('examples'), p.ex], ['quiz', '✏️', t('quiz'), p.attempts]];
     main.innerHTML = `<button class="back" data-go="vak-${subj.id}">← ${esc(tx(subj.name))}</button>
     <div class="row" style="gap:8px"><span class="chip subject">${subj.icon} ${esc(tx(subj.short))} · ${esc(t('term'))} ${term}</span>${statusChip(topicStatus(kid, tid))}</div>
-    <h1 style="margin-top:8px">${esc(tx(tp.title))}</h1><p class="muted">${esc(tx(tp.blurb))}</p>
+    <h1 style="margin-top:8px">${esc(tx(tp.title))}</h1><p class="muted">${esc(tx(tp.blurb))}</p>${S.storeKind === 'supa' ? `<button class="linkbtn small" id="askCoach" style="margin-top:6px">🤖 ${esc(t('coachAsk'))}</button>` : ''}
     <div class="ttabs">${tabs.map(([k, ic, lb, done]) => `<button class="${tab === k ? 'on' : ''}" data-tab="${k}"><span>${ic}</span><span class="lb">${esc(lb)}</span>${done ? '<span class="done">✓</span>' : ''}</button>`).join('')}</div>
     <div id="tabbody"></div>`;
     main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+    const ac = $('#askCoach'); if (ac) ac.onclick = () => { S.coachSubj = subj.id; go('afrigter'); };
     main.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; S._ttab = S._ttab || {}; S._ttab[tid] = tab; draw(); });
     if (innerWidth < 480) main.querySelectorAll('.ttabs .lb').forEach(e => e.hidden = true);
     const body = $('#tabbody');
@@ -852,7 +861,7 @@ function fmtTime(ts) { const d = new Date(ts); return String(d.getHours()).padSt
 function fmtDay(date) { const td = today(); if (date === td) return t('today'); const y = new Date(); y.setDate(y.getDate() - 1); const ys = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0'); if (date === ys) return t('yesterday'); return date; }
 function evText(ev) {
   const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? S.content.subjects[ev.subject] : null;
-  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
+  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
   return what + (ev.score !== undefined ? ` — <b class="num">${ev.score}%</b> (${ev.correct}/${ev.total})` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
 }
 function reportText(kid, subjects) {
@@ -878,8 +887,8 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${scopeEditor(subjects)}${marksEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids);
+  </div>${coachParentCard()}${scopeEditor(subjects)}${marksEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids); wireCoachParent(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
@@ -1479,6 +1488,97 @@ function renderGame(main, slug) {
   return go('speel');
 }
 
+/* ---------- Leerhoek-afrigter (AI study coach, own website only) ---------- */
+function shrinkImage(file, max, q) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => { const sc = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(img.width * sc)); c.height = Math.max(1, Math.round(img.height * sc)); const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q)); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('image')); };
+    img.src = url;
+  });
+}
+function coachState() { if (!S.coach || S.coach.kid !== S.kidId) S.coach = { kid: S.kidId, msgs: [], pending: null, busy: false, left: null }; return S.coach; }
+function renderCoach(main) {
+  const C = coachState(), sid = S.coachSubj || 'all';
+  setSubjectColor(sid !== 'all' && S.content.subjects[sid] ? S.content.subjects[sid].color : null);
+  if (S.storeKind !== 'supa') { main.innerHTML = `<h1>🤖 ${esc(t('coachT'))}</h1><div class="card muted" style="margin-top:12px">${esc(t('coachOnlyWeb'))}</div>`; return; }
+  main.innerHTML = `<div class="row" style="justify-content:space-between"><h1>🤖 ${esc(t('coachT'))}</h1><button class="btn sm ghost" id="cNew">🆕 ${esc(t('coachNew'))}</button></div>
+  <div class="banner" style="margin:8px 0 10px">🤖 ${esc(t('coachDisclose'))}</div>
+  <div class="row" style="gap:8px;flex-wrap:nowrap"><span class="small muted" style="flex:none">${esc(t('coachSubj'))}</span>${subjChips(sid, 'cs').replace('class="row chipsel"', 'class="row chipsel scrollx"')}</div>
+  <div class="chat" id="chat"></div>
+  <div class="composer">
+    <div id="cPrev"></div>
+    <div class="crow"><label class="cbtn" for="cFile" title="${esc(t('coachPhoto'))}" aria-label="${esc(t('coachPhoto'))}">📷</label><input type="file" id="cFile" accept="image/*" hidden><textarea id="cText" rows="1" placeholder="${esc(t('coachPh'))}"></textarea><button class="cbtn send" id="cSend" title="${esc(t('coachSend'))}" aria-label="${esc(t('coachSend'))}">➤</button></div>
+    <div class="small muted num" id="cLeft">${C.left !== null ? `${C.left} ${esc(t('coachLeft'))}` : ''}</div>
+  </div>`;
+  main.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => { S.coachSubj = b.dataset.cs; renderCoach(main); });
+  const chat = $('#chat');
+  const drawChat = () => {
+    chat.innerHTML = (C.msgs.length ? '' : `<div class="bubble coach">${md(t('coachHello').replace('{name}', S.kid.name))}</div>`)
+      + C.msgs.map(m => m.role === 'user' ? `<div class="bubble me">${m.thumb ? `<img src="${m.thumb}" alt="">` : ''}${m.text ? `<div>${esc(m.text)}</div>` : ''}</div>` : `<div class="bubble coach">${md(m.text)}</div>`).join('')
+      + (C.busy ? `<div class="bubble coach typing"><span></span><span></span><span></span></div>` : '')
+      + (C.err && !C.busy ? `<div class="bubble coach err">${esc(C.err)}</div>` : '');
+    if (C.msgs.length || C.busy) requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  };
+  const drawPrev = () => { $('#cPrev').innerHTML = C.pending ? `<div class="cprev"><img src="${C.pending.thumb}" alt=""><button class="btn sm ghost" id="cDrop">✕</button></div>` : ''; const d = $('#cDrop'); if (d) d.onclick = () => { C.pending = null; drawPrev(); }; };
+  drawChat(); drawPrev(); if (C.draft) { $('#cText').value = C.draft; C.draft = null; }
+  $('#cNew').onclick = () => { S.coach = null; renderCoach(main); };
+  $('#cFile').onchange = async (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try { C.pending = { image: await shrinkImage(f, 1600, 0.82), thumb: await shrinkImage(f, 360, 0.6) }; drawPrev(); } catch (er) { toast(t('coachImgErr')); }
+    e.target.value = '';
+  };
+  const send = async () => {
+    if (C.busy) return;
+    const text = $('#cText').value.trim(); if (!text && !C.pending) return;
+    const subj = sid !== 'all' && S.content.subjects[sid] ? S.content.subjects[sid] : null;
+    const msg = { role: 'user', text, image: C.pending ? C.pending.image : null, thumb: C.pending ? C.pending.thumb : null };
+    if (msg.image) C.msgs.forEach(m => { m.image = null; }); // only the newest photo goes to the coach
+    C.msgs.push(msg); C.pending = null; C.err = null; $('#cText').value = ''; C.busy = true; drawPrev(); drawChat();
+    let reply = null, err = null;
+    try {
+      const st = S.store, h = { apikey: st.key, 'Content-Type': 'application/json' }; if (/^eyJ/.test(st.key)) h.Authorization = 'Bearer ' + st.key;
+      const r = await fetch(st.url + '/functions/v1/lh-coach', { method: 'POST', headers: h, body: JSON.stringify({ fk: st.fk, kid: S.kid.id, lang: L, subject: subj ? tx(subj.name) : '', thumb: msg.thumb, messages: C.msgs.map(m => ({ role: m.role, text: m.text, image: m.image || undefined })) }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.reply) { reply = j.reply; C.left = j.left; }
+      else err = j.error === 'limit' ? t('coachLimit').replace('{n}', j.limit) : j.error === 'not_configured' ? t('coachOff') : t('coachErr');
+    } catch (e) { err = t('coachErr'); }
+    C.busy = false;
+    if (reply) {
+      C.msgs.push({ role: 'assistant', text: reply });
+      const ev = { type: 'coach', subject: subj ? subj.id : null, label: (text || '📷').slice(0, 80) };
+      ev.t = Date.now(); S.store.appendLog(S.kid.id, ev).catch(() => {}); notify(S.kid, ev);
+    } else { C.msgs.pop(); C.err = err; if (msg.image) C.pending = { image: msg.image, thumb: msg.thumb }; C.draft = text; }
+    if (S.route.s !== 'coach') return;
+    if (!document.body.contains(chat)) return renderCoach($('#main'));
+    drawChat(); drawPrev(); const ta = $('#cText'); if (ta && C.draft && !ta.value) { ta.value = C.draft; } C.draft = null;
+    const l = $('#cLeft'); if (l && C.left !== null) l.textContent = `${C.left} ${t('coachLeft')}`;
+  };
+  $('#cSend').onclick = send;
+  const grow = () => { const ta = $('#cText'); ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; };
+  $('#cText').oninput = grow;
+  $('#cText').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey && innerWidth > 700) { e.preventDefault(); send(); } };
+}
+function coachCta(extraCls) { return S.storeKind === 'supa' ? `<button class="card coachcta ${extraCls || ''}" data-go="afrigter"><span class="ti">🤖</span><span><b>${esc(t('coachT'))}</b><br><span class="small muted">${esc(t('coachCta'))}</span></span></button>` : ''; }
+/* parent: coach conversations + daily limit */
+function coachParentCard() {
+  if (S.storeKind !== 'supa') return '';
+  return `<div class="card" style="margin-top:14px" id="coachCard"><h3>🤖 ${esc(t('coachParentT'))}</h3><p class="small muted" style="margin:6px 0 10px;max-width:75ch">${esc(t('coachParentSub'))}</p>
+  <div class="row" style="gap:8px;margin-bottom:12px"><label class="small" for="coachLim"><b>${esc(t('coachLimitL'))}</b></label><input id="coachLim" type="number" min="1" max="60" style="width:90px" value="${esc(String(S.settings.coachLimit || 15))}"><button class="btn sm" id="coachLimSave">${esc(t('save'))}</button></div>
+  <div class="grid two" id="coachLogs">${KIDS.map(k => `<div><h4>${k.avatar} ${esc(k.name)}</h4><div class="small muted" data-coach="${k.id}">…</div></div>`).join('')}</div></div>`;
+}
+async function wireCoachParent(root) {
+  const card = $('#coachCard', root); if (!card) return;
+  $('#coachLimSave', root).onclick = async () => { const n = clamp(parseInt($('#coachLim', root).value, 10) || 15, 1, 60); S.settings.coachLimit = n; await S.store.saveSettings(S.settings); toast(t('saved')); };
+  for (const k of KIDS) {
+    const box = card.querySelector(`[data-coach="${k.id}"]`);
+    let days = []; try { days = await S.store.loadPrefix('kids/' + k.id + '/coach/', 7); } catch (e) {}
+    const items = days.flatMap(d => (d.value.events || []).map(ev => ({ ...ev, date: d.value.date || d.key.split('/').pop() }))).sort((a, b) => b.t - a.t).slice(0, 15);
+    box.className = 'coachlog';
+    box.innerHTML = items.length ? items.map(ev => `<details class="clog"><summary><span class="small muted">${esc(fmtDay(ev.date))} ${fmtTime(ev.t)}</span> ${ev.subject ? `<span class="chip">${esc(String(ev.subject).slice(0, 20))}</span>` : ''} ${ev.img ? '📷 ' : ''}${esc((ev.q || '').slice(0, 70) || '…')}</summary>${ev.thumb ? `<img src="${ev.thumb}" alt="" class="cthumb">` : ''}${ev.q ? `<p class="small"><b>${esc(k.name)}:</b> ${esc(ev.q)}</p>` : ''}<div class="prose small" style="margin-top:6px"><b>🤖</b> ${md(ev.a || '')}</div></details>`).join('') : `<p class="small muted">${esc(t('coachNone'))}</p>`;
+  }
+}
+
 /* ---------- parent: afbakening & exam timetable editor ---------- */
 function marksEditor(subjects) {
   const keys = subjects.map(s => ({ k: schoolKey(s.id), label: s.icon + ' ' + tx(s.short) })).concat([{ k: 'geo', label: '🗺️ ' + tx(SCHOOL_EXTRA.geo) }, { k: 'gesk', label: '📜 ' + tx(SCHOOL_EXTRA.gesk) }]);
@@ -1593,7 +1693,7 @@ function checkForUpdate() {
     let done = null; try { done = sessionStorage.getItem('lh.upd'); } catch (e) {}
     if (done === j.v) return; // already tried once for this version
     const reload = () => { try { sessionStorage.setItem('lh.upd', j.v); } catch (e) {} const p = new URLSearchParams(location.search); p.set('u', j.v); location.replace(location.pathname + '?' + p.toString() + location.hash); };
-    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'game'].includes(S.route.s)) {
+    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'game', 'coach'].includes(S.route.s)) {
       if (document.getElementById('updBar')) return;
       const bar = document.createElement('button'); bar.id = 'updBar'; bar.className = 'toast show'; bar.style.pointerEvents = 'auto'; bar.style.cursor = 'pointer';
       bar.textContent = L === 'af' ? '✨ Nuwe weergawe – tik om op te dateer' : '✨ New version – tap to update'; bar.onclick = reload; document.body.appendChild(bar);
