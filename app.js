@@ -212,8 +212,13 @@ class SupaStore {
   exportCode() { return null; }
 }
 function readFamilyKey() {
+  // the key travels as #k=KEY~route in the shared link, then lives in ?k=KEY so a home-screen icon (iPhone: separate storage) keeps it
   const m = (location.hash || '').match(/^#k=([A-Za-z0-9]+)(?:~([a-z]+))?/);
-  if (m) { try { localStorage.setItem('lh.fk', m[1]); } catch (e) {} try { history.replaceState(null, '', location.pathname + location.search + '#' + (m[2] || 'profiel')); } catch (e) { location.hash = m[2] || 'profiel'; } return m[1]; }
+  let q = null; try { q = new URLSearchParams(location.search).get('k'); } catch (e) {}
+  const key = (m && m[1]) || (q && /^[A-Za-z0-9]+$/.test(q) ? q : null);
+  if (key) { try { localStorage.setItem('lh.fk', key); } catch (e) {} }
+  if (m) { try { history.replaceState(null, '', location.pathname + '?k=' + m[1] + '#' + (m[2] || 'profiel')); } catch (e) { location.hash = m[2] || 'profiel'; } }
+  if (key) return key;
   try { return localStorage.getItem('lh.fk'); } catch (e) { return null; }
 }
 function notify(kid, ev) {
@@ -439,7 +444,7 @@ function linkPanel() {
 }
 function wireLinkPanel() {
   const f = $('#linkf'); if (!f) return;
-  f.onsubmit = (e) => { e.preventDefault(); const v = $('#linkin').value.trim(); const m = v.match(/k=([A-Za-z0-9]+)/) || v.match(/^([A-Za-z0-9]{16,})$/); if (!m) { toast(t('linkBad')); return; } try { localStorage.setItem('lh.fk', m[1]); } catch (er) {} location.hash = 'profiel'; location.reload(); };
+  f.onsubmit = (e) => { e.preventDefault(); const v = $('#linkin').value.trim(); const m = v.match(/k=([A-Za-z0-9]+)/) || v.match(/^([A-Za-z0-9]{16,})$/); if (!m) { toast(t('linkBad')); return; } try { localStorage.setItem('lh.fk', m[1]); } catch (er) {} location.href = location.pathname + '?k=' + m[1] + '#profiel'; };
 }
 function renderGate(main) {
   const blocked = window.LH_CONFIG && (S.keyProblem === 'missing' || S.keyProblem === 'bad');
