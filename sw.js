@@ -9,8 +9,8 @@ self.addEventListener('fetch', (e) => {
 self.addEventListener('push', (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : '' }; }
+  // no tag: every notification stays in the list until Pa or Ma has seen it
   const opt = { body: d.body || '', icon: 'icon-192.png', badge: 'icon-192.png', data: { url: d.url || './' }, lang: 'af' };
-  if (d.tag) { opt.tag = d.tag; opt.renotify = true; }
   e.waitUntil(self.registration.showNotification(d.title || 'Leerhoek', opt));
 });
 self.addEventListener('notificationclick', (e) => {

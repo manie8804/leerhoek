@@ -24,7 +24,7 @@ const UI = {
     gamesFor: 'Speletjies vir', alwaysMaths: 'Altyd Wiskunde', nWords: 'woorde', nStatements: 'stellings', nQuestions: 'vrae', changeSubj: 'Ander vak', quickHow: 'Lees die vraag en tik die regte antwoord – so vinnig as wat jy kan. Verkeerde antwoorde gaan in jou foute-boek.',
     g: { quick: ['Vinnige vrae', '90 sekondes: beantwoord soveel vrae uit die vak as wat jy kan!'], memory: ['Geheue-pare', 'Draai kaarte om en vind die Afrikaanse en Engelse woordpare.'], hangman: ['Raai die woord', 'Lees die betekenis en raai die woord, letter vir letter.'], sprint: ['Wiskunde-sprint', 'Hoeveel somme kan jy in 60 sekondes uit jou kop doen?'], blitz: ['Waar/Onwaar-blits', '60 sekondes: waar of onwaar? Hoe vinniger, hoe beter!'] },
     best: 'Beste', moves: 'skuiwe', playAgain: 'Speel weer', back: 'Terug', newRecord: 'Nuwe rekord!', timeUp: 'Tyd is op!', start: 'Begin', lives: 'Lewens', hintLetter: 'Wenk (kos 1 lewe)', wordWas: 'Die woord was', nextWord: 'Volgende woord', wordsOf: 'woorde reg', correctN: 'reg',
-    sprintHow: 'Tik die antwoord met die knoppies en druk OK. Gebruik − vir negatiewe getalle.', blitzHow: 'Lees die stelling en tik vinnig Waar of Onwaar. Verkeerde antwoorde gaan in jou foute-boek.', wentToMistakes: 'Hierdie vrae is in jou foute-boek gebêre.',
+    sprintHow: 'Reken dit in jou kop uit en tik die regte antwoord – so vinnig as wat jy kan! Pasop vir die strikvrae.', blitzHow: 'Lees die stelling en tik vinnig Waar of Onwaar. Verkeerde antwoorde gaan in jou foute-boek.', wentToMistakes: 'Hierdie vrae is in jou foute-boek gebêre.',
     weekT: 'Tweeling-uitdaging', weekLead: 'lei hierdie week!', weekTie: 'Gelykop!', weekReset: 'Begin elke Maandag oor.', chalT: 'Weeklikse uitdaging', chalSub: 'Dieselfde 10 vrae vir Diaan en Stefan. Net jou eerste poging tel – wie wen hierdie week?', chalPlay: 'Speel', chalReplay: 'Oefen weer', chalDone: 'Gespeel', chalNot: 'Nog nie gespeel nie', chalCounted: 'Jou telling tel vir hierdie week!', chalPractice: 'Oefenrondte – net jou eerste poging tel.',
     chestT: 'Daaglikse skatkis', chestReady: 'Gereed – maak oop!', chestDone: 'Môre is daar ’n nuwe een.', testsToday: 'toetse vandag', chestWin: 'Jy het gevind:',
     wotd: 'Woord van die dag', factT: 'Weet jy?', factBtn: 'Cool! 😎', toTopic: 'Na onderwerp', dwHint: 'Tik op ’n onderstreepte woord om sy betekenis te sien.',
@@ -49,7 +49,8 @@ const UI = {
     dashboard: 'Ouerpaneel', lastActive: 'Laas aktief', never: 'nog nooit', thisWeek: 'hierdie week', timeOn: 'Tyd op platform', mastery: 'Bemeestering per vak', weak: 'Onderwerpe wat aandag nodig het', noWeak: 'Niks dringend nie – alles bo 70 %.', activity: 'Aktiwiteit', noActivity: 'Nog geen aktiwiteit nie.',
     copyReport: 'Kopieer verslag', settings: 'Instellings', examDate: 'Eksamendatum (eerste vraestel)', examTitle: 'Byskrif', save: 'Stoor', saved: 'Gestoor', changePin: 'Verander PIN', importCode: 'Voer vorderingskode in', importHint: 'Plak die kode wat ’n seun van ’n ander toestel gekopieer het.', importBtn: 'Voer in', imported: 'Vordering ingevoer',
     storage: 'Stoorplek', storageDb: 'Gedeelde stoor (sinkroniseer op alle toestelle)', storageLocal: 'Slegs hierdie toestel', today: 'Vandag', yesterday: 'Gister',
-    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Leerhoek oopgemaak', logout: 'Leerhoek toegemaak', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis', coach: 'Afrigter gevra' },
+    pickAnswer: 'Kies jou antwoord', pickTitle: 'Kies die regte antwoord', writeSelf: 'Ek skryf self', memoFull: 'Memo – so lyk ’n volpunt-antwoord', llHint: 'Haal twee verkeerde antwoorde weg', inARow: 'in ’n ry!', giftT: 'Verrassing!', giftSub: '{n} reg in ’n ry – tik die geskenk!', giftXp: 'bonus-XP!', giftLife: '+1 💡 50/50-hulplyn vir hierdie toets!', playOn: 'Speel verder ▶', missionT: 'Vandag se missie', missionDone: 'Missie voltooi!', gMorning: 'Goeiemôre', gAfternoon: 'Goeiemiddag', gEvening: 'Goeienaand', streakKeep: 'Jy is op ’n {n}-dae-streep! 🔥 Doen vandag iets om dit aan die gang te hou.', streakToday: '🔥 {n} dae op ’n ry – lekker!', streakDay1: '🔥 Jou streep het vandag begin – kom môre weer!', streakNew: 'Begin vandag ’n nuwe streep! 🔥', letsGo: 'Kom ons begin! 🚀', sound: 'Klank aan/af',
+    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Leerhoek oopgemaak', logout: 'Leerhoek toegemaak', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis', coach: 'Afrigter gevra', mission: 'Daaglikse missie voltooi' },
     resourcesIntro: 'Gratis handboeke, werkboeke en ou vraestelle. Unika se eie eksamenomvang en klasnotas kom in die “Gedeel – Unika dokumente” vouer op Pa se rekenaar.',
     allBadges: 'Kentekens', loading: 'Laai die vakke…', switchUser: 'Ruil gebruiker', continueAs: 'Gaan voort', of: 'van', min: 'min', mixed: 'Gemengde vrae', chooseGrade: 'Graad',
     hint: 'Wenk', showMemo: 'Wys memo & merk myself', memo: 'Memo', selfMark: 'Hoeveel punte verdien jou antwoord?', papers: 'Oefenvraestelle', paper: 'Oefenvraestel', examFormatT: 'Hoe lyk Unika se vraestel', startPaper: 'Begin vraestel', timeLeft: 'Tyd oor', marks: 'punte', section: 'Afdeling', paperDone: 'Vraestel voltooi!', perSection: 'Punte per afdeling', paperSub: 'Dieselfde formaat, tyd en punte as die skool se vraestel – nuwe vrae. Skryf lang antwoorde op papier of tik hulle, wys dan die memo en merk jouself eerlik.', bestMark: 'Beste', skipQ: 'Slaan oor', focus: 'Fokusvakke', focusSub: 'Volgens jou skoolrapport – hier tel elke punt die meeste.', target: 'teiken', school: 'Skool', schoolMarks: 'Skoolpunte vs platform', schoolSub: 'Rapportpunte per kwartaal, die slaagteiken en die platform se bemeestering.', termShort: 'Kw', passRules: 'Slaagvereistes: 50 % in Huistaal, 40 % in Engels EAT, 40 % in Wiskunde, 40 % in nog 3 vakke en 30 % in nog 2 vakke.', avgShort: 'Gemiddeld', platform: 'Platform', gap: 'tekort',
@@ -73,7 +74,7 @@ const UI = {
     gamesFor: 'Games for', alwaysMaths: 'Always maths', nWords: 'words', nStatements: 'statements', nQuestions: 'questions', changeSubj: 'Change subject', quickHow: 'Read the question and tap the right answer – as fast as you can. Wrong answers go into your mistakes book.',
     g: { quick: ['Quick-fire', '90 seconds: answer as many questions from the subject as you can!'], memory: ['Memory pairs', 'Flip cards and find the Afrikaans and English word pairs.'], hangman: ['Guess the word', 'Read the meaning and guess the word, letter by letter.'], sprint: ['Maths sprint', 'How many sums can you do in your head in 60 seconds?'], blitz: ['True/False blitz', '60 seconds: true or false? The faster, the better!'] },
     best: 'Best', moves: 'moves', playAgain: 'Play again', back: 'Back', newRecord: 'New record!', timeUp: "Time's up!", start: 'Start', lives: 'Lives', hintLetter: 'Hint (costs 1 life)', wordWas: 'The word was', nextWord: 'Next word', wordsOf: 'words right', correctN: 'right',
-    sprintHow: 'Tap the answer on the keypad and press OK. Use − for negative numbers.', blitzHow: 'Read the statement and quickly tap True or False. Wrong answers go into your mistakes book.', wentToMistakes: 'These questions were saved in your mistakes book.',
+    sprintHow: 'Work it out in your head and tap the right answer – as fast as you can! Watch out for the trick answers.', blitzHow: 'Read the statement and quickly tap True or False. Wrong answers go into your mistakes book.', wentToMistakes: 'These questions were saved in your mistakes book.',
     weekT: 'Twin challenge', weekLead: 'leads this week!', weekTie: 'Tied!', weekReset: 'Starts again every Monday.', chalT: 'Weekly challenge', chalSub: 'The same 10 questions for Diaan and Stefan. Only your first attempt counts – who wins this week?', chalPlay: 'Play', chalReplay: 'Practise again', chalDone: 'Played', chalNot: 'Not played yet', chalCounted: 'Your score counts for this week!', chalPractice: 'Practice round – only your first attempt counts.',
     chestT: 'Daily treasure chest', chestReady: 'Ready – open it!', chestDone: "There's a new one tomorrow.", testsToday: 'tests today', chestWin: 'You found:',
     wotd: 'Word of the day', factT: 'Did you know?', factBtn: 'Cool! 😎', toTopic: 'Go to topic', dwHint: 'Tap an underlined word to see its meaning.',
@@ -98,7 +99,8 @@ const UI = {
     dashboard: 'Parent panel', lastActive: 'Last active', never: 'never', thisWeek: 'this week', timeOn: 'Time on platform', mastery: 'Mastery per subject', weak: 'Topics that need attention', noWeak: 'Nothing urgent – everything above 70 %.', activity: 'Activity', noActivity: 'No activity yet.',
     copyReport: 'Copy report', settings: 'Settings', examDate: 'Exam date (first paper)', examTitle: 'Caption', save: 'Save', saved: 'Saved', changePin: 'Change PIN', importCode: 'Import progress code', importHint: 'Paste the code a boy copied from another device.', importBtn: 'Import', imported: 'Progress imported',
     storage: 'Storage', storageDb: 'Shared store (syncs on all devices)', storageLocal: 'This device only', today: 'Today', yesterday: 'Yesterday',
-    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Opened Leerhoek', logout: 'Closed Leerhoek', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest', coach: 'Asked the coach' },
+    pickAnswer: 'Choose your answer', pickTitle: 'Choose the right answer', writeSelf: 'I’ll write it myself', memoFull: 'Memo – this is a full-marks answer', llHint: 'Removes two wrong answers', inARow: 'in a row!', giftT: 'Surprise!', giftSub: '{n} right in a row – tap the gift!', giftXp: 'bonus XP!', giftLife: '+1 💡 50/50 lifeline for this test!', playOn: 'Keep going ▶', missionT: 'Today’s mission', missionDone: 'Mission complete!', gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', streakKeep: 'You’re on a {n}-day streak! 🔥 Do something today to keep it going.', streakToday: '🔥 {n} days in a row – great!', streakDay1: '🔥 Your streak started today – come back tomorrow!', streakNew: 'Start a new streak today! 🔥', letsGo: 'Let’s go! 🚀', sound: 'Sound on/off',
+    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Opened Leerhoek', logout: 'Closed Leerhoek', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest', coach: 'Asked the coach', mission: 'Daily mission complete' },
     resourcesIntro: "Free textbooks, workbooks and past papers. Unika's own exam scope and class notes go in the “Gedeel – Unika dokumente” folder on Dad's computer.",
     allBadges: 'Badges', loading: 'Loading subjects…', switchUser: 'Switch user', continueAs: 'Continue', of: 'of', min: 'min', mixed: 'Mixed questions', chooseGrade: 'Grade',
     hint: 'Hint', showMemo: 'Show memo & mark myself', memo: 'Memo', selfMark: 'How many marks does your answer earn?', papers: 'Practice papers', paper: 'Practice paper', examFormatT: "What Unika's paper looks like", startPaper: 'Start paper', timeLeft: 'Time left', marks: 'marks', section: 'Section', paperDone: 'Paper complete!', perSection: 'Marks per section', paperSub: 'Same format, time and marks as the school paper – new questions. Write long answers on paper or type them, then show the memo and mark yourself honestly.', bestMark: 'Best', skipQ: 'Skip', focus: 'Focus subjects', focusSub: 'Based on your school report – every mark counts most here.', target: 'target', school: 'School', schoolMarks: 'School marks vs platform', schoolSub: 'Report marks per term, the pass target and the platform mastery.', termShort: 'T', passRules: 'Pass requirements: 50 % in Home Language, 40 % in English FAL, 40 % in Mathematics, 40 % in 3 more subjects and 30 % in 2 more.', avgShort: 'Average', platform: 'Platform', gap: 'short',
@@ -281,9 +283,9 @@ function notify(kid, ev) {
     const key = 'lh.ntfy.coach.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
     title = `${kid.name} vra die afrigter`; message = (ev.label || '') + '\nKyk in die ouerpaneel → Afrigter-gesprekke'; tags = ['robot'];
   } else if (ev.type === 'login') {
-    title = `🟢 ${kid.name} het Leerhoek oopgemaak`; message = `Begin leer · ${hm}`; tags = ['green_circle']; tag = 'sess-' + kid.id;
+    title = `🟢 ${kid.name} het Leerhoek oopgemaak`; message = `Begin leer · ${hm}`; tags = ['green_circle'];
   } else if (ev.type === 'logout') {
-    title = `⚪ ${kid.name} het Leerhoek toegemaak`; message = `${ev.mins < 1 ? '<1' : ev.mins} min · ${ev.tests} ${ev.tests === 1 ? 'toets' : 'toetse'} · +${ev.xp} XP · ${hm}`; tags = ['white_circle']; tag = 'sess-' + kid.id;
+    title = `⚪ ${kid.name} het Leerhoek toegemaak`; message = `${ev.mins < 1 ? '<1' : ev.mins} min · ${ev.tests} ${ev.tests === 1 ? 'toets' : 'toetse'} · +${ev.xp} XP · ${hm}`; tags = ['white_circle'];
     log = { type: 'logout', mins: ev.mins, tests: ev.tests, xp: ev.xp };
   } else return;
   const beacon = ev.type === 'logout';
@@ -421,6 +423,7 @@ async function award(kid, xp, ev) {
   const wk = weekId(); if (!kid.week || kid.week.w !== wk) kid.week = { w: wk, xp: 0 }; kid.week.xp += xp;
   if (ev && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) { if (!kid.day || kid.day.d !== d) kid.day = { d, tests: 0 }; kid.day.tests++; if (S.sess && S.sess.kid === kid.id) S.sess.tests++; }
   if (S.sess && S.sess.kid === kid.id) S.sess.xp += xp;
+  if (ev) { const m = missionOf(kid); if (!m.done) { if (m.k === 'tests' && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) m.p++; if (m.k === 'games' && ev.type === 'game') m.p++; if (m.p >= m.n) missionComplete(kid); } }
   if (!has('subject') && ev && ev.subject) { const subj = S.content.subjects[ev.subject]; if (subj && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
   if (ev) {
     ev.t = Date.now(); ev.xp = xp;
@@ -612,6 +615,7 @@ function renderHome(main) {
       <div class="stats"><div class="stat"><div class="v num"><span class="flame">🔥</span> ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div class="stat"><div class="v num">${kid.totals.quizzes}</div><div class="k">${esc(t('quizzes'))}</div></div><div class="stat"><div class="v num">🏅 ${kid.badges.length}</div><div class="k">${esc(t('badges'))}</div></div></div>
     </div>
   </div>
+  ${missionCard(kid)}
   <div class="tiles">
     <button class="card tile ${chest.ready ? 'ready' : ''}" id="chestT"><span class="ti">${chest.opened ? '💰' : '🎁'}</span><b>${esc(t('chestT'))}</b><span class="small muted">${chest.opened ? esc(t('chestDone')) : chest.ready ? esc(t('chestReady')) : `<span class="num">${Math.min(3, chest.tests)}/3</span> ${esc(t('testsToday'))}`}</span>${!chest.opened && !chest.ready ? `<div class="bar-h" style="margin-top:auto"><i style="width:${Math.round(100 * Math.min(3, chest.tests) / 3)}%;background:var(--hi)"></i></div>` : ''}</button>
     <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
@@ -640,7 +644,8 @@ function renderHome(main) {
   const cc = $('#copyCode'); if (cc) cc.onclick = async () => { const code = S.store.exportCode(); if (code && await copyText(code)) toast(t('copied')); };
   $('#share').onclick = async () => { if (await copyText(reportText(kid, subjects))) toast(t('shareDone')); };
   fillTwin($('#twinMini'), true);
-  maybeFact();
+  const misEl = $('#misC'); if (misEl) misEl.onclick = () => go(kid.mission && kid.mission.k === 'games' ? 'speel' : 'eksamens');
+  maybeWelcome();
 }
 function subjectCard(s, kid, i) {
   const pct = subjectPct(kid, s), n = allTopics(s).length, done = allTopics(s).filter(x => topicStatus(kid, x.tp.id) !== 'new').length;
@@ -750,9 +755,26 @@ function buildQuestions(id, mode) {
 }
 
 /* mounts one question of any type into body/act; calls finish(ok, detail, marksEarned) exactly once */
-function mountQuestion(q, body, act, finishCb) {
-  let fin = false; const marks = q.marks || 1;
-  const finish = (ok, detail, earned) => { if (fin) return; fin = true; finishCb(ok, detail, earned === undefined ? (ok ? marks : 0) : earned); };
+function mountQuestion(q, body, act, finishCb, opt) {
+  opt = opt || {};
+  let fin = false, switched = false; const marks = q.marks || 1;
+  const finish = (ok, detail, earned) => { if (fin) return; fin = true; closeSheet(); finishCb(ok, detail, earned === undefined ? (ok ? marks : 0) : earned); };
+  const opts = (q.type === 'open' || q.type === 'fill') && !opt.write ? choiceOpts(q) : null;
+  if (opts) { // written / fill-in questions: choose from 4 answers in a popup ("Ek skryf self" keeps the writing practice)
+    const st = { gone: [], used: false };
+    body.innerHTML = `<div class="pickwrap"><button class="btn subject block pickbtn" id="pickB">🎯 ${esc(t('pickAnswer'))}</button><div class="row pickalt">${q.hint ? `<button class="btn sm ghost" id="hintB">💡 ${esc(t('hint'))}</button>` : ''}<button class="btn sm ghost" id="writeB">✍️ ${esc(t('writeSelf'))}</button></div>${q.hint ? '<div id="hintT" class="small muted center" style="margin-top:6px"></div>' : ''}</div>`;
+    act.innerHTML = '';
+    const hb = $('#hintB', body); if (hb) hb.onclick = () => { $('#hintT', body).textContent = tx(q.hint); hb.disabled = true; };
+    $('#writeB', body).onclick = () => { switched = true; closeSheet(); mountQuestion(q, body, act, finishCb, Object.assign({}, opt, { write: true })); };
+    const open = () => { if (fin || switched) return; choiceSheet(q, opts, st, (i) => {
+      const o = opts[i], right = opts.find(x => x.ok);
+      body.innerHTML = `<div class="opts">${opts.map((x, j) => `<div class="opt ${x.ok ? 'right' : j === i ? 'wrong' : 'dim'}"><span class="k">${'ABCD'[j]}</span><span>${inline(x.txt)}</span></div>`).join('')}</div>` + (q.type === 'open' ? `<div class="memo"><div class="label" style="margin-bottom:4px">📋 ${esc(t('memoFull'))}</div><div class="prose">${md(tx(q.memo))}</div></div>` : '');
+      finish(o.ok, o.ok ? '' : inline(right.txt), o.ok ? marks : 0);
+    }); };
+    $('#pickB', body).onclick = open;
+    if (opt.autoOpen !== false) setTimeout(() => { if (!fin && !switched && body.isConnected && !document.querySelector('.overlay')) open(); }, 450);
+    return;
+  }
   if (q.type === 'open') {
     body.innerHTML = `<textarea id="openin" rows="${Math.min(8, Math.max(2, q.lines || 3))}" placeholder="${esc(t('typeAnswer'))}"></textarea>${q.hint ? `<div style="margin-top:6px"><button class="btn sm ghost" id="hintB">💡 ${esc(t('hint'))}</button><span id="hintT" class="small muted" style="margin-left:8px"></span></div>` : ''}`;
     act.innerHTML = `<button class="btn subject" id="showMemo">${esc(t('showMemo'))}</button>`;
@@ -767,7 +789,8 @@ function mountQuestion(q, body, act, finishCb) {
   }
   if (q.type === 'mc') {
     body.innerHTML = `<div class="opts">${q.options.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${inline(tx(o))}</span></button>`).join('')}</div>`;
-    body.querySelectorAll('.opt').forEach(b => b.onclick = () => { const i = +b.dataset.i; body.querySelectorAll('.opt').forEach(x => x.disabled = true); b.classList.add(i === q.answer ? 'right' : 'wrong'); body.querySelector(`[data-i="${q.answer}"]`).classList.add('right'); finish(i === q.answer, i === q.answer ? '' : inline(tx(q.options[q.answer]))); });
+    body.querySelectorAll('.opt').forEach(b => b.onclick = () => { const i = +b.dataset.i; body.querySelectorAll('.opt, .ll').forEach(x => x.disabled = true); b.classList.add(i === q.answer ? 'right' : 'wrong'); body.querySelector(`[data-i="${q.answer}"]`).classList.add('right'); finish(i === q.answer, i === q.answer ? '' : inline(tx(q.options[q.answer]))); });
+    if (S.life !== undefined && q.options.length >= 4) { body.insertAdjacentHTML('beforeend', `<div class="llrow">${lifeBtn('ll50')}</div>`); const st = { gone: [], used: false }, btns = [...body.querySelectorAll('.opt')]; $('#ll50', body).onclick = (e) => { if (useFifty(btns, q.options.map((_, i) => i === q.answer), st)) e.currentTarget.disabled = true; }; }
   } else if (q.type === 'tf') {
     body.innerHTML = `<div class="opts" style="grid-template-columns:1fr 1fr"><button class="opt" data-v="true"><span class="k">✓</span><span>${esc(t('true_'))}</span></button><button class="opt" data-v="false"><span class="k">✗</span><span>${esc(t('false_'))}</span></button></div>`;
     body.querySelectorAll('.opt').forEach(b => b.onclick = () => { const v = b.dataset.v === 'true'; body.querySelectorAll('.opt').forEach(x => x.disabled = true); b.classList.add(v === q.answer ? 'right' : 'wrong'); body.querySelector(`[data-v="${q.answer}"]`).classList.add('right'); finish(v === q.answer, v === q.answer ? '' : esc(q.answer ? t('true_') : t('false_'))); });
@@ -802,7 +825,7 @@ function renderQuiz(main, id, mode) {
   const backHash = { topic: 'onderwerp-' + id, exam: 'vak-' + bs.id, scope: 'eksamens', redo: 'foute', week: 'speel' }[mode];
   const backName = { topic: t('summary'), exam: tx(bs.name), scope: t('exT'), redo: t('mistakesT'), week: t('playT') }[mode];
   const Q = { i: 0, answered: 0, correct: 0, fixed: 0, results: [], start: Date.now() };
-  S.quiz = Q;
+  S.quiz = Q; S.combo = 0; S.life = 3;
   const drawQ = () => {
     if (Q.i >= qs.length) return drawResult();
     const it = qs[Q.i], { q } = it;
@@ -810,15 +833,16 @@ function renderQuiz(main, id, mode) {
     const typeLabel = { mc: L === 'af' ? 'Meervoudige keuse' : 'Multiple choice', tf: L === 'af' ? 'Waar of onwaar' : 'True or false', fill: L === 'af' ? 'Vul in' : 'Fill in', match: L === 'af' ? 'Pas bymekaar' : 'Match' }[q.type];
     const where = multi ? ` · ${it.subj && (mode === 'redo' || mode === 'week') ? esc(it.subj.icon + ' ' + tx(it.subj.short)) + ' · ' : ''}${esc(tx(it.topic.title))}` : '';
     main.innerHTML = `<div class="quiz"><button class="back" data-go="${backHash}">← ${esc(built.title)}</button>
-      <div class="qhead"><span class="chip subject num">${Q.i + 1} / ${qs.length}</span><div class="bar-h subject"><i style="width:${Math.round(100 * Q.i / qs.length)}%"></i></div><span class="chip num">${Q.correct} ✓</span></div>
+      <div class="qhead"><span class="chip subject num">${Q.i + 1} / ${qs.length}</span><div class="bar-h subject"><i style="width:${Math.round(100 * Q.i / qs.length)}%"></i></div><span class="chip num">${Q.correct} ✓</span>${muteBtn()}</div>
       <div class="qcard"><div class="chip qtype">${esc(typeLabel)}${where}</div><div class="q">${inline(tx(q.q))}</div><div id="qbody"></div><div id="fb"></div><div class="qfoot"><span></span><span id="qact"></span></div></div></div>`;
-    $('[data-go]', main).onclick = () => go(backHash);
+    $('[data-go]', main).onclick = () => go(backHash); wireMute(main);
     const body = $('#qbody'), act = $('#qact');
     let done = false;
     const finish = (ok, detail) => {
       if (done) return; done = true; Q.answered++; if (ok) Q.correct++;
       Q.fixed += noteMistake(kid, it.topic, q, ok);
       Q.results.push({ q, ok, detail });
+      funAnswer(ok);
       $('#fb').innerHTML = `<div class="feedback ${ok ? 'good' : 'bad'}"><div class="h">${ok ? '🎉 ' + esc(t('correct')) : '🤔 ' + esc(t('wrong'))}</div>${detail ? `<div class="small"><b>${esc(t('rightAnswer'))}:</b> ${detail}</div>` : ''}<div class="small" style="margin-top:4px">${inline(tx(q.explain))}</div></div>`;
       act.innerHTML = `<button class="btn subject" id="nextQ">${Q.i + 1 < qs.length ? esc(t('next')) + ' →' : esc(t('finish')) + ' 🏁'}</button>`;
       $('#nextQ').onclick = () => { Q.i++; drawQ(); }; $('#nextQ').focus();
@@ -840,7 +864,7 @@ function renderQuiz(main, id, mode) {
     main.innerHTML = `<div class="quiz"><div class="card pad-lg result"><div class="label">${esc(built.title)}</div><div class="score num">${score}%</div><div class="msg">${esc(msg)}</div>
       <div class="row" style="justify-content:center"><span class="chip hi num">+${xp} XP ${esc(t('earned'))}</span><span class="chip num">${Q.correct}/${qs.length}</span><span class="chip num">${Math.max(1, Math.round(secs / 60))} ${esc(t('min'))}</span>${Q.fixed ? `<span class="chip good num">🛠️ ${Q.fixed} ${esc(t('fixedN'))}</span>` : ''}</div>
       ${mode === 'week' ? `<div class="banner" style="margin-top:12px;justify-content:center">${counted ? '⚔️ ' + esc(t('chalCounted')) : esc(t('chalPractice'))}</div>` : ''}
-      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('tryAgain'))}</button><button class="btn" data-go="${backHash}">${esc(t('backTo'))} ${esc(backName)}</button></div>
+      ${factLine()}<div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('tryAgain'))}</button><button class="btn" data-go="${backHash}">${esc(t('backTo'))} ${esc(backName)}</button></div>
       <h3 style="margin-top:22px;text-align:left">${esc(t('review'))}</h3><div class="review">${Q.results.map(r => `<div class="r ${r.ok ? '' : 'bad'}"><div>${r.ok ? '✅' : '❌'}</div><div><div>${inline(tx(r.q.q))}</div>${r.ok ? '' : `<div class="ex"><b>${esc(t('rightAnswer'))}:</b> ${r.detail}</div>`}<div class="ex">${inline(tx(r.q.explain))}</div></div></div>`).join('')}</div></div></div>`;
     $('#again').onclick = () => renderQuiz(main, id, mode);
     $('[data-go]', main).onclick = () => go(backHash);
@@ -868,16 +892,16 @@ function renderPaper(main, id) {
       <h3 style="margin-top:14px">${esc(t('perSection'))}</h3><ul style="margin:6px 0 16px;padding-left:20px">${ex.sections.map(sec => `<li>${esc(tx(sec.title))} <span class="muted num">(${sec.marks})</span></li>`).join('')}</ul>
       <button class="btn subject" id="startP">▶ ${esc(t('startPaper'))}</button></div></div>`;
     $('[data-go]', main).onclick = () => go(backHash);
-    $('#startP').onclick = () => { P.start = Date.now(); P.timer = setInterval(tick, 1000); S.paperTimer = P.timer; P.i = 0; drawQ(); };
+    $('#startP').onclick = () => { P.start = Date.now(); P.timer = setInterval(tick, 1000); S.paperTimer = P.timer; P.i = 0; S.combo = 0; S.life = 3; drawQ(); };
   };
   const drawQ = () => {
     if (P.i >= flat.length) return drawResult();
     const { q, si, qi, sec } = flat[P.i]; const marks = q.marks || 1;
     const doneMarks = flat.slice(0, P.i).reduce((a, x) => a + (x.q.marks || 1), 0);
-    main.innerHTML = `<div class="quiz"><div class="qhead"><span class="chip subject num">${P.i + 1} / ${flat.length}</span><div class="bar-h subject"><i style="width:${Math.round(100 * doneMarks / ex.total)}%"></i></div><span class="chip num" id="timeLeft">–</span><span class="chip num">${P.earned} ✓</span></div>
+    main.innerHTML = `<div class="quiz"><div class="qhead"><span class="chip subject num">${P.i + 1} / ${flat.length}</span><div class="bar-h subject"><i style="width:${Math.round(100 * doneMarks / ex.total)}%"></i></div><span class="chip num" id="timeLeft">–</span><span class="chip num">${P.earned} ✓</span>${muteBtn()}</div>
       ${qi === 0 && sec.intro ? `<div class="card" style="margin-bottom:12px"><div class="label" style="margin-bottom:6px">${esc(tx(sec.title))}</div><div class="prose small">${md(tx(sec.intro))}</div></div>` : ''}
       <div class="qcard"><div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="chip qtype">${esc(tx(sec.title))}</span><span class="chip hi num">${marks} ${esc(marks === 1 && L === 'af' ? 'punt' : t('marks'))}</span></div><div class="q">${sec.intro && qi > 0 ? `<button class="btn sm ghost" id="showIntro" style="float:right">📄</button>` : ''}${inline(tx(q.q))}</div><div id="qbody"></div><div id="fb"></div><div class="qfoot"><span id="qskip"></span><span id="qact"></span></div></div></div>`;
-    tick();
+    tick(); wireMute(main);
     const si2 = $('#showIntro'); if (si2) si2.onclick = () => { si2.remove(); $('.qcard').insertAdjacentHTML('afterbegin', `<div class="card" style="margin-bottom:12px;background:var(--surface-2);box-shadow:none"><div class="prose small">${md(tx(sec.intro))}</div></div>`); };
     const body = $('#qbody'), act = $('#qact');
     const next = () => { P.i++; drawQ(); };
@@ -886,11 +910,12 @@ function renderPaper(main, id) {
     mountQuestion(q, body, act, (ok, detail, earned) => {
       $('#skipB').disabled = true;
       P.earned += earned; P.bySec[si] += earned; P.results.push({ q, sec, ok, earned, detail });
+      funAnswer(ok);
       if (q.type !== 'open') $('#fb').innerHTML = `<div class="feedback ${ok ? 'good' : 'bad'}"><div class="h">${ok ? '🎉 ' + esc(t('correct')) : '🤔 ' + esc(t('wrong'))} <span class="num">+${earned}/${marks}</span></div>${detail ? `<div class="small"><b>${esc(t('rightAnswer'))}:</b> ${detail}</div>` : ''}${q.explain ? `<div class="small" style="margin-top:4px">${inline(tx(q.explain))}</div>` : ''}</div>`;
       else $('#fb').innerHTML = `<div class="feedback ${ok ? 'good' : 'bad'}"><div class="h">${ok ? '🎉' : '✏️'} <span class="num">+${earned}/${marks}</span></div></div>`;
       act.innerHTML = `<button class="btn subject" id="nextQ">${P.i + 1 < flat.length ? esc(t('next')) + ' →' : esc(t('finish')) + ' 🏁'}</button>`;
       $('#nextQ').onclick = next; $('#nextQ').focus();
-    });
+    }, { autoOpen: !(qi === 0 && sec.intro) });
   };
   const drawResult = async () => {
     stopTimer();
@@ -903,7 +928,7 @@ function renderPaper(main, id) {
     main.innerHTML = `<div class="quiz"><div class="card pad-lg result"><div class="label">${esc(tx(ex.title))}</div><div class="score num">${pct}%</div><div class="msg">${esc(t('paperDone'))} ${esc(msg)}</div>
       <div class="row" style="justify-content:center"><span class="chip hi num">+${xp} XP ${esc(t('earned'))}</span><span class="chip num">${P.earned} / ${ex.total}</span><span class="chip num">${Math.max(1, Math.round(secs / 60))} ${esc(t('min'))}</span></div>
       <h3 style="margin-top:20px;text-align:left">${esc(t('perSection'))}</h3><div class="bars" style="text-align:left">${ex.sections.map((sec, i) => `<div class="b"><span>${esc(tx(sec.title)).slice(0, 28)}</span><div class="bar-h subject"><i style="width:${Math.round(100 * P.bySec[i] / sec.marks)}%"></i></div><span class="num" style="text-align:right">${P.bySec[i]}/${sec.marks}</span></div>`).join('')}</div>
-      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('tryAgain'))}</button><button class="btn" data-go="${backHash}">${esc(t('backTo'))} ${esc(tx(subj.name))}</button></div>
+      ${factLine()}<div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('tryAgain'))}</button><button class="btn" data-go="${backHash}">${esc(t('backTo'))} ${esc(tx(subj.name))}</button></div>
       <h3 style="margin-top:22px;text-align:left">${esc(t('review'))}</h3><div class="review">${P.results.map(r => `<div class="r ${r.ok ? '' : 'bad'}"><div class="num">${r.skipped ? '⏭' : r.ok ? '✅' : `${r.earned}/${r.q.marks || 1}`}</div><div><div>${inline(tx(r.q.q))}</div>${r.q.type === 'open' ? `<div class="ex prose">${md(tx(r.q.memo))}</div>` : (!r.ok && r.detail ? `<div class="ex"><b>${esc(t('rightAnswer'))}:</b> ${r.detail}</div>` : '') + (r.q.explain ? `<div class="ex">${inline(tx(r.q.explain))}</div>` : '')}</div></div>`).join('')}</div></div></div>`;
     $('#again').onclick = () => renderPaper(main, id);
     $('[data-go]', main).onclick = () => go(backHash);
@@ -918,7 +943,7 @@ function fmtTime(ts) { const d = new Date(ts); return String(d.getHours()).padSt
 function fmtDay(date) { const td = today(); if (date === td) return t('today'); const y = new Date(); y.setDate(y.getDate() - 1); const ys = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0'); if (date === ys) return t('yesterday'); return date; }
 function evText(ev) {
   const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? S.content.subjects[ev.subject] : null;
-  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
+  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach' || ev.type === 'mission') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
   if (ev.type === 'logout') return what + ` — <b class="num">${ev.mins < 1 ? '&lt;1' : ev.mins} min</b>` + (ev.tests ? ` · ${ev.tests} ${esc(t('quizzes').toLowerCase())}` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
   return what + (ev.score !== undefined ? ` — <b class="num">${ev.score}%</b> (${ev.correct}/${ev.total})` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
 }
@@ -1180,6 +1205,169 @@ function maybeFact() {
   }, 1500);
 }
 
+/* ------------------------------------------------------------------ fun layer: sounds, reactions, combos, lifelines, surprise boxes, daily mission */
+const SFX = { ctx: null };
+function muted() { try { return localStorage.getItem('lh.mute') === '1'; } catch (e) { return false; } }
+function sfx(kind) {
+  if (muted()) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = SFX.ctx || (SFX.ctx = new AC()); if (ctx.state === 'suspended') ctx.resume();
+    const seq = { ok: [[660, 0, .09], [880, .08, .16]], bad: [[247, 0, .14], [196, .12, .22]], combo: [[523, 0, .08], [659, .07, .08], [784, .14, .08], [1047, .21, .2]],
+      gift: [[784, 0, .07], [988, .06, .07], [1175, .12, .07], [1568, .18, .28]], win: [[523, 0, .12], [659, .12, .12], [784, .24, .12], [1047, .36, .4]], tap: [[520, 0, .05]] }[kind] || [];
+    const t0 = ctx.currentTime + 0.01;
+    seq.forEach(([f, at, dur]) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = kind === 'bad' ? 'triangle' : 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t0 + at); g.gain.exponentialRampToValueAtTime(kind === 'bad' ? 0.12 : 0.16, t0 + at + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur); o.connect(g); g.connect(ctx.destination); o.start(t0 + at); o.stop(t0 + at + dur + 0.03); });
+  } catch (e) {}
+}
+function muteBtn() { return `<button class="btn sm ghost mutebtn" id="muteB" title="${esc(t('sound'))}" aria-label="${esc(t('sound'))}">${muted() ? '🔇' : '🔊'}</button>`; }
+function wireMute(root) { const b = $('#muteB', root || document); if (b) b.onclick = () => { try { localStorage.setItem('lh.mute', muted() ? '0' : '1'); } catch (e) {} b.textContent = muted() ? '🔇' : '🔊'; sfx('tap'); }; }
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const REACT = {
+  ok: { af: ['Reg! 🎉', 'Kaplaks! ⭐', 'Slim kop! 🧠', 'Uitstekend! 🚀', 'Kolskoot! 🎯', 'Jy is op dreef! 💥', 'Lekker! 😎', 'Bobaas! 🏆'], en: ['Correct! 🎉', 'Boom! ⭐', 'Smart cookie! 🧠', 'Excellent! 🚀', 'Bull’s-eye! 🎯', 'On a roll! 💥', 'Nice one! 😎', 'Champion! 🏆'] },
+  bad: { af: ['Amper! 💪', 'Die volgende een is joune! 🌱', 'Foute maak slim – lees hoekom 👀', 'Hou aan – jy kry dit! 🧩', 'Nie erg nie – leer daaruit 📚'], en: ['Almost! 💪', 'The next one is yours! 🌱', 'Mistakes make you smart – read why 👀', 'Keep going – you’ve got this! 🧩', 'No worries – learn from it 📚'] },
+};
+function react(ok, combo) {
+  const big = ok && combo >= 3;
+  sfx(big && combo % 5 === 0 ? 'combo' : ok ? 'ok' : 'bad');
+  document.querySelectorAll('.react').forEach(r => r.remove());
+  const el = document.createElement('div'); el.className = 'react ' + (ok ? 'good' : 'bad'); el.setAttribute('aria-live', 'polite');
+  el.innerHTML = `<div class="rb">${big ? `<div class="combo">🔥 ${combo} ${esc(t('inARow'))}</div>` : ''}<div class="rt">${esc(pick(REACT[ok ? 'ok' : 'bad'][L] || REACT[ok ? 'ok' : 'bad'].af))}</div></div>`;
+  document.body.appendChild(el);
+  if (big && combo % 5 === 0) confetti(70);
+  setTimeout(() => el.classList.add('out'), 950); setTimeout(() => el.remove(), 1350);
+}
+/* every answered question (quizzes, papers, games) goes through here */
+function funAnswer(ok, opt) {
+  opt = opt || {}; const kid = S.kid;
+  const streak = opt.streak !== undefined ? opt.streak : (S.combo = ok ? (S.combo || 0) + 1 : 0);
+  if (opt.quiet) sfx(ok ? 'ok' : 'bad'); else react(ok, streak);
+  if (kid) { const m = missionOf(kid); if (!m.done) { if (m.k === 'correct' && ok) m.p++; if (m.k === 'combo') m.p = Math.max(m.p, streak); if (m.p >= m.n) missionComplete(kid); } }
+  if (!opt.quiet && ok && streak > 0 && streak % 5 === 0) setTimeout(surprise, 1150);
+}
+/* 50/50 lifeline: removes two wrong options in the current question (3 per test) */
+function lifeBtn(id) { return S.life !== undefined ? `<button class="btn sm ghost ll" id="${id}" ${S.life > 0 ? '' : 'disabled'}>💡 50/50 <span class="num">×${S.life}</span></button>` : ''; }
+function useFifty(btns, okFlags, st) {
+  if (!(S.life > 0) || st.used) return false;
+  const wrong = okFlags.map((ok, i) => ok ? -1 : i).filter(i => i >= 0 && !st.gone.includes(i));
+  if (wrong.length < 2) return false;
+  S.life--; st.used = true; shuffle(wrong).slice(0, 2).forEach(i => st.gone.push(i));
+  st.gone.forEach(i => { if (btns[i]) { btns[i].classList.add('gone'); btns[i].disabled = true; } });
+  document.querySelectorAll('.ll .num').forEach(n => n.textContent = '×' + S.life); sfx('tap');
+  return true;
+}
+/* choices for fill/open questions: [{ txt, ok }] (correct answer + 3 authored distractors, shuffled) */
+function choiceOpts(q) {
+  const c = q.choices; if (!c || !c.d) return null;
+  const d = c.d[L] || c.d.af;
+  const right = q.type === 'fill' ? ((q.answers && (q.answers[L] || q.answers.af)) || [])[0] : (c.c && (c.c[L] || c.c.af));
+  if (!right || !d) return null;
+  return shuffle([{ txt: right, ok: true }].concat(d.map(x => ({ txt: x, ok: false }))));
+}
+function closeSheet() { const s = $('#cSheet'); if (s) s.remove(); }
+function choiceSheet(q, opts, st, onPick) {
+  closeSheet();
+  const ov = document.createElement('div'); ov.className = 'overlay sheetwrap'; ov.id = 'cSheet';
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(t('pickTitle'))}"><div class="sh-grab"></div><div class="sh-head"><b>🎯 ${esc(t('pickTitle'))}</b><button class="btn sm ghost" id="shX" aria-label="${esc(t('close'))}">✕</button></div>
+    <div class="sh-q">${inline(tx(q.q))}</div>
+    <div class="opts">${opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${inline(o.txt)}</span></button>`).join('')}</div>
+    ${S.life !== undefined ? `<div class="sh-foot">${lifeBtn('shLL')}<span class="small muted">${esc(t('llHint'))}</span></div>` : ''}</div>`;
+  document.body.appendChild(ov);
+  const btns = [...ov.querySelectorAll('.opt')];
+  st.gone.forEach(i => { btns[i].classList.add('gone'); btns[i].disabled = true; });
+  const ll = $('#shLL', ov); if (ll) { if (st.used) ll.disabled = true; ll.onclick = () => { if (useFifty(btns, opts.map(o => o.ok), st)) ll.disabled = true; }; }
+  $('#shX', ov).onclick = closeSheet; ov.addEventListener('click', e => { if (e.target === ov) closeSheet(); });
+  btns.forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; btns.forEach(x => x.disabled = true); if (ll) ll.disabled = true;
+    b.classList.add(opts[i].ok ? 'right' : 'wrong'); btns[opts.findIndex(x => x.ok)].classList.add('right');
+    setTimeout(() => { closeSheet(); onPick(i); }, opts[i].ok ? 500 : 950);
+  });
+}
+/* 🎁 surprise box after every 5 in a row */
+async function surprise(tries) {
+  const kid = S.kid; if (!kid) return;
+  if (document.querySelector('.overlay')) { if ((tries || 0) < 40) setTimeout(() => surprise((tries || 0) + 1), 700); return; } // wait until the answer popup is closed
+  sfx('gift');
+  const roll = Math.random(), kind = roll < 0.55 ? 'xp' : (roll < 0.8 && S.life !== undefined) ? 'life' : 'fact';
+  const xp = 5 + Math.floor(Math.random() * 11);
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal"><div class="giftbox" id="gb" role="button" tabindex="0" aria-label="${esc(t('giftT'))}">🎁</div><h2>${esc(t('giftT'))}</h2><p id="gp" style="margin:8px 0 18px">${esc(t('giftSub').replace('{n}', S.combo || 5))}</p><button class="btn hi" id="gOk" hidden>${esc(t('playOn'))}</button></div>`;
+  document.body.appendChild(ov);
+  const gb = $('#gb', ov), gp = $('#gp', ov), gOk = $('#gOk', ov);
+  const openIt = async () => {
+    if (gb.classList.contains('open')) return; gb.classList.add('open'); sfx('combo'); confetti(100);
+    if (kind === 'xp') { gb.textContent = '💰'; gp.innerHTML = `<b class="num">+${xp}</b> ${esc(t('giftXp'))} 🤑`; }
+    else if (kind === 'life') { gb.textContent = '💡'; S.life++; document.querySelectorAll('.ll').forEach(b => { b.disabled = false; const n = b.querySelector('.num'); if (n) n.textContent = '×' + S.life; }); gp.textContent = t('giftLife'); }
+    else { gb.textContent = '🧠'; gp.innerHTML = `<b>${esc(t('factT'))}</b> ${esc(tx(pick(FACTS)))}<br><b class="num">+3 XP</b>`; }
+    gOk.hidden = false; gOk.focus();
+    if (kind !== 'life') await award(kid, kind === 'xp' ? xp : 3, null);
+  };
+  gb.onclick = openIt; gb.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIt(); } };
+  gOk.onclick = () => ov.remove();
+}
+/* 🎯 daily mission */
+const MISSIONS = [
+  { k: 'correct', n: [12, 15, 20], icon: '✅', af: 'Kry {n} antwoorde reg', en: 'Get {n} answers right' },
+  { k: 'tests', n: [2, 3], icon: '📝', af: 'Voltooi {n} toetse of vraestelle', en: 'Finish {n} tests or papers' },
+  { k: 'games', n: [2, 3], icon: '🎮', af: 'Speel {n} breinspeletjies', en: 'Play {n} brain games' },
+  { k: 'combo', n: [5, 7], icon: '🔥', af: 'Kry {n} reg in ’n ry', en: 'Get {n} right in a row' },
+];
+const MISSION_XP = 30;
+function missionOf(kid) {
+  const d = today();
+  if (!kid.mission || kid.mission.d !== d) { const rnd = seeded('mission' + d + kid.id); const m = MISSIONS[Math.floor(rnd() * MISSIONS.length)]; kid.mission = { d, k: m.k, n: m.n[Math.floor(rnd() * m.n.length)], p: 0, done: false }; }
+  return kid.mission;
+}
+function missionText(m) { const def = MISSIONS.find(x => x.k === m.k) || MISSIONS[0]; return def.icon + ' ' + (L === 'en' ? def.en : def.af).replace('{n}', m.n); }
+function missionCard(kid) {
+  const m = missionOf(kid), pct = Math.round(100 * Math.min(m.p, m.n) / m.n);
+  return `<div class="card missioncard ${m.done ? 'done' : ''}" id="misC"><div class="mi">${m.done ? '🏆' : '🎯'}</div><div class="mt"><b>${esc(t('missionT'))}</b><div class="small">${esc(missionText(m))}</div><div class="bar-h"><i style="width:${pct}%"></i></div></div><div class="mr"><span class="num">${m.done ? '✓' : `${Math.min(m.p, m.n)}/${m.n}`}</span><div class="small muted">🎁 +${MISSION_XP} XP</div></div></div>`;
+}
+function missionComplete(kid) {
+  const m = kid.mission; if (!m || m.done) return; m.done = true;
+  setTimeout(async () => {
+    sfx('win');
+    const ov = document.createElement('div'); ov.className = 'overlay';
+    ov.innerHTML = `<div class="modal"><div class="big">🏆</div><h2>${esc(t('missionDone'))}</h2><p style="margin:8px 0 4px">${esc(missionText(m))}</p><p style="margin:0 0 18px"><b class="num">+${MISSION_XP} XP</b> 🎁</p><button class="btn hi" id="mdOk">${esc(t('close'))}</button></div>`;
+    document.body.appendChild(ov); confetti(180);
+    $('#mdOk', ov).onclick = () => { ov.remove(); if (S.route.s === 'home') render(); };
+    await award(kid, MISSION_XP, { type: 'mission', label: missionText(m) });
+  }, 1500);
+}
+/* ☀️ daily welcome (first visit of the day per boy): streak, mission, exam countdown and a fun fact */
+function maybeWelcome() {
+  const kid = S.kid; if (!kid) return;
+  const key = 'lh.welcome.' + kid.id; let last = null; try { last = localStorage.getItem(key); } catch (e) {}
+  if (last === today()) return;
+  setTimeout(() => {
+    if (S.route.s !== 'home' || document.querySelector('.overlay') || S.kid !== kid) return;
+    try { localStorage.setItem(key, today()); localStorage.setItem('lh.fact', today()); } catch (e) {}
+    const m = missionOf(kid), h = new Date().getHours(), s = kid.streak || { count: 0 };
+    const streakLine = s.last === today() ? (s.count > 1 ? t('streakToday').replace('{n}', s.count) : t('streakDay1')) : (s.last && daysBetween(s.last, today()) === 1 && s.count > 0) ? t('streakKeep').replace('{n}', s.count) : t('streakNew');
+    const f = FACTS[Math.floor(seeded(today() + kid.id)() * FACTS.length)];
+    const nx = examList().find(x => x.days !== null && x.days >= 0 && x.days <= 21);
+    const ov = document.createElement('div'); ov.className = 'overlay';
+    ov.innerHTML = `<div class="modal welcome"><div class="big">${h < 12 ? '🌅' : h < 18 ? '☀️' : '🌙'}</div><h2>${esc(h < 12 ? t('gMorning') : h < 18 ? t('gAfternoon') : t('gEvening'))}, ${esc(kid.name)}!</h2>
+      <div class="wl"><div class="wrow">${esc(streakLine)}</div>
+      <div class="wrow">🎯 <b>${esc(t('missionT'))}:</b> ${esc(missionText(m))} <span class="chip hi num">🎁 +${MISSION_XP} XP</span></div>
+      ${nx ? `<div class="wrow">📅 ${esc(nx.s.icon + ' ' + tx(nx.s.short))}: ${esc(t('exIn'))} <b class="num">${nx.days}</b> ${esc(t('days'))}</div>` : ''}
+      <div class="wrow">💡 <b>${esc(t('factT'))}</b> ${esc(tx(f))}</div></div>
+      <button class="btn hi" id="wGo">${esc(t('letsGo'))}</button></div>`;
+    document.body.appendChild(ov); confetti(60);
+    $('#wGo', ov).onclick = () => { ov.remove(); sfx('win'); };
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  }, 900);
+}
+function factLine() { return `<div class="factline small">💡 <b>${esc(t('factT'))}</b> ${esc(tx(pick(FACTS)))}</div>`; }
+/* sprint: four answers to choose from (near misses) */
+function mathChoices(a, traps) {
+  const set = new Set([a]); (traps || []).forEach(x => { if (Number.isFinite(x) && x !== a && set.size < 3) set.add(x); }); // the classic mistake is always one of the options
+  const rev = Math.abs(a) >= 10 ? Math.sign(a) * Number(String(Math.abs(a)).split('').reverse().join('')) : null;
+  const cand = shuffle([a + 1, a - 1, a + 2, a - 2, a + 10, a - 10, rev, -a]).filter(x => x !== null && Number.isFinite(x) && x !== a && (a < 0 || x >= 0));
+  cand.forEach(x => { if (set.size < 4) set.add(x); });
+  let k = 3; while (set.size < 4) set.add(a + k++);
+  return shuffle([...set]);
+}
+
 /* ---------- woordeboek (dictionary) ---------- */
 const VRAAGWOORDE = [
   { w: { af: 'Noem', en: 'Name / State' }, d: { af: 'Gee net die feite of name – geen verduideliking nodig nie.', en: 'Just give the facts or names – no explanation needed.' }, tip: { af: '1 punt = 1 feit. Vra die vraag 3 punte, noem 3 dinge.', en: '1 mark = 1 fact. If the question is worth 3 marks, name 3 things.' } },
@@ -1303,7 +1491,7 @@ function gameCount(key, sid) {
   if (key === 'memory') return gamePool(sid).filter(okPair).length;
   if (key === 'hangman') return gamePool(sid).filter(e => okWord(dWord(e)) && dDef(e)).length;
   if (key === 'blitz') return subjQs(sid, 'tf').length;
-  if (key === 'quick') return subjQs(sid, 'mc').length;
+  if (key === 'quick') return quickPool(sid).length;
   return null;
 }
 function gameSubj() { if (!S.gameSubj) { try { S.gameSubj = localStorage.getItem('lh.gsubj') || 'all'; } catch (e) { S.gameSubj = 'all'; } } return S.gameSubj; }
@@ -1329,9 +1517,9 @@ function gamePool(sid) { return dict().filter(e => !sid || sid === 'all' || e.s.
 function gameHead(main, key, right) {
   const [nm, ds] = t('g.' + key), sid = gameSubj();
   if (key !== 'sprint') setSubjectColor(sid !== 'all' && S.content.subjects[sid] ? S.content.subjects[sid].color : null);
-  return `<button class="back" data-go="speel">← ${esc(t('playT'))}</button><div class="row" style="justify-content:space-between"><h1>${GAME_ICON[key]} ${esc(nm)}</h1>${right || ''}</div><p class="small muted" style="margin:4px 0 8px">${esc(ds)}</p>${key === 'sprint' ? '' : `<div class="row" style="gap:8px;margin-bottom:12px"><span class="chip subject">${esc(subjLabel(sid))}</span><button class="linkbtn small" data-go="speel">${esc(t('changeSubj'))} →</button></div>`}`;
+  return `<button class="back" data-go="speel">← ${esc(t('playT'))}</button><div class="row" style="justify-content:space-between"><h1>${GAME_ICON[key]} ${esc(nm)}</h1><span class="row" style="gap:6px">${right || ''}${muteBtn()}</span></div><p class="small muted" style="margin:4px 0 8px">${esc(ds)}</p>${key === 'sprint' ? '' : `<div class="row" style="gap:8px;margin-bottom:12px"><span class="chip subject">${esc(subjLabel(sid))}</span><button class="linkbtn small" data-go="speel">${esc(t('changeSubj'))} →</button></div>`}`;
 }
-function wireBack(main) { main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go)); }
+function wireBack(main) { main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go)); wireMute(main); }
 async function gameOver(main, key, score, xp, big, line, lowerBetter, extra) {
   const kid = S.kid; kid.games = kid.games || {};
   const st = kid.games[key] = kid.games[key] || { plays: 0, best: null };
@@ -1414,8 +1602,8 @@ function renderHangman(main) {
       if (W.over || W.guessed.has(k)) return;
       W.guessed.add(k); const b = main.querySelector(`[data-k="${k}"]`); const hit = letters.some(c => isL(c) && fold(c) === k);
       if (b) { b.disabled = true; b.classList.add(hit ? 'hit' : 'miss'); }
-      if (!hit) W.lives--;
-      paint(); if (solved()) end(true); else if (W.lives <= 0) end(false);
+      if (!hit) W.lives--; sfx(hit ? 'tap' : 'bad');
+      paint(); if (solved()) { sfx('combo'); end(true); } else if (W.lives <= 0) end(false);
     };
     main.querySelectorAll('.key').forEach(b => b.onclick = () => guess(b.dataset.k));
     $('#hint').onclick = () => { if (W.over || W.lives <= 1) return; const hidden = letters.filter(c => isL(c) && !W.guessed.has(fold(c))); if (!hidden.length) return; W.lives--; guess(fold(hidden[Math.floor(Math.random() * hidden.length)])); };
@@ -1435,9 +1623,9 @@ function mathQ() {
     case 2: { const a = r(12, 99), b = r(11, 99); return { q: `${a} + ${b}`, a: a + b }; }
     case 3: { const a = r(30, 150), b = r(11, a); return { q: `${a} − ${b}`, a: a - b }; }
     case 4: { const a = r(-12, 12), b = r(-12, 12); return Math.random() < 0.5 ? { q: `${fmtN(a)} + ${fmtN(b)}`, a: a + b } : { q: `${fmtN(a)} − ${fmtN(b)}`, a: a - b }; }
-    case 5: { const a = r(1, 12); return { q: `${a}²`, a: a * a }; }
+    case 5: { const a = r(2, 12); return { q: `${a}²`, a: a * a, trap: [a * 2] }; }
     case 6: { const p = [10, 20, 25, 50, 75][r(0, 4)], base = r(1, 20) * 20; return { q: `${p}% ${L === 'af' ? 'van' : 'of'} ${base}`, a: base * p / 100 }; }
-    default: { const a = r(1, 10), b = r(2, 6), c = r(2, 6); return { q: `${a} + ${b} × ${c}`, a: a + b * c }; }
+    default: { const a = r(1, 10), b = r(2, 6), c = r(2, 6); return { q: `${a} + ${b} × ${c}`, a: a + b * c, trap: [(a + b) * c] }; }
   }
 }
 function renderSprint(main) {
@@ -1446,21 +1634,22 @@ function renderSprint(main) {
   wireBack(main);
   $('#go').onclick = () => {
     const G = { score: 0, n: 0, streak: 0, end: Date.now() + DUR * 1000, cur: null, inp: '', wrong: [], busy: false };
-    main.innerHTML = gameHead(main, 'sprint', `<span class="row" style="gap:6px"><span class="chip num" id="sT">${DUR}</span><span class="chip hi num" id="sS">0 ✓</span></span>`) + `<div class="card pad-lg"><div class="center small" id="sStreak" style="min-height:20px"></div><div class="sq num" id="sQ"></div><div class="sinp num" id="sI"></div>
-      <div class="keypad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '0', 'del'].map(k => `<button data-k="${k}">${k === 'del' ? '⌫' : k === '-' ? '−' : k}</button>`).join('')}</div><button class="btn subject block" id="sOk">OK ✓</button></div>`;
+    main.innerHTML = gameHead(main, 'sprint', `<span class="row" style="gap:6px"><span class="chip num" id="sT">${DUR}</span><span class="chip hi num" id="sS">0 ✓</span></span>`) + `<div class="card pad-lg"><div class="center small" id="sStreak" style="min-height:20px"></div><div class="sq num" id="sQ"></div><div class="schoices num" id="sC"></div></div>`;
     wireBack(main);
-    const paint = () => { $('#sQ').textContent = G.cur.q + ' = ?'; $('#sI').textContent = G.inp ? G.inp.replace('-', '−') : ' '; $('#sS').textContent = `${G.score} ✓`; $('#sStreak').textContent = G.streak >= 3 ? `🔥 ×${G.streak}` : ''; };
-    const next = () => { G.cur = mathQ(); G.inp = ''; paint(); };
-    const press = (k) => { if (G.busy) return; if (k === 'del') G.inp = G.inp.slice(0, -1); else if (k === '-') G.inp = G.inp.startsWith('-') ? G.inp.slice(1) : '-' + G.inp; else if (G.inp.replace('-', '').length < 5) G.inp += k; paint(); };
-    const ok = () => {
-      if (G.busy || !G.inp || G.inp === '-') return;
-      const v = parseInt(G.inp, 10), box = $('#sI'); G.n++;
-      if (v === G.cur.a) { G.score++; G.streak++; box.className = 'sinp num good'; G.busy = true; setTimeout(() => { box.className = 'sinp num'; G.busy = false; next(); }, 180); }
-      else { G.streak = 0; G.wrong.push({ q: G.cur.q, a: G.cur.a, v }); box.className = 'sinp num bad'; box.textContent = `${G.cur.a}`; G.busy = true; setTimeout(() => { box.className = 'sinp num'; G.busy = false; next(); }, 700); }
+    const paint = () => {
+      $('#sQ').textContent = G.cur.q + ' = ?'; $('#sS').textContent = `${G.score} ✓`; $('#sStreak').textContent = G.streak >= 3 ? `🔥 ×${G.streak}` : '';
+      $('#sC').innerHTML = G.cur.c.map((v, i) => `<button data-i="${i}">${esc(String(v).replace('-', '−'))}</button>`).join('');
+      $('#sC').querySelectorAll('button').forEach(b => b.onclick = () => choose(+b.dataset.i));
     };
-    main.querySelectorAll('.keypad [data-k]').forEach(b => b.onclick = () => press(b.dataset.k));
-    $('#sOk').onclick = ok;
-    setKeys((ev) => { if (/^[0-9]$/.test(ev.key)) press(ev.key); else if (ev.key === '-') press('-'); else if (ev.key === 'Backspace') { ev.preventDefault(); press('del'); } else if (ev.key === 'Enter') ok(); });
+    const next = () => { G.cur = mathQ(); G.cur.c = mathChoices(G.cur.a, G.cur.trap); paint(); };
+    const choose = (i) => {
+      if (G.busy || !G.cur) return;
+      const v = G.cur.c[i], btns = $('#sC').querySelectorAll('button'), ri = G.cur.c.indexOf(G.cur.a); G.n++; G.busy = true;
+      btns.forEach(b => b.disabled = true);
+      if (v === G.cur.a) { G.score++; G.streak++; btns[i].classList.add('right'); funAnswer(true, { quiet: true, streak: G.streak }); setTimeout(() => { G.busy = false; next(); }, 220); }
+      else { G.streak = 0; G.wrong.push({ q: G.cur.q, a: G.cur.a, v }); btns[i].classList.add('wrong'); if (btns[ri]) btns[ri].classList.add('right'); funAnswer(false, { quiet: true, streak: 0 }); setTimeout(() => { G.busy = false; next(); }, 750); }
+    };
+    setKeys((ev) => { const m = '1234'.indexOf(ev.key); if (m >= 0) choose(m); });
     const finish = () => {
       clearGame();
       const extra = G.wrong.length ? `<h3 style="margin-top:16px;text-align:left">${esc(t('review'))}</h3><div class="review" style="text-align:left">${G.wrong.slice(0, 8).map(w => `<div class="r bad"><div>❌</div><div class="num">${esc(w.q)} = <b>${w.a}</b> <span class="muted">(${esc(String(w.v).replace('-', '−'))})</span></div></div>`).join('')}</div>` : '';
@@ -1493,6 +1682,7 @@ function renderBlitz(main) {
       if (G.busy) return; const it = qs[G.i], ok = v === it.q.answer, card = $('#bCard');
       noteMistake(kid, it.topic, it.q, ok);
       if (ok) { G.score++; G.streak++; } else { G.streak = 0; G.wrong.push(it); }
+      funAnswer(ok, { quiet: true, streak: G.streak });
       card.classList.remove('flashok', 'flashno'); void card.offsetWidth; card.classList.add(ok ? 'flashok' : 'flashno');
       G.i++; G.busy = true; setTimeout(() => { G.busy = false; if (G.i >= qs.length) finish(); else paint(); }, ok ? 150 : 450);
     };
@@ -1503,8 +1693,10 @@ function renderBlitz(main) {
   };
 }
 /* vinnige vrae: 90 seconds of multiple-choice questions from the chosen subject */
+function quickPool(sid) { return subjQs(sid, 'mc').concat(subjQs(sid, 'fill').filter(it => it.q.choices)); }
+function quickOpts(q) { return q.type === 'mc' ? q.options.map((o, i) => ({ txt: tx(o), ok: i === q.answer })) : choiceOpts(q); }
 function renderQuick(main) {
-  const DUR = 90, sid = gameSubj(), pool = subjQs(sid, 'mc');
+  const DUR = 90, sid = gameSubj(), pool = quickPool(sid);
   main.innerHTML = gameHead(main, 'quick') + `<div class="card pad-lg center"><div style="font-size:56px">🚀</div><h2 style="margin:6px 0">${DUR} s</h2><p class="muted small" style="margin-bottom:14px">${esc(t('quickHow'))}</p><button class="btn subject" id="go" ${pool.length ? '' : 'disabled'}>▶ ${esc(t('start'))}</button></div>`;
   wireBack(main);
   $('#go').onclick = () => {
@@ -1514,25 +1706,27 @@ function renderQuick(main) {
     wireBack(main);
     const finish = () => {
       clearGame();
-      const extra = G.wrong.length ? `<h3 style="margin-top:16px;text-align:left">${esc(t('review'))}</h3><div class="review" style="text-align:left">${G.wrong.slice(0, 10).map(it => `<div class="r bad"><div>❌</div><div><div>${inline(tx(it.q.q))}</div><div class="ex"><b>${inline(tx(it.q.options[it.q.answer]))}</b> – ${inline(tx(it.q.explain))}</div></div></div>`).join('')}</div><p class="small muted" style="margin-top:8px">${esc(t('wentToMistakes'))}</p>` : '';
+      const extra = G.wrong.length ? `<h3 style="margin-top:16px;text-align:left">${esc(t('review'))}</h3><div class="review" style="text-align:left">${G.wrong.slice(0, 10).map(it => `<div class="r bad"><div>❌</div><div><div>${inline(tx(it.q.q))}</div><div class="ex"><b>${inline(it.right)}</b> – ${inline(tx(it.q.explain))}</div></div></div>`).join('')}</div><p class="small muted" style="margin-top:8px">${esc(t('wentToMistakes'))}</p>` : '';
       gameOver(main, 'quick', G.score, Math.min(30, G.score * 2), `${G.score}`, `${G.score}/${G.i} ${t('correctN')} · ${t('timeUp')}`, false, extra);
     };
     const paint = () => {
       const it = qs[G.i]; document.documentElement.style.setProperty('--subject', it.subj.color);
       $('#qTopic').textContent = `${it.subj.icon} ${tx(it.subj.short)} · ${tx(it.topic.title)}`;
       $('#qQ').innerHTML = inline(tx(it.q.q)); $('#qS').textContent = `${G.score} ✓`; $('#qStreak').textContent = G.streak >= 3 ? `🔥 ×${G.streak}` : '';
-      $('#qOpts').innerHTML = it.q.options.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${inline(tx(o))}</span></button>`).join('');
+      G.opts = quickOpts(it.q);
+      $('#qOpts').innerHTML = G.opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${inline(o.txt)}</span></button>`).join('');
       $('#qOpts').querySelectorAll('.opt').forEach(b => b.onclick = () => answer(+b.dataset.i));
     };
     const answer = (i) => {
-      if (G.busy) return; const it = qs[G.i], ok = i === it.q.answer; G.busy = true;
+      if (G.busy || !G.opts[i]) return; const it = qs[G.i], ok = G.opts[i].ok, ri = G.opts.findIndex(o => o.ok); G.busy = true;
       noteMistake(kid, it.topic, it.q, ok);
       const opts = $('#qOpts').querySelectorAll('.opt'); opts.forEach(x => x.disabled = true);
-      if (opts[i]) opts[i].classList.add(ok ? 'right' : 'wrong'); if (opts[it.q.answer]) opts[it.q.answer].classList.add('right');
-      if (ok) { G.score++; G.streak++; } else { G.streak = 0; G.wrong.push(it); }
+      if (opts[i]) opts[i].classList.add(ok ? 'right' : 'wrong'); if (opts[ri]) opts[ri].classList.add('right');
+      if (ok) { G.score++; G.streak++; } else { G.streak = 0; G.wrong.push(Object.assign({ right: G.opts[ri].txt }, it)); }
+      funAnswer(ok, { quiet: true, streak: G.streak });
       G.i++; setTimeout(() => { G.busy = false; if (G.i >= qs.length) finish(); else paint(); }, ok ? 300 : 1100);
     };
-    setKeys((ev) => { const k = (ev.key || '').toLowerCase(); const m = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k); if (m >= 0 && qs[G.i] && m < qs[G.i].q.options.length) answer(m); });
+    setKeys((ev) => { const k = (ev.key || '').toLowerCase(); const m = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k); if (m >= 0 && qs[G.i] && G.opts && m < G.opts.length) answer(m); });
     S._gameTimer = setInterval(() => { const left = Math.max(0, Math.ceil((G.end - Date.now()) / 1000)); const el = $('#qT'); if (el) { el.textContent = left; el.classList.toggle('bad', left <= 10); } if (left <= 0) finish(); }, 250);
     paint();
   };
