@@ -818,6 +818,21 @@ async function renderParent(main) {
   };
 }
 
+/* ------------------------------------------------------------------ auto-update (own website only) */
+function checkForUpdate() {
+  const cur = window.LH_VERSION; if (!cur) return;
+  fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
+    if (!j || !j.v || j.v === cur) return;
+    let done = null; try { done = sessionStorage.getItem('lh.upd'); } catch (e) {}
+    if (done === j.v) return; // already tried once for this version
+    const reload = () => { try { sessionStorage.setItem('lh.upd', j.v); } catch (e) {} const p = new URLSearchParams(location.search); p.set('u', j.v); location.replace(location.pathname + '?' + p.toString() + location.hash); };
+    if (['quiz', 'exam', 'paper'].includes(S.route.s)) {
+      if (document.getElementById('updBar')) return;
+      const bar = document.createElement('button'); bar.id = 'updBar'; bar.className = 'toast show'; bar.style.pointerEvents = 'auto'; bar.style.cursor = 'pointer';
+      bar.textContent = L === 'af' ? '✨ Nuwe weergawe – tik om op te dateer' : '✨ New version – tap to update'; bar.onclick = reload; document.body.appendChild(bar);
+    } else reload();
+  }).catch(() => {});
+}
 /* ------------------------------------------------------------------ boot */
 function applyTheme() {
   let th = null; try { th = localStorage.getItem('lh.theme'); } catch (e) {}
@@ -843,6 +858,7 @@ async function boot() {
   const r = parseRoute();
   if (r.kid) await selectKid(r.kid); else if (remembered && KIDS.some(k => k.id === remembered)) await selectKid(remembered);
   render();
+  if (window.LH_VERSION) { setTimeout(checkForUpdate, 4000); setInterval(checkForUpdate, 15 * 60000); document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); }); }
 }
 boot();
 })();
