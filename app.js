@@ -8,6 +8,7 @@
 const UI = {
   af: {
     nextExam: 'Volgende eksamen', weekXpShort: 'XP hierdie week', chestSub: 'Doen 3 toetse vandag om die skatkis oop te sluit.',
+    marksT: 'Skoolpunte invoer (van die rapport)', marksHelp: 'Tik die punte van die rapport in – Kwartaal 3 nou, Kwartaal 4 aan die einde van die jaar. Die fokusvakke en die dagplan pas outomaties aan. Laat leeg wat nie op die rapport is nie.', marksSave: 'Stoor punte',
     navExams: 'Eksamen', navPlay: 'Speel', navDict: 'Woorde', termNow: 'Kwartaal', finalTerm: 'laaste kwartaal – eindeksamens kom!', now: 'nou', exam1: 'eksamen', focusShort: 'fokusvak',
     planT: 'Vandag se studieplan', planSub: 'Gekies uit jou afbakening, jou eksamendatums en die vakke wat die meeste aandag nodig het.', planDone: 'Alles klaar vir vandag – sterk gedoen!',
     exT: 'Eindeksamen', exSub: 'Jou afbakening per vak: wat in die eksamen kom, hoe gereed jy is, en oefentoetse net op daardie werk.', exDateTBC: 'Datum nog onbekend', exDone: 'Klaar', exToday: 'Vandag!', exIn: 'oor',
@@ -15,7 +16,8 @@ const UI = {
     scopeTopics: 'onderwerpe', ready: 'gereed', scopeTest: 'Afbakening-toets', showTopics: 'Wys onderwerpe', inScope: 'In afbakening',
     mistakesT: 'Foute-boek', mistakesSub: 'Elke vraag wat jy verkeerd kry, word hier gebêre. Herdoen hulle tot jy hulle reg kry – dan verdwyn hulle uit die boek.', open_: 'oop', fixedN: 'reggemaak', redoAll: 'Herdoen 10 foute', redo: 'Herdoen', redoT: 'Herdoen foute', recentMistakes: 'Onlangse foute', noMistakes: 'Geen foute nie – mooi so!', noMistakesShort: 'Niks oop nie 🎉', tapToRedo: 'Tik om reg te maak',
     playT: 'Speel & leer', playSub: 'Breinspeletjies met jou eie skoolwerk. Elke speletjie verdien XP en tel vir die tweeling-uitdaging!', brainGames: 'Breinspeletjies', pickSubj: 'Kies ’n vak vir die woordspeletjies:', allSubj: 'Alle vakke',
-    g: { memory: ['Geheue-pare', 'Draai kaarte om en vind die Afrikaanse en Engelse woordpare.'], hangman: ['Raai die woord', 'Lees die betekenis en raai die woord, letter vir letter.'], sprint: ['Wiskunde-sprint', 'Hoeveel somme kan jy in 60 sekondes uit jou kop doen?'], blitz: ['Waar/Onwaar-blits', '60 sekondes: waar of onwaar? Hoe vinniger, hoe beter!'] },
+    gamesFor: 'Speletjies vir', alwaysMaths: 'Altyd Wiskunde', nWords: 'woorde', nStatements: 'stellings', nQuestions: 'vrae', changeSubj: 'Ander vak', quickHow: 'Lees die vraag en tik die regte antwoord – so vinnig as wat jy kan. Verkeerde antwoorde gaan in jou foute-boek.',
+    g: { quick: ['Vinnige vrae', '90 sekondes: beantwoord soveel vrae uit die vak as wat jy kan!'], memory: ['Geheue-pare', 'Draai kaarte om en vind die Afrikaanse en Engelse woordpare.'], hangman: ['Raai die woord', 'Lees die betekenis en raai die woord, letter vir letter.'], sprint: ['Wiskunde-sprint', 'Hoeveel somme kan jy in 60 sekondes uit jou kop doen?'], blitz: ['Waar/Onwaar-blits', '60 sekondes: waar of onwaar? Hoe vinniger, hoe beter!'] },
     best: 'Beste', moves: 'skuiwe', playAgain: 'Speel weer', back: 'Terug', newRecord: 'Nuwe rekord!', timeUp: 'Tyd is op!', start: 'Begin', lives: 'Lewens', hintLetter: 'Wenk (kos 1 lewe)', wordWas: 'Die woord was', nextWord: 'Volgende woord', wordsOf: 'woorde reg', correctN: 'reg',
     sprintHow: 'Tik die antwoord met die knoppies en druk OK. Gebruik − vir negatiewe getalle.', blitzHow: 'Lees die stelling en tik vinnig Waar of Onwaar. Verkeerde antwoorde gaan in jou foute-boek.', wentToMistakes: 'Hierdie vrae is in jou foute-boek gebêre.',
     weekT: 'Tweeling-uitdaging', weekLead: 'lei hierdie week!', weekTie: 'Gelykop!', weekReset: 'Begin elke Maandag oor.', chalT: 'Weeklikse uitdaging', chalSub: 'Dieselfde 10 vrae vir Diaan en Stefan. Net jou eerste poging tel – wie wen hierdie week?', chalPlay: 'Speel', chalReplay: 'Oefen weer', chalDone: 'Gespeel', chalNot: 'Nog nie gespeel nie', chalCounted: 'Jou telling tel vir hierdie week!', chalPractice: 'Oefenrondte – net jou eerste poging tel.',
@@ -23,7 +25,7 @@ const UI = {
     wotd: 'Woord van die dag', factT: 'Weet jy?', factBtn: 'Cool! 😎', toTopic: 'Na onderwerp', dwHint: 'Tik op ’n onderstreepte woord om sy betekenis te sien.',
     dictT: 'Woordeboek', dictSub: 'Al die moeilike woorde uit jou vakke – in Afrikaans en Engels, met betekenisse. Jy kan ook in enige opsomming op ’n onderstreepte woord tik.', dictTabTerms: 'Vakwoorde', dictTabQ: 'Vraagwoorde', dictQSub: 'Hierdie woorde in ’n vraag sê vir jou wát die onderwyser wil hê. Baie punte gaan verlore omdat iemand net “noem” waar die vraag “verduidelik” vra.', dictSearch: 'Soek ’n woord (Afrikaans of Engels)…', dictWords: 'woorde', dictNone: 'Niks gevind nie – probeer ’n ander spelling of die Engelse woord.', showMore: 'Wys meer',
     scopeT: 'Afbakening & eksamenrooster', scopeHelp: 'Kies per vak die eksamendatum en die onderwerpe wat in die eksamen kom (die notaveld is vir bv. bladsye of hoofstukke). Tot jy ’n vak verander, gebruik Leerhoek ’n voorlopige afbakening: Kwartaal 3 + 4 (tale: die hele jaar), soos in Unika se vorige Novembervraestelle.', curTermL: 'Huidige kwartaal', auto: 'Outomaties', pickTopics: 'Kies onderwerpe', q4: 'Kw 4', q34: 'Kw 3 + 4', qAll: 'Hele jaar', qNone: 'Geen', noteP: 'Nota, bv. Hfst 5–8, bl. 40–62', saveScope: 'Stoor afbakening', mistakesShort: 'foute oop', gamesShort: 'speletjies',
-    instTitle: 'Kry Leerhoek as ’n app', instSub: 'Sit die ikoon op jou tuisskerm – dan maak jy dit soos enige ander app oop.', instBtn: '📲 Installeer Leerhoek', instHow: 'Wys my hoe', instLater: 'Later', instDone: 'Leerhoek is geïnstalleer! Maak dit voortaan met die ikoon oop.', instIosTitle: 'Sit Leerhoek op jou tuisskerm', instIosSafari: ['Tik op <b>⋯</b> onder regs (of direk op <b>Deel</b> {S}).', 'Tik op <b>Deel</b> {S}.', 'Rol af (of tik <b>View More</b>) en kies <b>Add to Home Screen</b>.', 'Maak seker <b>Open as Web App</b> is aan, en tik <b>Add</b>.'], instIosChrome: ['Tik op <b>Deel</b> {S} regs in die adresbalk (of <b>⋯</b> → <b>Share</b>).', 'Rol af en kies <b>Add to Home Screen</b>.', 'Tik <b>Add</b>.'], instAndroid: ['Tik op <b>⋮</b> bo-regs (Samsung Internet: <b>☰</b> onder).', 'Kies <b>Installeer app</b> of <b>Add to Home screen</b>.', 'Tik <b>Installeer</b> / <b>Add</b>.'], instGot: 'Reg so!', instFoot: 'Daarna verskyn die Leerhoek-ikoon op jou tuisskerm.',
+    instTitle: 'Kry Leerhoek as ’n app', instSub: 'Sit die ikoon op jou tuisskerm – dan maak jy dit soos enige ander app oop.', instBtn: '📲 Installeer Leerhoek', instHow: 'Wys my hoe', instLater: 'Later', instDone: 'Leerhoek is geïnstalleer! Maak dit voortaan met die ikoon oop.', instIosTitle: 'Sit Leerhoek op jou tuisskerm', instIosSafari: ['Tik op <b>⋯</b> onder regs (of direk op <b>Deel</b> {S}).', 'Tik op <b>Deel</b> {S}.', 'Rol af (of tik <b>View More</b>) en kies <b>Add to Home Screen</b>.', 'Maak seker <b>Open as Web App</b> is aan, en tik <b>Add</b>.'], instIosChrome: ['Tik op <b>Deel</b> {S} regs in die adresbalk (of <b>⋯</b> → <b>Share</b>).', 'Rol af en kies <b>Add to Home Screen</b>.', 'Tik <b>Add</b>.'], instAndroid: ['Tik op <b>⋮</b> bo-regs in Chrome.', 'Kies <b>Installeer app</b> of <b>Add to Home screen</b>.', 'Tik <b>Installeer</b> / <b>Add</b>.', 'Wys Google Play Protect ’n waarskuwing? Tik <b>More details</b> → <b>Install anyway</b> – dis veilig, die “app” is net die Leerhoek-webwerf. Of kies <b>Create shortcut</b>.'], instSamsung: ['Op Samsung werk dit die beste in <b>Chrome</b> (Samsung se eie blaaier se app word deur Google Play Protect geblokkeer). Tik hieronder op <b>Kopieer skakel</b>.', 'Maak <b>Chrome</b> oop, plak die skakel in die adresbalk en maak dit oop.', 'Tik <b>⋮</b> bo-regs → <b>Add to Home screen</b> → <b>Install</b>.', 'Wys Play Protect steeds ’n waarskuwing? Tik <b>More details</b> → <b>Install anyway</b> (dis veilig), of kies <b>Create shortcut</b>.'], instCopy: 'Kopieer skakel', instGot: 'Reg so!', instFoot: 'Daarna verskyn die Leerhoek-ikoon op jou tuisskerm.',
     hello: 'Hallo', chooseProfile: 'Wie is jy vandag?', tagline: 'Diaan & Stefan se studieplatform', parent: 'Ouer', parentSub: 'Mel & Pa',
     level: 'Vlak', xp: 'XP', streak: 'Reeks', days: 'dae', quizzes: 'Toetse', avg: 'Gemiddeld', home: 'Tuis', subjects: 'Vakke', badges: 'Kentekens', resources: 'Hulpbronne',
     mission: 'Vandag se missie', missionSub: 'Drie dinge om vandag te doen – elkeen gee XP.', learn: 'Leer', test: 'Toets', examPractice: 'Eksamen-oefening', examPracticeSub: '20 gemengde vrae uit die hele vak',
@@ -50,6 +52,7 @@ const UI = {
   },
   en: {
     nextExam: 'Next exam', weekXpShort: 'XP this week', chestSub: 'Do 3 tests today to unlock the treasure chest.',
+    marksT: 'Enter school marks (from the report)', marksHelp: 'Type in the marks from the report – Term 3 now, Term 4 at the end of the year. The focus subjects and the daily plan adjust automatically. Leave blank what is not on the report.', marksSave: 'Save marks',
     navExams: 'Exams', navPlay: 'Play', navDict: 'Words', termNow: 'Term', finalTerm: 'final term – exams are coming!', now: 'now', exam1: 'exam', focusShort: 'focus subject',
     planT: "Today's study plan", planSub: 'Picked from your exam scope, your exam dates and the subjects that need the most attention.', planDone: 'All done for today – great work!',
     exT: 'Final exams', exSub: 'Your exam scope per subject: what is in the exam, how ready you are, and practice tests on just that work.', exDateTBC: 'Date not known yet', exDone: 'Done', exToday: 'Today!', exIn: 'in',
@@ -57,7 +60,8 @@ const UI = {
     scopeTopics: 'topics', ready: 'ready', scopeTest: 'Scope test', showTopics: 'Show topics', inScope: 'In scope',
     mistakesT: 'Mistakes book', mistakesSub: 'Every question you get wrong is saved here. Redo them until you get them right – then they disappear from the book.', open_: 'open', fixedN: 'fixed', redoAll: 'Redo 10 mistakes', redo: 'Redo', redoT: 'Redo mistakes', recentMistakes: 'Recent mistakes', noMistakes: 'No mistakes – well done!', noMistakesShort: 'Nothing open 🎉', tapToRedo: 'Tap to fix them',
     playT: 'Play & learn', playSub: 'Brain games with your own schoolwork. Every game earns XP and counts for the twin challenge!', brainGames: 'Brain games', pickSubj: 'Choose a subject for the word games:', allSubj: 'All subjects',
-    g: { memory: ['Memory pairs', 'Flip cards and find the Afrikaans and English word pairs.'], hangman: ['Guess the word', 'Read the meaning and guess the word, letter by letter.'], sprint: ['Maths sprint', 'How many sums can you do in your head in 60 seconds?'], blitz: ['True/False blitz', '60 seconds: true or false? The faster, the better!'] },
+    gamesFor: 'Games for', alwaysMaths: 'Always maths', nWords: 'words', nStatements: 'statements', nQuestions: 'questions', changeSubj: 'Change subject', quickHow: 'Read the question and tap the right answer – as fast as you can. Wrong answers go into your mistakes book.',
+    g: { quick: ['Quick-fire', '90 seconds: answer as many questions from the subject as you can!'], memory: ['Memory pairs', 'Flip cards and find the Afrikaans and English word pairs.'], hangman: ['Guess the word', 'Read the meaning and guess the word, letter by letter.'], sprint: ['Maths sprint', 'How many sums can you do in your head in 60 seconds?'], blitz: ['True/False blitz', '60 seconds: true or false? The faster, the better!'] },
     best: 'Best', moves: 'moves', playAgain: 'Play again', back: 'Back', newRecord: 'New record!', timeUp: "Time's up!", start: 'Start', lives: 'Lives', hintLetter: 'Hint (costs 1 life)', wordWas: 'The word was', nextWord: 'Next word', wordsOf: 'words right', correctN: 'right',
     sprintHow: 'Tap the answer on the keypad and press OK. Use − for negative numbers.', blitzHow: 'Read the statement and quickly tap True or False. Wrong answers go into your mistakes book.', wentToMistakes: 'These questions were saved in your mistakes book.',
     weekT: 'Twin challenge', weekLead: 'leads this week!', weekTie: 'Tied!', weekReset: 'Starts again every Monday.', chalT: 'Weekly challenge', chalSub: 'The same 10 questions for Diaan and Stefan. Only your first attempt counts – who wins this week?', chalPlay: 'Play', chalReplay: 'Practise again', chalDone: 'Played', chalNot: 'Not played yet', chalCounted: 'Your score counts for this week!', chalPractice: 'Practice round – only your first attempt counts.',
@@ -65,7 +69,7 @@ const UI = {
     wotd: 'Word of the day', factT: 'Did you know?', factBtn: 'Cool! 😎', toTopic: 'Go to topic', dwHint: 'Tap an underlined word to see its meaning.',
     dictT: 'Dictionary', dictSub: 'All the difficult words from your subjects – in Afrikaans and English, with meanings. You can also tap an underlined word in any summary.', dictTabTerms: 'Subject words', dictTabQ: 'Question words', dictQSub: 'These words in a question tell you what the teacher wants. Lots of marks are lost because someone only “names” where the question asks to “explain”.', dictSearch: 'Search a word (Afrikaans or English)…', dictWords: 'words', dictNone: 'Nothing found – try another spelling or the Afrikaans word.', showMore: 'Show more',
     scopeT: 'Exam scope & timetable', scopeHelp: "Choose the exam date and the topics in the exam for each subject (the note field is for e.g. pages or chapters). Until you change a subject, Leerhoek uses a provisional scope: Term 3 + 4 (languages: the whole year), as in Unika's previous November papers.", curTermL: 'Current term', auto: 'Automatic', pickTopics: 'Choose topics', q4: 'T4', q34: 'T3 + 4', qAll: 'Whole year', qNone: 'None', noteP: 'Note, e.g. Ch 5–8, p. 40–62', saveScope: 'Save scope', mistakesShort: 'mistakes open', gamesShort: 'games',
-    instTitle: 'Get Leerhoek as an app', instSub: 'Put the icon on your home screen – then open it like any other app.', instBtn: '📲 Install Leerhoek', instHow: 'Show me how', instLater: 'Later', instDone: 'Leerhoek is installed! Open it with the icon from now on.', instIosTitle: 'Put Leerhoek on your home screen', instIosSafari: ['Tap <b>⋯</b> at the bottom right (or <b>Share</b> {S} directly).', 'Tap <b>Share</b> {S}.', 'Scroll down (or tap <b>View More</b>) and choose <b>Add to Home Screen</b>.', 'Make sure <b>Open as Web App</b> is on, then tap <b>Add</b>.'], instIosChrome: ['Tap <b>Share</b> {S} on the right of the address bar (or <b>⋯</b> → <b>Share</b>).', 'Scroll down and choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'], instAndroid: ['Tap <b>⋮</b> at the top right (Samsung Internet: <b>☰</b> at the bottom).', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.', 'Tap <b>Install</b> / <b>Add</b>.'], instGot: 'Got it!', instFoot: 'The Leerhoek icon then appears on your home screen.',
+    instTitle: 'Get Leerhoek as an app', instSub: 'Put the icon on your home screen – then open it like any other app.', instBtn: '📲 Install Leerhoek', instHow: 'Show me how', instLater: 'Later', instDone: 'Leerhoek is installed! Open it with the icon from now on.', instIosTitle: 'Put Leerhoek on your home screen', instIosSafari: ['Tap <b>⋯</b> at the bottom right (or <b>Share</b> {S} directly).', 'Tap <b>Share</b> {S}.', 'Scroll down (or tap <b>View More</b>) and choose <b>Add to Home Screen</b>.', 'Make sure <b>Open as Web App</b> is on, then tap <b>Add</b>.'], instIosChrome: ['Tap <b>Share</b> {S} on the right of the address bar (or <b>⋯</b> → <b>Share</b>).', 'Scroll down and choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'], instAndroid: ['Tap <b>⋮</b> at the top right in Chrome.', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.', 'Tap <b>Install</b> / <b>Add</b>.', 'Does Google Play Protect show a warning? Tap <b>More details</b> → <b>Install anyway</b> – it is safe, the “app” is just the Leerhoek website. Or choose <b>Create shortcut</b>.'], instSamsung: ['On Samsung it works best in <b>Chrome</b> (Google Play Protect blocks the app made by Samsung’s own browser). Tap <b>Copy link</b> below.', 'Open <b>Chrome</b>, paste the link in the address bar and open it.', 'Tap <b>⋮</b> at the top right → <b>Add to Home screen</b> → <b>Install</b>.', 'Still a Play Protect warning? Tap <b>More details</b> → <b>Install anyway</b> (it is safe), or choose <b>Create shortcut</b>.'], instCopy: 'Copy link', instGot: 'Got it!', instFoot: 'The Leerhoek icon then appears on your home screen.',
     hello: 'Hi', chooseProfile: 'Who are you today?', tagline: "Diaan & Stefan's study platform", parent: 'Parent', parentSub: 'Mel & Dad',
     level: 'Level', xp: 'XP', streak: 'Streak', days: 'days', quizzes: 'Tests', avg: 'Average', home: 'Home', subjects: 'Subjects', badges: 'Badges', resources: 'Resources',
     mission: "Today's mission", missionSub: 'Three things to do today – each earns XP.', learn: 'Learn', test: 'Test', examPractice: 'Exam practice', examPracticeSub: '20 mixed questions from the whole subject',
@@ -97,7 +101,7 @@ const KIDS = [
 ];
 /* School report data lives in kids/<id>.school = { terms: { "1": {afrikaans: 63, ...}, "2": {...} }, avg: {"1": 57, "2": 51} }
    Pass requirements (Laerskool Unika report): 50 % Huistaal, 40 % EAT, 40 % Wiskunde, 40 % in 3 more, 30 % in 2 more. */
-const PASS_TARGET = { afrikaans: 50, english: 40, wiskunde: 40, default: 40 };
+const PASS_TARGET = { afrikaans: 50, english: 40, wiskunde: 40, 'kreatiewe-kunste': 30, default: 40 };
 const SCHOOL_EXTRA = { kk: { af: 'Kreatiewe Kunste', en: 'Creative Arts' }, geo: { af: 'Geografie', en: 'Geography' }, gesk: { af: 'Geskiedenis', en: 'History' } };
 const BADGES = ['first', 'perfect', 'five', 'streak3', 'streak7', 'reader', 'subject', 'xp1000', 'scope', 'fixer', 'brain'];
 const BADGE_ICONS = { first: '🎯', perfect: '💯', five: '🖐️', streak3: '🔥', streak7: '🌋', reader: '📚', subject: '👑', xp1000: '🏆', scope: '🎯', fixer: '🛠️', brain: '🧠' };
@@ -323,8 +327,10 @@ function topicPct(kid, tid) { const p = tprog(kid, tid); if (p.attempts) return 
 function subjectPct(kid, subj) { const ts = allTopics(subj); if (!ts.length) return 0; return Math.round(ts.reduce((a, x) => a + topicPct(kid, x.tp.id), 0) / ts.length); }
 function setSubjectColor(c) { document.documentElement.style.setProperty('--subject', c || '#2f6df6'); }
 /* school report helpers */
-function schoolTerms(kid) { const t = kid.school && kid.school.terms; return t ? Object.keys(t).sort() : []; }
-function schoolMark(kid, sid, term) { const ts = schoolTerms(kid); if (!ts.length) return null; const k = term || ts[ts.length - 1]; const v = kid.school.terms[k][sid]; return (typeof v === 'number') ? v : null; }
+function schoolTerms(kid) { const t = kid.school && kid.school.terms; return t ? Object.keys(t).filter(k => Object.values(t[k] || {}).some(v => typeof v === 'number')).sort() : []; }
+const schoolKey = (sid) => sid === 'kreatiewe-kunste' ? 'kk' : sid;
+function schoolMark(kid, sid, term) { const ts = schoolTerms(kid); if (!ts.length) return null; sid = schoolKey(sid); if (term) { const v = (kid.school.terms[term] || {})[sid]; return typeof v === 'number' ? v : null; } for (let i = ts.length - 1; i >= 0; i--) { const v = kid.school.terms[ts[i]][sid]; if (typeof v === 'number') return v; } return null; }
+function schoolMarkTerm(kid, sid) { const ts = schoolTerms(kid); sid = schoolKey(sid); for (let i = ts.length - 1; i >= 0; i--) if (typeof kid.school.terms[ts[i]][sid] === 'number') return ts[i]; return null; }
 function passTarget(sid) { return PASS_TARGET[sid] || PASS_TARGET.default; }
 function focusSubjects(kid, subjects) {
   const ts = schoolTerms(kid); if (!ts.length) return [];
@@ -590,15 +596,16 @@ function renderSubject(main, id) {
   const draw = () => {
     const tm = s.terms.find(x => x.term === term) || s.terms[0];
     main.innerHTML = `<button class="back" data-go="vakke">← ${esc(t('subjects'))}</button>
-    <div class="subhead"><span class="ic">${s.icon}</span><div class="t"><h1>${esc(tx(s.name))}</h1><p class="small muted">${esc(tx(s.intro))}</p>${schoolMark(kid, s.id) !== null ? `<div class="row" style="margin-top:8px;gap:6px"><span class="chip ${schoolMark(kid, s.id) < passTarget(s.id) ? 'bad' : 'good'}">${esc(t('school'))} ${esc(t('termShort'))}${schoolTerms(kid).slice(-1)[0]}: <span class="num">${schoolMark(kid, s.id)}%</span></span><span class="chip">${esc(t('target'))} <span class="num">${passTarget(s.id)}%</span></span></div>` : ''}</div>${ring(pct)}</div>
+    <div class="subhead"><span class="ic">${s.icon}</span><div class="t"><h1>${esc(tx(s.name))}</h1><p class="small muted">${esc(tx(s.intro))}</p>${schoolMark(kid, s.id) !== null ? `<div class="row" style="margin-top:8px;gap:6px"><span class="chip">🏫 ${esc(t('school'))}</span>${[1, 2, 3, 4].map(tm => { const v = schoolMark(kid, s.id, String(tm)); return `<span class="chip ${v === null ? '' : v < passTarget(s.id) ? 'bad' : 'good'}">${esc(t('termShort'))}${tm}: <span class="num">${v === null ? '–' : v + '%'}</span></span>`; }).join('')}<span class="chip">${esc(t('target'))} <span class="num">${passTarget(s.id)}%</span></span></div>` : ''}</div>${ring(pct)}</div>
     <div class="row" style="margin-top:12px;justify-content:space-between"><details class="tips" style="flex:1;min-width:240px"><summary>💡 ${esc(t('examTips'))}</summary><ul>${(s.examTips || []).map(x => `<li>${esc(tx(x))}</li>`).join('')}</ul></details>
-    <div class="row" style="gap:8px"><button class="btn subject" data-go="afbakening-${s.id}">🎯 ${esc(t('scopeTest'))}</button><button class="btn" data-go="eksamen-${s.id}">🎓 ${esc(t('examPractice'))}</button></div></div>
+    <div class="row" style="gap:8px"><button class="btn subject" data-go="afbakening-${s.id}">🎯 ${esc(t('scopeTest'))}</button><button class="btn" data-go="eksamen-${s.id}">🎓 ${esc(t('examPractice'))}</button><button class="btn" id="playSubj">🎮 ${esc(t('navPlay'))}</button></div></div>
     ${s.examFormat ? `<details class="tips" style="margin-top:10px"><summary>📄 ${esc(t('examFormatT'))}</summary><div class="prose small" style="margin-top:6px">${md(tx(s.examFormat))}</div></details>` : ''}
     ${(s.practiceExams || []).length ? `<div class="card" style="margin-top:10px"><h3>📝 ${esc(t('papers'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('paperSub'))}</p><div class="stack" style="gap:8px">${s.practiceExams.map(ex => { const pp = (kid.papers || {})[ex.id]; return `<div class="row" style="justify-content:space-between"><div><b>${esc(tx(ex.title))}</b><div class="small muted num">${ex.total} ${esc(t('marks'))} · ${ex.minutes} ${esc(t('min'))}${pp ? ` · ${esc(t('bestMark'))} ${pp.best}% (${pp.attempts}×)` : ''}</div></div><button class="btn sm subject" data-go="vraestel-${ex.id}">${esc(t('startPaper'))} →</button></div>`; }).join('')}</div></div>` : ''}
     <div class="tabs">${s.terms.map(x => `<button class="${x.term === term ? 'on' : ''}" data-term="${x.term}">${esc(t('term'))} ${x.term}${x.term === ct ? ' · ' + esc(t('now')) : ''} <span class="num">(${x.topics.length})</span></button>`).join('')}</div>
     <h3 style="margin:6px 0 10px">${esc(tx(tm.title))}</h3>
     <div class="topics">${tm.topics.length ? tm.topics.map((tp, i) => { const st = topicStatus(kid, tp.id), p = tprog(kid, tp.id); return `<div class="topic" style="animation-delay:${i * 40}ms"><div class="ix">${i + 1}</div><div><div class="tt">${esc(tx(tp.title))}</div><div class="bl">${esc(tx(tp.blurb))}</div><div class="row" style="gap:6px;margin-top:6px">${statusChip(st)}${p.attempts ? `<span class="chip num">${p.best}% · ${p.attempts}×</span>` : ''}${scope.has(tp.id) ? `<span class="chip hi">🎯 ${esc(t('inScope'))}</span>` : ''}</div></div><div class="acts"><button class="btn sm" data-go="onderwerp-${tp.id}">📖 ${esc(t('learn'))}</button><button class="btn sm subject" data-go="toets-${tp.id}">✏️ ${esc(t('test'))}</button></div></div>`; }).join('') : `<div class="card muted">…</div>`}</div>`;
     main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+    const ps = $('#playSubj'); if (ps) ps.onclick = () => { setGameSubj(id); go('speel'); };
     main.querySelectorAll('[data-term]').forEach(b => b.onclick = () => { term = +b.dataset.term; S._term = S._term || {}; S._term[id] = term; draw(); });
   };
   draw();
@@ -871,8 +878,8 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${scopeEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main);
+  </div>${scopeEditor(subjects)}${marksEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
@@ -882,8 +889,8 @@ async function renderParent(main) {
     const last = events[0] ? `${fmtDay(events[0].date)} ${fmtTime(events[0].t)}` : t('never');
     return `<div class="card kidcard" id="kc-${kid.id}"><div class="kh"><span class="av">${kid.avatar}</span><div><h2>${esc(kid.name)}</h2><div class="small muted">${esc(t('level'))} ${levelOf(kid.xp)} · ${esc(levelName(levelOf(kid.xp)))} · ${esc(t('lastActive'))}: ${esc(last)}</div></div></div>
       <div class="kv"><div><div class="v num">${kid.xp}</div><div class="k">XP</div></div><div><div class="v num">🔥 ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div><div class="v num">${quizzesWeek.length}</div><div class="k">${esc(t('quizzes'))} ${esc(t('thisWeek'))}</div></div><div><div class="v num">${avgWeek}%</div><div class="k">${esc(t('avg'))} ${esc(t('thisWeek'))}</div></div><div><div class="v num">${Math.round((kid.totals.secs || 0) / 60)} ${esc(t('min'))}</div><div class="k">${esc(t('timeOn'))}</div></div><div><div class="v num">🏆 ${weekXp(kid)}</div><div class="k">XP ${esc(t('thisWeek'))}</div></div><div><div class="v num">❌ ${mistakeCount(kid)}</div><div class="k">${esc(t('mistakesShort'))}</div></div><div><div class="v num">🎮 ${(kid.totals.games || 0)}</div><div class="k">${esc(t('gamesShort'))}</div></div></div>
-      ${schoolTerms(kid).length ? (() => { const ts = schoolTerms(kid); const rows = subjects.map(s => ({ id: s.id, label: s.icon + ' ' + tx(s.short), target: passTarget(s.id), plat: subjectPct(kid, s) })).concat(Object.keys(SCHOOL_EXTRA).filter(k => ts.some(tm => typeof kid.school.terms[tm][k] === 'number')).map(k => ({ id: k, label: tx(SCHOOL_EXTRA[k]), target: k === 'kk' ? 30 : null, plat: null })));
-        return `<h3 style="margin-top:16px">🏫 ${esc(t('schoolMarks'))}</h3><p class="small muted" style="margin:2px 0 8px">${esc(t('schoolSub'))}</p><div class="tbl"><table class="marks"><tr><th></th>${ts.map(tm => `<th class="num">${esc(t('termShort'))}${tm}</th>`).join('')}<th class="num">${esc(t('target'))}</th><th class="num">${esc(t('platform'))}</th></tr>${rows.map(r => { const last = schoolMark(kid, r.id); const bad = r.target !== null && last !== null && last < r.target; return `<tr class="${bad ? 'bad' : ''}"><td>${esc(r.label)}</td>${ts.map(tm => `<td class="num">${typeof kid.school.terms[tm][r.id] === 'number' ? kid.school.terms[tm][r.id] + '%' : '–'}</td>`).join('')}<td class="num">${r.target !== null ? r.target + '%' : '–'}</td><td class="num">${r.plat !== null ? r.plat + '%' : '–'}</td></tr>`; }).join('')}${kid.school.avg ? `<tr><td><b>${esc(t('avgShort'))}</b></td>${ts.map(tm => `<td class="num"><b>${kid.school.avg[tm] !== undefined ? kid.school.avg[tm] + '%' : '–'}</b></td>`).join('')}<td></td><td></td></tr>` : ''}</table></div><p class="small muted" style="margin-top:6px">${esc(t('passRules'))}</p>`; })() : ''}
+      ${schoolTerms(kid).length ? (() => { const ts = ['1', '2', '3', '4']; kid.school.terms = kid.school.terms || {}; ts.forEach(tm => { kid.school.terms[tm] = kid.school.terms[tm] || {}; }); const rows = subjects.map(s => ({ id: schoolKey(s.id), label: s.icon + ' ' + tx(s.short), target: passTarget(s.id), plat: subjectPct(kid, s) })).concat(Object.keys(SCHOOL_EXTRA).filter(k => k !== 'kk' && ts.some(tm => typeof kid.school.terms[tm][k] === 'number')).map(k => ({ id: k, label: tx(SCHOOL_EXTRA[k]), target: null, plat: null })));
+        return `<h3 style="margin-top:16px">🏫 ${esc(t('schoolMarks'))}</h3><p class="small muted" style="margin:2px 0 8px">${esc(t('schoolSub'))}</p><div class="tbl"><table class="marks"><tr><th></th>${ts.map(tm => `<th class="num">${esc(t('termShort'))}${tm}</th>`).join('')}<th class="num">${esc(t('target'))}</th><th class="num">${esc(t('platform'))}</th></tr>${rows.map(r => { const last = schoolMark(kid, r.id); const bad = r.target !== null && last !== null && last < r.target; return `<tr class="${bad ? 'bad' : ''}"><td>${esc(r.label)}</td>${ts.map(tm => `<td class="num">${typeof kid.school.terms[tm][r.id] === 'number' ? kid.school.terms[tm][r.id] + '%' : '–'}</td>`).join('')}<td class="num">${r.target !== null ? r.target + '%' : '–'}</td><td class="num">${r.plat !== null ? r.plat + '%' : '–'}</td></tr>`; }).join('')}${kid.school.avg ? `<tr><td><b>${esc(t('avgShort'))}</b></td>${ts.map(tm => `<td class="num"><b>${kid.school.avg[tm] !== undefined && kid.school.avg[tm] !== null ? kid.school.avg[tm] + '%' : '–'}</b></td>`).join('')}<td></td><td></td></tr>` : ''}</table></div><p class="small muted" style="margin-top:6px">${esc(t('passRules'))}</p>`; })() : ''}
       <h3 style="margin-top:16px">${esc(t('mastery'))}</h3><div class="bars">${subjects.map(s => `<div class="b" style="--subject:${s.color}"><span>${s.icon} ${esc(tx(s.short))}</span><div class="bar-h subject"><i style="width:${subjectPct(kid, s)}%"></i></div><span class="num" style="text-align:right">${subjectPct(kid, s)}%</span></div>`).join('')}</div>
       <h3 style="margin-top:16px">⚠️ ${esc(t('weak'))}</h3>${weak.length ? `<ul class="weak small" style="margin:6px 0 0;padding-left:18px">${weak.slice(0, 8).map(w => `<li>${esc(tx(w.s.short))}: ${esc(tx(w.tp.title))} — <b class="num">${tprog(kid, w.tp.id).best}%</b></li>`).join('')}</ul>` : `<p class="small muted">${esc(t('noWeak'))}</p>`}
       <h3 style="margin-top:16px">🕒 ${esc(t('activity'))}</h3><div class="feed">${events.length ? events.slice(0, 40).map(e => `<div class="e"><span class="t">${esc(fmtDay(e.date))}<br>${fmtTime(e.t)}</span><span>${evText(e)}</span></div>`).join('') : `<p class="small muted">${esc(t('noActivity'))}</p>`}</div>
@@ -1219,21 +1226,33 @@ function renderDict(main) {
 }
 
 /* ---------- brain games ---------- */
-const GAMES = [['geheue', 'memory', '🧩'], ['raai', 'hangman', '🔤'], ['sprint', 'sprint', '⚡'], ['blits', 'blitz', '✅']];
-const GAME_ICON = { memory: '🧩', hangman: '🔤', sprint: '⚡', blitz: '✅' };
+const GAMES = [['vinnig', 'quick', '🚀'], ['geheue', 'memory', '🧩'], ['raai', 'hangman', '🔤'], ['blits', 'blitz', '✅'], ['sprint', 'sprint', '⚡']];
+const GAME_ICON = { quick: '🚀', memory: '🧩', hangman: '🔤', sprint: '⚡', blitz: '✅' };
+const okPair = (e) => e.af && e.en && fold(e.af) !== fold(e.en) && e.af.length <= 26 && e.en.length <= 26;
+const okWord = (w) => !!w && w.length >= 3 && w.length <= 18 && [...fold(w)].every(c => /[a-z' -]/.test(c)) && (fold(w).match(/[a-z]/g) || []).length >= 3;
+function subjQs(sid, type) { const out = []; subjectsOfGrade(7).filter(s => !sid || sid === 'all' || s.id === sid).forEach(s => allTopics(s).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === type) out.push({ q, topic: tp, term, subj: s }); }))); return out; }
+function subjLabel(sid) { const s = sid && sid !== 'all' ? S.content.subjects[sid] : null; return s ? `${s.icon} ${tx(s.name)}` : `🌈 ${t('allSubj')}`; }
+function gameCount(key, sid) {
+  if (key === 'memory') return gamePool(sid).filter(okPair).length;
+  if (key === 'hangman') return gamePool(sid).filter(e => okWord(dWord(e)) && dDef(e)).length;
+  if (key === 'blitz') return subjQs(sid, 'tf').length;
+  if (key === 'quick') return subjQs(sid, 'mc').length;
+  return null;
+}
 function gameSubj() { if (!S.gameSubj) { try { S.gameSubj = localStorage.getItem('lh.gsubj') || 'all'; } catch (e) { S.gameSubj = 'all'; } } return S.gameSubj; }
 function setGameSubj(v) { S.gameSubj = v; try { localStorage.setItem('lh.gsubj', v); } catch (e) {} }
 function bestText(key, best) { if (best === null || best === undefined) return '–'; if (key === 'memory') return `${best} ${t('moves')}`; if (key === 'hangman') return `${Math.floor(best / 100)}/5`; return String(best); }
 function renderGames(main) {
   const kid = S.kid, cur = gameSubj(), w = weekId(), g = kid.games || {};
+  setSubjectColor(cur !== 'all' && S.content.subjects[cur] ? S.content.subjects[cur].color : null);
   const ch = kid.challenge && kid.challenge.w === w ? kid.challenge : null;
   main.innerHTML = `<h1>🎮 ${esc(t('playT'))}</h1><p class="muted" style="margin:4px 0 14px;max-width:70ch">${esc(t('playSub'))}</p>
   <div class="grid two">
     <div class="card"><h3>🏆 ${esc(t('weekT'))}</h3><div id="twinBox" class="small muted" style="margin-top:8px">…</div></div>
     <div class="card"><h3>⚔️ ${esc(t('chalT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chalSub'))}</p><div class="row" style="justify-content:space-between"><span class="chip ${ch ? 'good' : ''}">${ch ? `✓ ${esc(t('chalDone'))}: <span class="num">${ch.score}/${ch.total}</span>` : esc(t('chalNot'))}</span><button class="btn subject" data-go="uitdaging">${esc(ch ? t('chalReplay') : t('chalPlay'))} →</button></div></div>
   </div>
-  <h2 style="margin:22px 0 8px">🧠 ${esc(t('brainGames'))}</h2><p class="small muted" style="margin-bottom:8px">${esc(t('pickSubj'))}</p>${subjChips(cur, 'gs')}
-  <div class="games" style="margin-top:12px">${GAMES.map(([slug, key, ic], i) => { const [nm, ds] = t('g.' + key); const st = g[key] || {}; return `<button class="game" data-go="spel-${slug}" style="animation-delay:${i * 60}ms"><span class="gi">${ic}</span><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span>${st.plays ? `<span class="chip hi num">${esc(t('best'))}: ${esc(bestText(key, st.best))}</span>` : ''}</button>`; }).join('')}</div>
+  <h2 style="margin:22px 0 4px">🧠 ${esc(t('gamesFor'))}: <span style="color:var(--subject)">${esc(subjLabel(cur))}</span></h2><p class="small muted" style="margin-bottom:8px">${esc(t('pickSubj'))}</p>${subjChips(cur, 'gs')}
+  <div class="games" style="margin-top:12px">${GAMES.map(([slug, key, ic], i) => { const [nm, ds] = t('g.' + key); const st = g[key] || {}; const n = gameCount(key, cur); return `<button class="game" data-go="spel-${slug}" style="animation-delay:${i * 60}ms"><span class="gi">${ic}</span><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span><span class="row" style="gap:4px">${key === 'sprint' ? `<span class="chip">📐 ${esc(t('alwaysMaths'))}</span>` : `<span class="chip subject num">${esc(subjLabel(cur).split(' ')[0])} ${n} ${esc(key === 'blitz' ? t('nStatements') : key === 'quick' ? t('nQuestions') : t('nWords'))}</span>`}${st.plays ? `<span class="chip hi num">${esc(t('best'))}: ${esc(bestText(key, st.best))}</span>` : ''}</span></button>`; }).join('')}</div>
   <div class="row" style="margin-top:18px"><button class="btn" data-go="kentekens">🏅 ${esc(t('badges'))}</button><button class="btn" data-go="foute">❌ ${esc(t('mistakesT'))}</button></div>`;
   main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   main.querySelectorAll('[data-gs]').forEach(b => b.onclick = () => { setGameSubj(b.dataset.gs); renderGames(main); });
@@ -1241,8 +1260,9 @@ function renderGames(main) {
 }
 function gamePool(sid) { return dict().filter(e => !sid || sid === 'all' || e.s.id === sid); }
 function gameHead(main, key, right) {
-  const [nm, ds] = t('g.' + key);
-  return `<button class="back" data-go="speel">← ${esc(t('playT'))}</button><div class="row" style="justify-content:space-between"><h1>${GAME_ICON[key]} ${esc(nm)}</h1>${right || ''}</div><p class="small muted" style="margin:4px 0 12px">${esc(ds)}</p>`;
+  const [nm, ds] = t('g.' + key), sid = gameSubj();
+  if (key !== 'sprint') setSubjectColor(sid !== 'all' && S.content.subjects[sid] ? S.content.subjects[sid].color : null);
+  return `<button class="back" data-go="speel">← ${esc(t('playT'))}</button><div class="row" style="justify-content:space-between"><h1>${GAME_ICON[key]} ${esc(nm)}</h1>${right || ''}</div><p class="small muted" style="margin:4px 0 8px">${esc(ds)}</p>${key === 'sprint' ? '' : `<div class="row" style="gap:8px;margin-bottom:12px"><span class="chip subject">${esc(subjLabel(sid))}</span><button class="linkbtn small" data-go="speel">${esc(t('changeSubj'))} →</button></div>`}`;
 }
 function wireBack(main) { main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go)); }
 async function gameOver(main, key, score, xp, big, line, lowerBetter, extra) {
@@ -1264,7 +1284,6 @@ function setKeys(fn) { if (S._keyH) document.removeEventListener('keydown', S._k
 
 /* memory pairs: Afrikaans word ↔ English word */
 function renderMemory(main) {
-  const okPair = (e) => e.af && e.en && fold(e.af) !== fold(e.en) && e.af.length <= 26 && e.en.length <= 26;
   let pool = gamePool(gameSubj()).filter(okPair); if (pool.length < 6) pool = dict().filter(okPair);
   const pick = [], seenA = new Set(), seenE = new Set();
   for (const e of shuffle(pool)) { if (pick.length >= 6) break; if (seenA.has(fold(e.af)) || seenE.has(fold(e.en))) continue; seenA.add(fold(e.af)); seenE.add(fold(e.en)); pick.push(e); }
@@ -1290,7 +1309,6 @@ function renderMemory(main) {
 
 /* raai die woord: hangman with the definition as the clue */
 function renderHangman(main) {
-  const okWord = (w) => w && w.length >= 3 && w.length <= 18 && [...fold(w)].every(c => /[a-z' -]/.test(c)) && (fold(w).match(/[a-z]/g) || []).length >= 3;
   let pool = gamePool(gameSubj()).filter(e => okWord(dWord(e)) && dDef(e)); if (pool.length < 5) pool = dict().filter(e => okWord(dWord(e)) && dDef(e));
   const words = shuffle(pool).slice(0, 5);
   const G = { i: 0, solved: 0, livesLeft: 0, log: [] };
@@ -1389,7 +1407,7 @@ function renderSprint(main) {
 /* waar/onwaar-blits: 60 seconds of true/false statements from their own tests */
 function renderBlitz(main) {
   const DUR = 60, sid = gameSubj();
-  const pool = []; subjectsOfGrade(7).filter(s => sid === 'all' || s.id === sid).forEach(s => allTopics(s).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === 'tf') pool.push({ q, topic: tp, term, subj: s }); })));
+  const pool = subjQs(sid, 'tf');
   main.innerHTML = gameHead(main, 'blitz') + `<div class="card pad-lg center"><div style="font-size:56px">✅</div><h2 style="margin:6px 0">${DUR} s</h2><p class="muted small" style="margin-bottom:14px">${esc(t('blitzHow'))}</p><button class="btn subject" id="go" ${pool.length ? '' : 'disabled'}>▶ ${esc(t('start'))}</button></div>`;
   wireBack(main);
   $('#go').onclick = () => {
@@ -1417,7 +1435,43 @@ function renderBlitz(main) {
     paint();
   };
 }
+/* vinnige vrae: 90 seconds of multiple-choice questions from the chosen subject */
+function renderQuick(main) {
+  const DUR = 90, sid = gameSubj(), pool = subjQs(sid, 'mc');
+  main.innerHTML = gameHead(main, 'quick') + `<div class="card pad-lg center"><div style="font-size:56px">🚀</div><h2 style="margin:6px 0">${DUR} s</h2><p class="muted small" style="margin-bottom:14px">${esc(t('quickHow'))}</p><button class="btn subject" id="go" ${pool.length ? '' : 'disabled'}>▶ ${esc(t('start'))}</button></div>`;
+  wireBack(main);
+  $('#go').onclick = () => {
+    const qs = shuffle(pool), kid = S.kid;
+    const G = { i: 0, score: 0, streak: 0, end: Date.now() + DUR * 1000, wrong: [], busy: false };
+    main.innerHTML = gameHead(main, 'quick', `<span class="row" style="gap:6px"><span class="chip num" id="qT">${DUR}</span><span class="chip hi num" id="qS">0 ✓</span></span>`) + `<div class="card pad-lg" id="qCard"><div class="row" style="justify-content:space-between"><span class="small muted" id="qTopic"></span><span class="small" id="qStreak"></span></div><div class="q" id="qQ" style="margin:10px 0"></div><div class="opts" id="qOpts"></div></div>`;
+    wireBack(main);
+    const finish = () => {
+      clearGame();
+      const extra = G.wrong.length ? `<h3 style="margin-top:16px;text-align:left">${esc(t('review'))}</h3><div class="review" style="text-align:left">${G.wrong.slice(0, 10).map(it => `<div class="r bad"><div>❌</div><div><div>${inline(tx(it.q.q))}</div><div class="ex"><b>${inline(tx(it.q.options[it.q.answer]))}</b> – ${inline(tx(it.q.explain))}</div></div></div>`).join('')}</div><p class="small muted" style="margin-top:8px">${esc(t('wentToMistakes'))}</p>` : '';
+      gameOver(main, 'quick', G.score, Math.min(30, G.score * 2), `${G.score}`, `${G.score}/${G.i} ${t('correctN')} · ${t('timeUp')}`, false, extra);
+    };
+    const paint = () => {
+      const it = qs[G.i]; document.documentElement.style.setProperty('--subject', it.subj.color);
+      $('#qTopic').textContent = `${it.subj.icon} ${tx(it.subj.short)} · ${tx(it.topic.title)}`;
+      $('#qQ').innerHTML = inline(tx(it.q.q)); $('#qS').textContent = `${G.score} ✓`; $('#qStreak').textContent = G.streak >= 3 ? `🔥 ×${G.streak}` : '';
+      $('#qOpts').innerHTML = it.q.options.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${inline(tx(o))}</span></button>`).join('');
+      $('#qOpts').querySelectorAll('.opt').forEach(b => b.onclick = () => answer(+b.dataset.i));
+    };
+    const answer = (i) => {
+      if (G.busy) return; const it = qs[G.i], ok = i === it.q.answer; G.busy = true;
+      noteMistake(kid, it.topic, it.q, ok);
+      const opts = $('#qOpts').querySelectorAll('.opt'); opts.forEach(x => x.disabled = true);
+      if (opts[i]) opts[i].classList.add(ok ? 'right' : 'wrong'); if (opts[it.q.answer]) opts[it.q.answer].classList.add('right');
+      if (ok) { G.score++; G.streak++; } else { G.streak = 0; G.wrong.push(it); }
+      G.i++; setTimeout(() => { G.busy = false; if (G.i >= qs.length) finish(); else paint(); }, ok ? 300 : 1100);
+    };
+    setKeys((ev) => { const k = (ev.key || '').toLowerCase(); const m = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k); if (m >= 0 && qs[G.i] && m < qs[G.i].q.options.length) answer(m); });
+    S._gameTimer = setInterval(() => { const left = Math.max(0, Math.ceil((G.end - Date.now()) / 1000)); const el = $('#qT'); if (el) { el.textContent = left; el.classList.toggle('bad', left <= 10); } if (left <= 0) finish(); }, 250);
+    paint();
+  };
+}
 function renderGame(main, slug) {
+  if (slug === 'vinnig') return renderQuick(main);
   if (slug === 'geheue') return renderMemory(main);
   if (slug === 'raai') return renderHangman(main);
   if (slug === 'sprint') return renderSprint(main);
@@ -1426,6 +1480,33 @@ function renderGame(main, slug) {
 }
 
 /* ---------- parent: afbakening & exam timetable editor ---------- */
+function marksEditor(subjects) {
+  const keys = subjects.map(s => ({ k: schoolKey(s.id), label: s.icon + ' ' + tx(s.short) })).concat([{ k: 'geo', label: '🗺️ ' + tx(SCHOOL_EXTRA.geo) }, { k: 'gesk', label: '📜 ' + tx(SCHOOL_EXTRA.gesk) }]);
+  return `<div class="card" style="margin-top:14px" id="marksCard"><h3>🏫 ${esc(t('marksT'))}</h3><p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('marksHelp'))}</p>
+  <div class="row" style="gap:10px;margin-bottom:10px"><select id="mkKid" aria-label="Kind">${KIDS.map(k => `<option value="${k.id}">${k.avatar} ${esc(k.name)}</option>`).join('')}</select><select id="mkTerm" aria-label="${esc(t('term'))}">${[1, 2, 3, 4].map(n => `<option value="${n}" ${n === Math.max(1, curTerm() - 1) ? 'selected' : ''}>${esc(t('term'))} ${n}</option>`).join('')}</select></div>
+  <div class="marksgrid">${keys.map(x => `<label class="mk"><span>${esc(x.label)}</span><input type="number" inputmode="numeric" min="0" max="100" data-mk="${x.k}" placeholder="–"></label>`).join('')}<label class="mk"><span><b>${esc(t('avgShort'))}</b></span><input type="number" inputmode="numeric" min="0" max="100" data-mk="_avg" placeholder="${esc(t('auto'))}"></label></div>
+  <button class="btn primary" id="mkSave" style="margin-top:12px">💾 ${esc(t('marksSave'))}</button></div>`;
+}
+function wireMarksEditor(root, kids) {
+  const fill = () => {
+    const kid = kids.find(k => k.id === $('#mkKid', root).value), tm = $('#mkTerm', root).value;
+    const terms = (kid.school && kid.school.terms) || {}, cur = terms[tm] || {}, avg = (kid.school && kid.school.avg) || {};
+    root.querySelectorAll('[data-mk]').forEach(i => { const v = i.dataset.mk === '_avg' ? avg[tm] : cur[i.dataset.mk]; i.value = typeof v === 'number' ? v : ''; });
+  };
+  $('#mkKid', root).onchange = fill; $('#mkTerm', root).onchange = fill; fill();
+  $('#mkSave', root).onclick = async () => {
+    const id = $('#mkKid', root).value, tm = $('#mkTerm', root).value;
+    const kid = await S.store.loadKid(id); // fresh copy, so newer progress is never overwritten
+    kid.school = kid.school || {}; kid.school.terms = kid.school.terms || {}; kid.school.avg = kid.school.avg || {};
+    const vals = {}; let avg = null;
+    root.querySelectorAll('[data-mk]').forEach(i => { const v = i.value.trim(); if (v === '' || isNaN(+v)) return; const n = clamp(Math.round(+v), 0, 100); if (i.dataset.mk === '_avg') avg = n; else vals[i.dataset.mk] = n; });
+    kid.school.terms[tm] = vals;
+    const nums = Object.values(vals); kid.school.avg[tm] = avg !== null ? avg : (nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length) : null);
+    await S.store.saveKid(kid);
+    if (S.kid && S.kid.id === id) S.kid.school = kid.school;
+    toast(t('saved')); render();
+  };
+}
 function scopeEditor(subjects) {
   return `<div class="card" style="margin-top:14px" id="scopeCard"><h3>🎯 ${esc(t('scopeT'))}</h3><p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('scopeHelp'))}</p>
   <div class="form-row" style="max-width:280px;margin-bottom:12px"><label for="curT">${esc(t('curTermL'))}</label><select id="curT"><option value="">${esc(t('auto'))} (${esc(t('term'))} ${autoTerm()})</option>${[1, 2, 3, 4].map(n => `<option value="${n}" ${+S.settings.currentTerm === n ? 'selected' : ''}>${esc(t('term'))} ${n}</option>`).join('')}</select></div>
@@ -1462,8 +1543,10 @@ function isStandalone() { try { return matchMedia('(display-mode: standalone)').
 function devKind() {
   const ua = navigator.userAgent || '';
   if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return /CriOS|FxiOS|EdgiOS/.test(ua) ? 'ios-other' : 'ios-safari';
+  if (/SamsungBrowser/.test(ua)) return 'samsung';
   return /Android/.test(ua) ? 'android' : 'desktop';
 }
+const nativeInstall = () => !!INST.bip && devKind() !== 'samsung';
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); INST.bip = e; refreshInstall(); });
 window.addEventListener('appinstalled', () => { INST.bip = null; refreshInstall(); toast(t('instDone')); });
 function installWanted() {
@@ -1475,7 +1558,7 @@ function installWanted() {
 }
 function installCard() {
   if (!installWanted()) return '';
-  return `<div class="card instcard" id="instCard"><div class="ic">📲</div><div class="tx"><b>${esc(t('instTitle'))}</b><div class="small muted">${esc(t('instSub'))}</div></div><div class="row"><button class="btn primary sm" id="instGo">${esc(INST.bip ? t('instBtn') : t('instHow'))}</button><button class="btn ghost sm" id="instLater">${esc(t('instLater'))}</button></div></div>`;
+  return `<div class="card instcard" id="instCard"><div class="ic">📲</div><div class="tx"><b>${esc(t('instTitle'))}</b><div class="small muted">${esc(t('instSub'))}</div></div><div class="row"><button class="btn primary sm" id="instGo">${esc(nativeInstall() ? t('instBtn') : t('instHow'))}</button><button class="btn ghost sm" id="instLater">${esc(t('instLater'))}</button></div></div>`;
 }
 function wireInstall() {
   const b = $('#instGo'); if (b) b.onclick = doInstall;
@@ -1484,7 +1567,7 @@ function wireInstall() {
 function refreshInstall() { const s = $('#instSlot'); if (s) { s.innerHTML = installCard(); wireInstall(); } }
 const instSlot = () => `<div id="instSlot">${installCard()}</div>`;
 async function doInstall() {
-  if (INST.bip) {
+  if (nativeInstall()) {
     const e = INST.bip; INST.bip = null;
     try { await e.prompt(); const r = await e.userChoice; if (r && r.outcome === 'accepted') toast(t('instDone')); } catch (er) { showInstallGuide(); }
     refreshInstall(); return;
@@ -1493,12 +1576,13 @@ async function doInstall() {
 }
 function showInstallGuide() {
   const k = devKind();
-  const steps = k === 'ios-safari' ? t('instIosSafari') : k === 'ios-other' ? t('instIosChrome') : t('instAndroid');
+  const steps = k === 'ios-safari' ? t('instIosSafari') : k === 'ios-other' ? t('instIosChrome') : k === 'samsung' ? t('instSamsung') : t('instAndroid');
   const ov = document.createElement('div'); ov.className = 'overlay'; ov.id = 'instGuide';
-  ov.innerHTML = `<div class="card pad-lg instguide" role="dialog" aria-modal="true"><h2>📲 ${esc(t('instIosTitle'))}</h2><ol>${steps.map(s => `<li>${s.replace('{S}', SHARE_SVG)}</li>`).join('')}</ol><p class="small muted">${esc(t('instFoot'))}</p><button class="btn primary block" id="instOk">${esc(t('instGot'))}</button></div>`;
+  ov.innerHTML = `<div class="card pad-lg instguide" role="dialog" aria-modal="true"><h2>📲 ${esc(t('instIosTitle'))}</h2><ol>${steps.map(s => `<li>${s.replace('{S}', SHARE_SVG)}</li>`).join('')}</ol>${k === 'samsung' ? `<button class="btn block" id="instCopy" style="margin-bottom:10px">📋 ${esc(t('instCopy'))}</button>` : ''}<p class="small muted">${esc(t('instFoot'))}</p><button class="btn primary block" id="instOk">${esc(t('instGot'))}</button></div>`;
   document.body.appendChild(ov);
   ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
   $('#instOk', ov).onclick = () => ov.remove();
+  const cp = $('#instCopy', ov); if (cp) cp.onclick = async () => { if (await copyText(location.href)) toast(t('copied')); };
 }
 
 /* ------------------------------------------------------------------ auto-update (own website only) */
