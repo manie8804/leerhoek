@@ -8,6 +8,7 @@
 const UI = {
   af: {
     nextExam: 'Volgende eksamen', weekXpShort: 'XP hierdie week', chestSub: 'Doen 3 toetse vandag om die skatkis oop te sluit.',
+    coachHelloText: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Tik jou vraag oor jou skoolwerk – of tik die vraag uit jou boek of vraestel oor. Ek help jou om dit **self** uit te werk, met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachCtaText: 'Sukkel jy met iets? Tik jou vraag – die afrigter help jou om dit self te verstaan.', coachPhotosL: 'Laat foto’s toe (die seuns kan ’n foto van hul werk stuur)',
     coachT: 'Leerhoek-afrigter', coachCta: 'Neem ’n foto van ’n vraag of jou werk – die afrigter help jou om dit self te verstaan.', coachAsk: 'Verstaan jy iets nie? Vra die afrigter', coachDisclose: 'Jy gesels met ’n KI (Claude), nie met ’n mens nie. Die afrigter help jou om SELF te dink en te leer – dit doen nie jou werk vir jou nie. Pa en Ma kan die gesprekke sien.', coachSubj: 'Watter vak?', coachNew: 'Nuwe gesprek', coachPh: 'Tik jou vraag, of wat jy al gedoen het…', coachPhoto: 'Foto', coachSend: 'Stuur', coachLeft: 'vrae oor vandag', coachHello: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Stuur vir my ’n **foto** van ’n vraag, ’n bladsy uit jou boek of jou eie werk, of tik jou vraag. Ek gaan jou help om dit self uit te werk – met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachImgErr: 'Kon nie die foto oopmaak nie – probeer weer.', coachLimit: 'Jy het vandag se {n} vrae gebruik. Môre is daar weer! Probeer intussen ’n toets of speletjie.', coachOff: 'Die afrigter is nog nie aangeskakel nie – Pa moet nog die sleutel byvoeg.', coachErr: 'Kon nie die afrigter bereik nie. Kyk of die internet werk en probeer weer.', coachOnlyWeb: 'Die afrigter werk net op die gesin se Leerhoek-webwerf (met jou skakel).', coachParentT: 'Afrigter-gesprekke', coachParentSub: 'Alles wat die seuns die KI-afrigter vra, en wat dit antwoord (laaste 7 dae). Die afrigter verduidelik en gee wenke, maar skryf nie hul werk vir hulle nie.', coachLimitL: 'Vrae per kind per dag:', coachNone: 'Nog geen gesprekke nie.',
     marksT: 'Skoolpunte invoer (van die rapport)', marksHelp: 'Tik die punte van die rapport in – Kwartaal 3 nou, Kwartaal 4 aan die einde van die jaar. Die fokusvakke en die dagplan pas outomaties aan. Laat leeg wat nie op die rapport is nie.', marksSave: 'Stoor punte',
     navExams: 'Eksamen', navPlay: 'Speel', navDict: 'Woorde', termNow: 'Kwartaal', finalTerm: 'laaste kwartaal – eindeksamens kom!', now: 'nou', exam1: 'eksamen', focusShort: 'fokusvak',
@@ -53,6 +54,7 @@ const UI = {
   },
   en: {
     nextExam: 'Next exam', weekXpShort: 'XP this week', chestSub: 'Do 3 tests today to unlock the treasure chest.',
+    coachHelloText: "Hi {name}! 👋 I'm your **Leerhoek coach**. Type your question about your schoolwork – or type out the question from your book or paper. I'll help you work it out **yourself**, with explanations and hints, not ready-made answers. 💪", coachCtaText: 'Stuck on something? Type your question – the coach helps you understand it yourself.', coachPhotosL: 'Allow photos (the boys can send a photo of their work)',
     coachT: 'Leerhoek coach', coachCta: 'Take a photo of a question or your work – the coach helps you understand it yourself.', coachAsk: "Don't understand something? Ask the coach", coachDisclose: 'You are chatting with an AI (Claude), not a person. The coach helps you think and learn YOURSELF – it does not do your work for you. Mom and Dad can see the chats.', coachSubj: 'Which subject?', coachNew: 'New chat', coachPh: 'Type your question, or what you have done so far…', coachPhoto: 'Photo', coachSend: 'Send', coachLeft: 'questions left today', coachHello: "Hi {name}! 👋 I'm your **Leerhoek coach**. Send me a **photo** of a question, a page from your book or your own work, or type your question. I'll help you work it out yourself – with explanations and hints, not ready-made answers. 💪", coachImgErr: "Couldn't open the photo – try again.", coachLimit: "You've used today's {n} questions. More tomorrow! Try a test or a game in the meantime.", coachOff: "The coach isn't switched on yet – Dad still needs to add the key.", coachErr: "Couldn't reach the coach. Check the internet and try again.", coachOnlyWeb: "The coach only works on the family's Leerhoek website (with your link).", coachParentT: 'Coach conversations', coachParentSub: 'Everything the boys ask the AI coach, and what it answers (last 7 days). The coach explains and gives hints, but does not write their work for them.', coachLimitL: 'Questions per child per day:', coachNone: 'No conversations yet.',
     marksT: 'Enter school marks (from the report)', marksHelp: 'Type in the marks from the report – Term 3 now, Term 4 at the end of the year. The focus subjects and the daily plan adjust automatically. Leave blank what is not on the report.', marksSave: 'Save marks',
     navExams: 'Exams', navPlay: 'Play', navDict: 'Words', termNow: 'Term', finalTerm: 'final term – exams are coming!', now: 'now', exam1: 'exam', focusShort: 'focus subject',
@@ -1497,6 +1499,7 @@ function shrinkImage(file, max, q) {
     img.src = url;
   });
 }
+const coachPhotos = () => !!(S.settings && S.settings.coachPhotos);
 function coachState() { if (!S.coach || S.coach.kid !== S.kidId) S.coach = { kid: S.kidId, msgs: [], pending: null, busy: false, left: null }; return S.coach; }
 function renderCoach(main) {
   const C = coachState(), sid = S.coachSubj || 'all';
@@ -1508,13 +1511,13 @@ function renderCoach(main) {
   <div class="chat" id="chat"></div>
   <div class="composer">
     <div id="cPrev"></div>
-    <div class="crow"><label class="cbtn" for="cFile" title="${esc(t('coachPhoto'))}" aria-label="${esc(t('coachPhoto'))}">📷</label><input type="file" id="cFile" accept="image/*" hidden><textarea id="cText" rows="1" placeholder="${esc(t('coachPh'))}"></textarea><button class="cbtn send" id="cSend" title="${esc(t('coachSend'))}" aria-label="${esc(t('coachSend'))}">➤</button></div>
+    <div class="crow">${coachPhotos() ? `<label class="cbtn" for="cFile" title="${esc(t('coachPhoto'))}" aria-label="${esc(t('coachPhoto'))}">📷</label><input type="file" id="cFile" accept="image/*" hidden>` : ''}<textarea id="cText" rows="1" placeholder="${esc(t('coachPh'))}"></textarea><button class="cbtn send" id="cSend" title="${esc(t('coachSend'))}" aria-label="${esc(t('coachSend'))}">➤</button></div>
     <div class="small muted num" id="cLeft">${C.left !== null ? `${C.left} ${esc(t('coachLeft'))}` : ''}</div>
   </div>`;
   main.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => { S.coachSubj = b.dataset.cs; renderCoach(main); });
   const chat = $('#chat');
   const drawChat = () => {
-    chat.innerHTML = (C.msgs.length ? '' : `<div class="bubble coach">${md(t('coachHello').replace('{name}', S.kid.name))}</div>`)
+    chat.innerHTML = (C.msgs.length ? '' : `<div class="bubble coach">${md(t(coachPhotos() ? 'coachHello' : 'coachHelloText').replace('{name}', S.kid.name))}</div>`)
       + C.msgs.map(m => m.role === 'user' ? `<div class="bubble me">${m.thumb ? `<img src="${m.thumb}" alt="">` : ''}${m.text ? `<div>${esc(m.text)}</div>` : ''}</div>` : `<div class="bubble coach">${md(m.text)}</div>`).join('')
       + (C.busy ? `<div class="bubble coach typing"><span></span><span></span><span></span></div>` : '')
       + (C.err && !C.busy ? `<div class="bubble coach err">${esc(C.err)}</div>` : '');
@@ -1523,7 +1526,7 @@ function renderCoach(main) {
   const drawPrev = () => { $('#cPrev').innerHTML = C.pending ? `<div class="cprev"><img src="${C.pending.thumb}" alt=""><button class="btn sm ghost" id="cDrop">✕</button></div>` : ''; const d = $('#cDrop'); if (d) d.onclick = () => { C.pending = null; drawPrev(); }; };
   drawChat(); drawPrev(); if (C.draft) { $('#cText').value = C.draft; C.draft = null; }
   $('#cNew').onclick = () => { S.coach = null; renderCoach(main); };
-  $('#cFile').onchange = async (e) => {
+  if ($('#cFile')) $('#cFile').onchange = async (e) => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
     try { C.pending = { image: await shrinkImage(f, 1600, 0.82), thumb: await shrinkImage(f, 360, 0.6) }; drawPrev(); } catch (er) { toast(t('coachImgErr')); }
     e.target.value = '';
@@ -1559,17 +1562,17 @@ function renderCoach(main) {
   $('#cText').oninput = grow;
   $('#cText').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey && innerWidth > 700) { e.preventDefault(); send(); } };
 }
-function coachCta(extraCls) { return S.storeKind === 'supa' ? `<button class="card coachcta ${extraCls || ''}" data-go="afrigter"><span class="ti">🤖</span><span><b>${esc(t('coachT'))}</b><br><span class="small muted">${esc(t('coachCta'))}</span></span></button>` : ''; }
+function coachCta(extraCls) { return S.storeKind === 'supa' ? `<button class="card coachcta ${extraCls || ''}" data-go="afrigter"><span class="ti">🤖</span><span><b>${esc(t('coachT'))}</b><br><span class="small muted">${esc(t(coachPhotos() ? 'coachCta' : 'coachCtaText'))}</span></span></button>` : ''; }
 /* parent: coach conversations + daily limit */
 function coachParentCard() {
   if (S.storeKind !== 'supa') return '';
   return `<div class="card" style="margin-top:14px" id="coachCard"><h3>🤖 ${esc(t('coachParentT'))}</h3><p class="small muted" style="margin:6px 0 10px;max-width:75ch">${esc(t('coachParentSub'))}</p>
-  <div class="row" style="gap:8px;margin-bottom:12px"><label class="small" for="coachLim"><b>${esc(t('coachLimitL'))}</b></label><input id="coachLim" type="number" min="1" max="60" style="width:90px" value="${esc(String(S.settings.coachLimit || 15))}"><button class="btn sm" id="coachLimSave">${esc(t('save'))}</button></div>
+  <div class="row" style="gap:8px;margin-bottom:12px"><label class="small" for="coachLim"><b>${esc(t('coachLimitL'))}</b></label><input id="coachLim" type="number" min="1" max="60" style="width:90px" value="${esc(String(S.settings.coachLimit || 15))}"><label class="ck" style="padding:0"><input type="checkbox" id="coachPh" ${S.settings.coachPhotos ? 'checked' : ''}> <span>📷 ${esc(t('coachPhotosL'))}</span></label><button class="btn sm" id="coachLimSave">${esc(t('save'))}</button></div>
   <div class="grid two" id="coachLogs">${KIDS.map(k => `<div><h4>${k.avatar} ${esc(k.name)}</h4><div class="small muted" data-coach="${k.id}">…</div></div>`).join('')}</div></div>`;
 }
 async function wireCoachParent(root) {
   const card = $('#coachCard', root); if (!card) return;
-  $('#coachLimSave', root).onclick = async () => { const n = clamp(parseInt($('#coachLim', root).value, 10) || 15, 1, 60); S.settings.coachLimit = n; await S.store.saveSettings(S.settings); toast(t('saved')); };
+  $('#coachLimSave', root).onclick = async () => { const n = clamp(parseInt($('#coachLim', root).value, 10) || 15, 1, 60); S.settings.coachLimit = n; S.settings.coachPhotos = $('#coachPh', root).checked; await S.store.saveSettings(S.settings); toast(t('saved')); };
   for (const k of KIDS) {
     const box = card.querySelector(`[data-coach="${k.id}"]`);
     let days = []; try { days = await S.store.loadPrefix('kids/' + k.id + '/coach/', 7); } catch (e) {}
