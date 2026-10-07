@@ -10,6 +10,7 @@ const UI = {
     nextExam: 'Volgende eksamen', weekXpShort: 'XP hierdie week', chestSub: 'Doen 3 toetse vandag om die skatkis oop te sluit.',
     coachHelloText: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Tik jou vraag oor jou skoolwerk – of tik die vraag uit jou boek of vraestel oor. Ek help jou om dit **self** uit te werk, met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachCtaText: 'Sukkel jy met iets? Tik jou vraag – die afrigter help jou om dit self te verstaan.', coachPhotosL: 'Laat foto’s toe (die seuns kan ’n foto van hul werk stuur)',
     coachT: 'Leerhoek-afrigter', coachCta: 'Neem ’n foto van ’n vraag of jou werk – die afrigter help jou om dit self te verstaan.', coachAsk: 'Verstaan jy iets nie? Vra die afrigter', coachDisclose: 'Jy gesels met ’n KI (Claude), nie met ’n mens nie. Die afrigter help jou om SELF te dink en te leer – dit doen nie jou werk vir jou nie. Pa en Ma kan die gesprekke sien.', coachSubj: 'Watter vak?', coachNew: 'Nuwe gesprek', coachPh: 'Tik jou vraag, of wat jy al gedoen het…', coachPhoto: 'Foto', coachSend: 'Stuur', coachLeft: 'vrae oor vandag', coachHello: 'Hallo {name}! 👋 Ek is jou **Leerhoek-afrigter**. Stuur vir my ’n **foto** van ’n vraag, ’n bladsy uit jou boek of jou eie werk, of tik jou vraag. Ek gaan jou help om dit self uit te werk – met verduidelikings en wenke, nie klaar antwoorde nie. 💪', coachImgErr: 'Kon nie die foto oopmaak nie – probeer weer.', coachLimit: 'Jy het vandag se {n} vrae gebruik. Môre is daar weer! Probeer intussen ’n toets of speletjie.', coachOff: 'Die afrigter is nog nie aangeskakel nie – Pa moet nog die sleutel byvoeg.', coachErr: 'Kon nie die afrigter bereik nie. Kyk of die internet werk en probeer weer.', coachOnlyWeb: 'Die afrigter werk net op die gesin se Leerhoek-webwerf (met jou skakel).', coachParentT: 'Afrigter-gesprekke', coachParentSub: 'Alles wat die seuns die KI-afrigter vra, en wat dit antwoord (laaste 7 dae). Die afrigter verduidelik en gee wenke, maar skryf nie hul werk vir hulle nie.', coachLimitL: 'Vrae per kind per dag:', coachNone: 'Nog geen gesprekke nie.',
+    ntfyT: 'Kennisgewings op jou foon', ntfySub: 'Leerhoek stuur kennisgewings deur die gratis ntfy-app. Elke ouer moet dit een keer op sy of haar eie foon opstel:', ntfy1: 'Laai die gratis <b>ntfy</b>-app af (knoppies hieronder).', ntfy2: 'Maak dit oop, tik <b>+</b> en tik hierdie onderwerp in (of kopieer dit): laat “Use another server” <b>af</b> en tik <b>Subscribe</b>.', ntfy3: 'Laat kennisgewings toe as die foon vra. Tik dan hier op <b>Stuur toets</b> – jy moet binne sekondes ’n kennisgewing kry.', ntfyCopy: 'Kopieer', ntfyOpen: 'Open in ntfy (Android)', ntfyTest: 'Stuur toets', ntfyTestMsg: 'As jy dit sien, werk die Leerhoek-kennisgewings! 🎉', ntfySent: 'Toets gestuur – kyk op jou foon.', ntfyWhen: 'Jy kry ’n kennisgewing as ’n seun begin leer, as hy klaar is (met ’n opsomming), na elke toets en vraestel, en die eerste keer per dag dat hy die afrigter vra.',
     passL: 'Slaag', goalL: 'Doel', myMarks: 'My punte', myMarksSub: 'Jou jongste skoolpunt per vak, die slaagpunt en jou doel.', legBad: 'onder slaag', legHi: 'geslaag, nog nie doel nie', legGood: 'doel bereik', showAllSubj: 'Wys al die vakke', goalsT: 'Doelpunte (gewenste punt)', goalsHelp: 'Kies die punt waarna elke seun per vak moet mik – byvoorbeeld 60 %. Laat ’n vak leeg om die standaard te gebruik. Die seuns sien hul punt, die slaagpunt en die doel op hul tuisblad en by elke vak.', goalDefault: 'Standaard doel %', saveGoals: 'Stoor doelpunte',
     marksT: 'Skoolpunte invoer (van die rapport)', marksHelp: 'Tik die punte van die rapport in – Kwartaal 3 nou, Kwartaal 4 aan die einde van die jaar. Die fokusvakke en die dagplan pas outomaties aan. Laat leeg wat nie op die rapport is nie.', marksSave: 'Stoor punte',
     navExams: 'Eksamen', navPlay: 'Speel', navDict: 'Woorde', termNow: 'Kwartaal', finalTerm: 'laaste kwartaal – eindeksamens kom!', now: 'nou', exam1: 'eksamen', focusShort: 'fokusvak',
@@ -57,6 +58,7 @@ const UI = {
     nextExam: 'Next exam', weekXpShort: 'XP this week', chestSub: 'Do 3 tests today to unlock the treasure chest.',
     coachHelloText: "Hi {name}! 👋 I'm your **Leerhoek coach**. Type your question about your schoolwork – or type out the question from your book or paper. I'll help you work it out **yourself**, with explanations and hints, not ready-made answers. 💪", coachCtaText: 'Stuck on something? Type your question – the coach helps you understand it yourself.', coachPhotosL: 'Allow photos (the boys can send a photo of their work)',
     coachT: 'Leerhoek coach', coachCta: 'Take a photo of a question or your work – the coach helps you understand it yourself.', coachAsk: "Don't understand something? Ask the coach", coachDisclose: 'You are chatting with an AI (Claude), not a person. The coach helps you think and learn YOURSELF – it does not do your work for you. Mom and Dad can see the chats.', coachSubj: 'Which subject?', coachNew: 'New chat', coachPh: 'Type your question, or what you have done so far…', coachPhoto: 'Photo', coachSend: 'Send', coachLeft: 'questions left today', coachHello: "Hi {name}! 👋 I'm your **Leerhoek coach**. Send me a **photo** of a question, a page from your book or your own work, or type your question. I'll help you work it out yourself – with explanations and hints, not ready-made answers. 💪", coachImgErr: "Couldn't open the photo – try again.", coachLimit: "You've used today's {n} questions. More tomorrow! Try a test or a game in the meantime.", coachOff: "The coach isn't switched on yet – Dad still needs to add the key.", coachErr: "Couldn't reach the coach. Check the internet and try again.", coachOnlyWeb: "The coach only works on the family's Leerhoek website (with your link).", coachParentT: 'Coach conversations', coachParentSub: 'Everything the boys ask the AI coach, and what it answers (last 7 days). The coach explains and gives hints, but does not write their work for them.', coachLimitL: 'Questions per child per day:', coachNone: 'No conversations yet.',
+    ntfyT: 'Notifications on your phone', ntfySub: 'Leerhoek sends notifications through the free ntfy app. Each parent sets it up once on their own phone:', ntfy1: 'Install the free <b>ntfy</b> app (buttons below).', ntfy2: 'Open it, tap <b>+</b> and type this topic (or copy it): leave “Use another server” <b>off</b> and tap <b>Subscribe</b>.', ntfy3: 'Allow notifications when the phone asks. Then tap <b>Send test</b> here – you should get a notification within seconds.', ntfyCopy: 'Copy', ntfyOpen: 'Open in ntfy (Android)', ntfyTest: 'Send test', ntfyTestMsg: 'If you see this, Leerhoek notifications work! 🎉', ntfySent: 'Test sent – check your phone.', ntfyWhen: 'You get a notification when a boy starts studying, when he stops (with a summary), after every test and paper, and the first time each day he asks the coach.',
     passL: 'Pass', goalL: 'Goal', myMarks: 'My marks', myMarksSub: 'Your latest school mark per subject, the pass mark and your goal.', legBad: 'below pass', legHi: 'passed, not yet goal', legGood: 'goal reached', showAllSubj: 'Show all subjects', goalsT: 'Goal marks (desired mark)', goalsHelp: 'Choose the mark each boy should aim for per subject – for example 60%. Leave a subject blank to use the default. The boys see their mark, the pass mark and the goal on their home screen and on every subject.', goalDefault: 'Default goal %', saveGoals: 'Save goals',
     marksT: 'Enter school marks (from the report)', marksHelp: 'Type in the marks from the report – Term 3 now, Term 4 at the end of the year. The focus subjects and the daily plan adjust automatically. Leave blank what is not on the report.', marksSave: 'Save marks',
     navExams: 'Exams', navPlay: 'Play', navDict: 'Words', termNow: 'Term', finalTerm: 'final term – exams are coming!', now: 'now', exam1: 'exam', focusShort: 'focus subject',
@@ -277,10 +279,34 @@ function notify(kid, ev) {
     const key = 'lh.ntfy.coach.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
     title = `${kid.name} vra die afrigter`; message = (ev.label || '') + '\nKyk in die ouerpaneel → Afrigter-gesprekke'; tags = ['robot'];
   } else if (ev.type === 'login') {
-    const key = 'lh.ntfy.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
     title = `${kid.name} het begin leer`; message = `Leerhoek · ${new Date().toTimeString().slice(0, 5)}`; tags = ['wave'];
+  } else if (ev.type === 'logout') {
+    title = `${kid.name} het klaar geleer`; message = `${ev.mins} min · ${ev.tests} ${ev.tests === 1 ? 'toets' : 'toetse'} · +${ev.xp} XP · ${new Date().toTimeString().slice(0, 5)}`; tags = ['white_check_mark'];
   } else return;
-  try { fetch('https://ntfy.sh/', { method: 'POST', body: JSON.stringify({ topic, title, message, tags }) }).catch(() => {}); } catch (e) {}
+  pushNtfy({ topic, title, message, tags }, ev.type === 'logout');
+}
+function pushNtfy(obj, beacon) {
+  const body = JSON.stringify(obj);
+  try { if (beacon && navigator.sendBeacon && navigator.sendBeacon('https://ntfy.sh/', body)) return; } catch (e) {}
+  try { fetch('https://ntfy.sh/', { method: 'POST', body, keepalive: true }).catch(() => {}); } catch (e) {}
+}
+/* study sessions: "begin leer" when a boy opens his screens (again after 2 h), "klaar geleer" with a summary when he puts the app away */
+function ensureSession() {
+  if (!S.kid || S.storeKind !== 'supa' || ['parent', 'gate'].includes(S.route.s)) return;
+  if (S.sess && S.sess.kid === S.kid.id) return;
+  S.sess = { kid: S.kid.id, start: Date.now(), tests: 0, xp: 0 };
+  const key = 'lh.login.' + S.kid.id; let last = 0; try { last = +localStorage.getItem(key) || 0; } catch (e) {}
+  if (Date.now() - last > 2 * 3600000) {
+    try { localStorage.setItem(key, String(Date.now())); } catch (e) {}
+    const ev = { type: 'login', t: Date.now() }; S.store.appendLog(S.kid.id, ev).catch(() => {}); notify(S.kid, ev);
+  }
+}
+function endSession() {
+  const se = S.sess; S.sess = null; if (!se || !S.kid || se.kid !== S.kid.id) return;
+  const mins = Math.round((Date.now() - se.start) / 60000);
+  if (mins < 3 && !se.tests) return;
+  try { localStorage.setItem('lh.login.' + se.kid, String(Date.now())); } catch (e) {} // coming back soon is the same study session
+  notify(S.kid, { type: 'logout', mins: Math.max(1, mins), tests: se.tests, xp: se.xp });
 }
 async function initStore() {
   S.store = new LocalStore(); S.storeKind = 'local';
@@ -375,7 +401,8 @@ async function award(kid, xp, ev) {
   if (!has('brain') && (kid.totals.games || 0) >= 10) kid.badges.push('brain');
   // weekly XP (twin challenge) and today's test count (treasure chest)
   const wk = weekId(); if (!kid.week || kid.week.w !== wk) kid.week = { w: wk, xp: 0 }; kid.week.xp += xp;
-  if (ev && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) { if (!kid.day || kid.day.d !== d) kid.day = { d, tests: 0 }; kid.day.tests++; }
+  if (ev && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) { if (!kid.day || kid.day.d !== d) kid.day = { d, tests: 0 }; kid.day.tests++; if (S.sess && S.sess.kid === kid.id) S.sess.tests++; }
+  if (S.sess && S.sess.kid === kid.id) S.sess.xp += xp;
   if (!has('subject') && ev && ev.subject) { const subj = S.content.subjects[ev.subject]; if (subj && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
   if (ev) {
     ev.t = Date.now(); ev.xp = xp;
@@ -485,6 +512,7 @@ async function render() {
   if (r.s === 'resources') return renderResources(main);
   if (window.LH_CONFIG && (S.keyProblem === 'missing' || S.keyProblem === 'bad')) return renderGate(main);
   if (!S.kid || r.s === 'gate') return renderGate(main);
+  ensureSession();
   setSubjectColor(null);
   switch (r.s) {
     case 'home': return renderHome(main);
@@ -536,7 +564,7 @@ function renderGate(main) {
   Promise.all(KIDS.map(k => S.store.loadKid(k.id))).then(kids => {
     box.innerHTML = kids.map(k => `<button class="profile" data-kid="${k.id}"><span class="big">${k.avatar}</span><span class="nm">${esc(k.name)}</span><span class="lv">${esc(t('level'))} ${levelOf(k.xp)} · ${k.xp} XP</span></button>`).join('')
       + `<button class="profile" data-parent="1"><span class="big">👪</span><span class="nm">${esc(t('parent'))}</span><span class="lv">${esc(t('parentSub'))}</span></button>`;
-    box.querySelectorAll('[data-kid]').forEach(b => b.onclick = async () => { await selectKid(b.dataset.kid); const lev = { type: 'login', t: Date.now() }; S.store.appendLog(b.dataset.kid, lev).catch(() => {}); notify(S.kid, lev); go('home'); });
+    box.querySelectorAll('[data-kid]').forEach(b => b.onclick = async () => { await selectKid(b.dataset.kid); go('home'); });
     $('[data-parent]', box).onclick = () => go('ouer');
   });
 }
@@ -898,8 +926,8 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${coachParentCard()}${scopeEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main);
+  </div>${notifyCard()}${coachParentCard()}${scopeEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
@@ -1573,6 +1601,21 @@ function renderCoach(main) {
 }
 function coachCta(extraCls) { return S.storeKind === 'supa' ? `<button class="card coachcta ${extraCls || ''}" data-go="afrigter"><span class="ti">🤖</span><span><b>${esc(t('coachT'))}</b><br><span class="small muted">${esc(t(coachPhotos() ? 'coachCta' : 'coachCtaText'))}</span></span></button>` : ''; }
 /* parent: coach conversations + daily limit */
+function notifyCard() {
+  const topic = (S.settings && S.settings.ntfyTopic) || '';
+  if (S.storeKind !== 'supa' || !topic) return '';
+  return `<div class="card" style="margin-top:14px" id="ntfyCard"><h3>🔔 ${esc(t('ntfyT'))}</h3><p class="small muted" style="margin:6px 0 10px;max-width:75ch">${esc(t('ntfySub'))}</p>
+  <ol class="small" style="margin:0 0 10px;padding-left:20px;line-height:1.6"><li>${t('ntfy1')}</li><li>${t('ntfy2')}</li><li>${t('ntfy3')}</li></ol>
+  <div class="row" style="gap:8px;margin-bottom:10px"><code class="topic">${esc(topic)}</code><button class="btn sm" id="ntfyCopy">📋 ${esc(t('ntfyCopy'))}</button></div>
+  <div class="row" style="gap:8px"><a class="btn sm" href="https://apps.apple.com/us/app/ntfy/id1625396347" target="_blank" rel="noopener"> iPhone</a><a class="btn sm" href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">▶ Android</a><a class="btn sm" href="ntfy://ntfy.sh/${esc(topic)}">${esc(t('ntfyOpen'))}</a><button class="btn sm primary" id="ntfyTest">🔔 ${esc(t('ntfyTest'))}</button></div>
+  <p class="small muted" style="margin-top:10px">${esc(t('ntfyWhen'))}</p></div>`;
+}
+function wireNotifyCard(root) {
+  const c = $('#ntfyCopy', root); if (!c) return;
+  const topic = S.settings.ntfyTopic;
+  c.onclick = async () => { if (await copyText(topic)) toast(t('copied')); };
+  $('#ntfyTest', root).onclick = () => { pushNtfy({ topic, title: 'Leerhoek ✅', message: t('ntfyTestMsg'), tags: ['bell'] }); toast(t('ntfySent')); };
+}
 function coachParentCard() {
   if (S.storeKind !== 'supa') return '';
   return `<div class="card" style="margin-top:14px" id="coachCard"><h3>🤖 ${esc(t('coachParentT'))}</h3><p class="small muted" style="margin:6px 0 10px;max-width:75ch">${esc(t('coachParentSub'))}</p>
@@ -1751,7 +1794,8 @@ async function boot() {
   $('#logoBtn').onclick = () => go(S.kid ? 'home' : 'profiel');
   $('#whoBtn').onclick = () => go('profiel');
   window.addEventListener('hashchange', render);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { flushTime(); if (S.kid) S.store.saveKid(S.kid).catch(() => {}); } else { S.tStart = Date.now(); if (S.store) S.store.loadSettings().then(st => { if (st) S.settings = st; }).catch(() => {}); } });
+  window.addEventListener('pagehide', () => endSession());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { flushTime(); if (S.kid) S.store.saveKid(S.kid).catch(() => {}); endSession(); } else { if (S.content && S.route) ensureSession(); S.tStart = Date.now(); if (S.store) S.store.loadSettings().then(st => { if (st) S.settings = st; }).catch(() => {}); } });
   render(); // splash
   const [content] = await Promise.all([loadContent(), initStore()]);
   S.content = content;
