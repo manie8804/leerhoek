@@ -7,6 +7,22 @@
 /* ------------------------------------------------------------------ i18n */
 const UI = {
   af: {
+    nextExam: 'Volgende eksamen', weekXpShort: 'XP hierdie week', chestSub: 'Doen 3 toetse vandag om die skatkis oop te sluit.',
+    navExams: 'Eksamen', navPlay: 'Speel', navDict: 'Woorde', termNow: 'Kwartaal', finalTerm: 'laaste kwartaal – eindeksamens kom!', now: 'nou', exam1: 'eksamen', focusShort: 'fokusvak',
+    planT: 'Vandag se studieplan', planSub: 'Gekies uit jou afbakening, jou eksamendatums en die vakke wat die meeste aandag nodig het.', planDone: 'Alles klaar vir vandag – sterk gedoen!',
+    exT: 'Eindeksamen', exSub: 'Jou afbakening per vak: wat in die eksamen kom, hoe gereed jy is, en oefentoetse net op daardie werk.', exDateTBC: 'Datum nog onbekend', exDone: 'Klaar', exToday: 'Vandag!', exIn: 'oor',
+    provisional: 'Voorlopig', confirmed: 'Bevestig', provisionalHint: 'Voorlopige afbakening: Kwartaal 3 + 4 (tale: die hele jaar), soos in Unika se vorige Novembervraestelle. Pa werk dit by sodra die skool die regte afbakening stuur.',
+    scopeTopics: 'onderwerpe', ready: 'gereed', scopeTest: 'Afbakening-toets', showTopics: 'Wys onderwerpe', inScope: 'In afbakening',
+    mistakesT: 'Foute-boek', mistakesSub: 'Elke vraag wat jy verkeerd kry, word hier gebêre. Herdoen hulle tot jy hulle reg kry – dan verdwyn hulle uit die boek.', open_: 'oop', fixedN: 'reggemaak', redoAll: 'Herdoen 10 foute', redo: 'Herdoen', redoT: 'Herdoen foute', recentMistakes: 'Onlangse foute', noMistakes: 'Geen foute nie – mooi so!', noMistakesShort: 'Niks oop nie 🎉', tapToRedo: 'Tik om reg te maak',
+    playT: 'Speel & leer', playSub: 'Breinspeletjies met jou eie skoolwerk. Elke speletjie verdien XP en tel vir die tweeling-uitdaging!', brainGames: 'Breinspeletjies', pickSubj: 'Kies ’n vak vir die woordspeletjies:', allSubj: 'Alle vakke',
+    g: { memory: ['Geheue-pare', 'Draai kaarte om en vind die Afrikaanse en Engelse woordpare.'], hangman: ['Raai die woord', 'Lees die betekenis en raai die woord, letter vir letter.'], sprint: ['Wiskunde-sprint', 'Hoeveel somme kan jy in 60 sekondes uit jou kop doen?'], blitz: ['Waar/Onwaar-blits', '60 sekondes: waar of onwaar? Hoe vinniger, hoe beter!'] },
+    best: 'Beste', moves: 'skuiwe', playAgain: 'Speel weer', back: 'Terug', newRecord: 'Nuwe rekord!', timeUp: 'Tyd is op!', start: 'Begin', lives: 'Lewens', hintLetter: 'Wenk (kos 1 lewe)', wordWas: 'Die woord was', nextWord: 'Volgende woord', wordsOf: 'woorde reg', correctN: 'reg',
+    sprintHow: 'Tik die antwoord met die knoppies en druk OK. Gebruik − vir negatiewe getalle.', blitzHow: 'Lees die stelling en tik vinnig Waar of Onwaar. Verkeerde antwoorde gaan in jou foute-boek.', wentToMistakes: 'Hierdie vrae is in jou foute-boek gebêre.',
+    weekT: 'Tweeling-uitdaging', weekLead: 'lei hierdie week!', weekTie: 'Gelykop!', weekReset: 'Begin elke Maandag oor.', chalT: 'Weeklikse uitdaging', chalSub: 'Dieselfde 10 vrae vir Diaan en Stefan. Net jou eerste poging tel – wie wen hierdie week?', chalPlay: 'Speel', chalReplay: 'Oefen weer', chalDone: 'Gespeel', chalNot: 'Nog nie gespeel nie', chalCounted: 'Jou telling tel vir hierdie week!', chalPractice: 'Oefenrondte – net jou eerste poging tel.',
+    chestT: 'Daaglikse skatkis', chestReady: 'Gereed – maak oop!', chestDone: 'Môre is daar ’n nuwe een.', testsToday: 'toetse vandag', chestWin: 'Jy het gevind:',
+    wotd: 'Woord van die dag', factT: 'Weet jy?', factBtn: 'Cool! 😎', toTopic: 'Na onderwerp', dwHint: 'Tik op ’n onderstreepte woord om sy betekenis te sien.',
+    dictT: 'Woordeboek', dictSub: 'Al die moeilike woorde uit jou vakke – in Afrikaans en Engels, met betekenisse. Jy kan ook in enige opsomming op ’n onderstreepte woord tik.', dictTabTerms: 'Vakwoorde', dictTabQ: 'Vraagwoorde', dictQSub: 'Hierdie woorde in ’n vraag sê vir jou wát die onderwyser wil hê. Baie punte gaan verlore omdat iemand net “noem” waar die vraag “verduidelik” vra.', dictSearch: 'Soek ’n woord (Afrikaans of Engels)…', dictWords: 'woorde', dictNone: 'Niks gevind nie – probeer ’n ander spelling of die Engelse woord.', showMore: 'Wys meer',
+    scopeT: 'Afbakening & eksamenrooster', scopeHelp: 'Kies per vak die eksamendatum en die onderwerpe wat in die eksamen kom (die notaveld is vir bv. bladsye of hoofstukke). Tot jy ’n vak verander, gebruik Leerhoek ’n voorlopige afbakening: Kwartaal 3 + 4 (tale: die hele jaar), soos in Unika se vorige Novembervraestelle.', curTermL: 'Huidige kwartaal', auto: 'Outomaties', pickTopics: 'Kies onderwerpe', q4: 'Kw 4', q34: 'Kw 3 + 4', qAll: 'Hele jaar', qNone: 'Geen', noteP: 'Nota, bv. Hfst 5–8, bl. 40–62', saveScope: 'Stoor afbakening', mistakesShort: 'foute oop', gamesShort: 'speletjies',
     instTitle: 'Kry Leerhoek as ’n app', instSub: 'Sit die ikoon op jou tuisskerm – dan maak jy dit soos enige ander app oop.', instBtn: '📲 Installeer Leerhoek', instHow: 'Wys my hoe', instLater: 'Later', instDone: 'Leerhoek is geïnstalleer! Maak dit voortaan met die ikoon oop.', instIosTitle: 'Sit Leerhoek op jou tuisskerm', instIosSafari: ['Tik op <b>⋯</b> onder regs (of direk op <b>Deel</b> {S}).', 'Tik op <b>Deel</b> {S}.', 'Rol af (of tik <b>View More</b>) en kies <b>Add to Home Screen</b>.', 'Maak seker <b>Open as Web App</b> is aan, en tik <b>Add</b>.'], instIosChrome: ['Tik op <b>Deel</b> {S} regs in die adresbalk (of <b>⋯</b> → <b>Share</b>).', 'Rol af en kies <b>Add to Home Screen</b>.', 'Tik <b>Add</b>.'], instAndroid: ['Tik op <b>⋮</b> bo-regs (Samsung Internet: <b>☰</b> onder).', 'Kies <b>Installeer app</b> of <b>Add to Home screen</b>.', 'Tik <b>Installeer</b> / <b>Add</b>.'], instGot: 'Reg so!', instFoot: 'Daarna verskyn die Leerhoek-ikoon op jou tuisskerm.',
     hello: 'Hallo', chooseProfile: 'Wie is jy vandag?', tagline: 'Diaan & Stefan se studieplatform', parent: 'Ouer', parentSub: 'Mel & Pa',
     level: 'Vlak', xp: 'XP', streak: 'Reeks', days: 'dae', quizzes: 'Toetse', avg: 'Gemiddeld', home: 'Tuis', subjects: 'Vakke', badges: 'Kentekens', resources: 'Hulpbronne',
@@ -26,13 +42,29 @@ const UI = {
     dashboard: 'Ouerpaneel', lastActive: 'Laas aktief', never: 'nog nooit', thisWeek: 'hierdie week', timeOn: 'Tyd op platform', mastery: 'Bemeestering per vak', weak: 'Onderwerpe wat aandag nodig het', noWeak: 'Niks dringend nie – alles bo 70 %.', activity: 'Aktiwiteit', noActivity: 'Nog geen aktiwiteit nie.',
     copyReport: 'Kopieer verslag', settings: 'Instellings', examDate: 'Eksamendatum (eerste vraestel)', examTitle: 'Byskrif', save: 'Stoor', saved: 'Gestoor', changePin: 'Verander PIN', importCode: 'Voer vorderingskode in', importHint: 'Plak die kode wat ’n seun van ’n ander toestel gekopieer het.', importBtn: 'Voer in', imported: 'Vordering ingevoer',
     storage: 'Stoorplek', storageDb: 'Gedeelde stoor (sinkroniseer op alle toestelle)', storageLocal: 'Slegs hierdie toestel', today: 'Vandag', yesterday: 'Gister',
-    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Aangemeld' },
+    ev: { quiz: 'Toets', read: 'Opsomming gelees', flash: 'Sleutelterme', examples: 'Voorbeelde', exam: 'Eksamen-oefening', paper: 'Oefenvraestel', login: 'Aangemeld', scope: 'Afbakening-toets', redo: 'Foute herdoen', challenge: 'Weeklikse uitdaging', game: 'Breinspeletjie', chest: 'Skatkis' },
     resourcesIntro: 'Gratis handboeke, werkboeke en ou vraestelle. Unika se eie eksamenomvang en klasnotas kom in die “Gedeel – Unika dokumente” vouer op Pa se rekenaar.',
     allBadges: 'Kentekens', loading: 'Laai die vakke…', switchUser: 'Ruil gebruiker', continueAs: 'Gaan voort', of: 'van', min: 'min', mixed: 'Gemengde vrae', chooseGrade: 'Graad',
     hint: 'Wenk', showMemo: 'Wys memo & merk myself', memo: 'Memo', selfMark: 'Hoeveel punte verdien jou antwoord?', papers: 'Oefenvraestelle', paper: 'Oefenvraestel', examFormatT: 'Hoe lyk Unika se vraestel', startPaper: 'Begin vraestel', timeLeft: 'Tyd oor', marks: 'punte', section: 'Afdeling', paperDone: 'Vraestel voltooi!', perSection: 'Punte per afdeling', paperSub: 'Dieselfde formaat, tyd en punte as die skool se vraestel – nuwe vrae. Skryf lang antwoorde op papier of tik hulle, wys dan die memo en merk jouself eerlik.', bestMark: 'Beste', skipQ: 'Slaan oor', focus: 'Fokusvakke', focusSub: 'Volgens jou skoolrapport – hier tel elke punt die meeste.', target: 'teiken', school: 'Skool', schoolMarks: 'Skoolpunte vs platform', schoolSub: 'Rapportpunte per kwartaal, die slaagteiken en die platform se bemeestering.', termShort: 'Kw', passRules: 'Slaagvereistes: 50 % in Huistaal, 40 % in Engels EAT, 40 % in Wiskunde, 40 % in nog 3 vakke en 30 % in nog 2 vakke.', avgShort: 'Gemiddeld', platform: 'Platform', gap: 'tekort',
-    badgeNames: { first: ['Eerste toets', 'Voltooi jou eerste toets'], perfect: ['Volpunte', 'Kry 100 % in ’n toets'], five: ['Vyf toetse', 'Voltooi 5 toetse'], streak3: ['3-dag reeks', 'Leer 3 dae agtereenvolgens'], streak7: ['Week-reeks', '7 dae agtereenvolgens'], reader: ['Leesrot', 'Lees 10 opsommings'], subject: ['Vakbaas', 'Alle onderwerpe van ’n vak bo 70 %'], xp1000: ['Kampioen', 'Verdien 1 000 XP'] },
+    badgeNames: { fixer: ['Foutvreter', 'Maak 25 foute in jou foute-boek reg'], brain: ['Breinkrag', 'Speel 10 breinspeletjies'], scope: ['Eksamengereed', 'Kry 80 % of meer in ’n afbakening-toets'], first: ['Eerste toets', 'Voltooi jou eerste toets'], perfect: ['Volpunte', 'Kry 100 % in ’n toets'], five: ['Vyf toetse', 'Voltooi 5 toetse'], streak3: ['3-dag reeks', 'Leer 3 dae agtereenvolgens'], streak7: ['Week-reeks', '7 dae agtereenvolgens'], reader: ['Leesrot', 'Lees 10 opsommings'], subject: ['Vakbaas', 'Alle onderwerpe van ’n vak bo 70 %'], xp1000: ['Kampioen', 'Verdien 1 000 XP'] },
   },
   en: {
+    nextExam: 'Next exam', weekXpShort: 'XP this week', chestSub: 'Do 3 tests today to unlock the treasure chest.',
+    navExams: 'Exams', navPlay: 'Play', navDict: 'Words', termNow: 'Term', finalTerm: 'final term – exams are coming!', now: 'now', exam1: 'exam', focusShort: 'focus subject',
+    planT: "Today's study plan", planSub: 'Picked from your exam scope, your exam dates and the subjects that need the most attention.', planDone: 'All done for today – great work!',
+    exT: 'Final exams', exSub: 'Your exam scope per subject: what is in the exam, how ready you are, and practice tests on just that work.', exDateTBC: 'Date not known yet', exDone: 'Done', exToday: 'Today!', exIn: 'in',
+    provisional: 'Provisional', confirmed: 'Confirmed', provisionalHint: "Provisional scope: Term 3 + 4 (languages: the whole year), as in Unika's previous November papers. Dad will update it as soon as the school sends the real scope.",
+    scopeTopics: 'topics', ready: 'ready', scopeTest: 'Scope test', showTopics: 'Show topics', inScope: 'In scope',
+    mistakesT: 'Mistakes book', mistakesSub: 'Every question you get wrong is saved here. Redo them until you get them right – then they disappear from the book.', open_: 'open', fixedN: 'fixed', redoAll: 'Redo 10 mistakes', redo: 'Redo', redoT: 'Redo mistakes', recentMistakes: 'Recent mistakes', noMistakes: 'No mistakes – well done!', noMistakesShort: 'Nothing open 🎉', tapToRedo: 'Tap to fix them',
+    playT: 'Play & learn', playSub: 'Brain games with your own schoolwork. Every game earns XP and counts for the twin challenge!', brainGames: 'Brain games', pickSubj: 'Choose a subject for the word games:', allSubj: 'All subjects',
+    g: { memory: ['Memory pairs', 'Flip cards and find the Afrikaans and English word pairs.'], hangman: ['Guess the word', 'Read the meaning and guess the word, letter by letter.'], sprint: ['Maths sprint', 'How many sums can you do in your head in 60 seconds?'], blitz: ['True/False blitz', '60 seconds: true or false? The faster, the better!'] },
+    best: 'Best', moves: 'moves', playAgain: 'Play again', back: 'Back', newRecord: 'New record!', timeUp: "Time's up!", start: 'Start', lives: 'Lives', hintLetter: 'Hint (costs 1 life)', wordWas: 'The word was', nextWord: 'Next word', wordsOf: 'words right', correctN: 'right',
+    sprintHow: 'Tap the answer on the keypad and press OK. Use − for negative numbers.', blitzHow: 'Read the statement and quickly tap True or False. Wrong answers go into your mistakes book.', wentToMistakes: 'These questions were saved in your mistakes book.',
+    weekT: 'Twin challenge', weekLead: 'leads this week!', weekTie: 'Tied!', weekReset: 'Starts again every Monday.', chalT: 'Weekly challenge', chalSub: 'The same 10 questions for Diaan and Stefan. Only your first attempt counts – who wins this week?', chalPlay: 'Play', chalReplay: 'Practise again', chalDone: 'Played', chalNot: 'Not played yet', chalCounted: 'Your score counts for this week!', chalPractice: 'Practice round – only your first attempt counts.',
+    chestT: 'Daily treasure chest', chestReady: 'Ready – open it!', chestDone: "There's a new one tomorrow.", testsToday: 'tests today', chestWin: 'You found:',
+    wotd: 'Word of the day', factT: 'Did you know?', factBtn: 'Cool! 😎', toTopic: 'Go to topic', dwHint: 'Tap an underlined word to see its meaning.',
+    dictT: 'Dictionary', dictSub: 'All the difficult words from your subjects – in Afrikaans and English, with meanings. You can also tap an underlined word in any summary.', dictTabTerms: 'Subject words', dictTabQ: 'Question words', dictQSub: 'These words in a question tell you what the teacher wants. Lots of marks are lost because someone only “names” where the question asks to “explain”.', dictSearch: 'Search a word (Afrikaans or English)…', dictWords: 'words', dictNone: 'Nothing found – try another spelling or the Afrikaans word.', showMore: 'Show more',
+    scopeT: 'Exam scope & timetable', scopeHelp: "Choose the exam date and the topics in the exam for each subject (the note field is for e.g. pages or chapters). Until you change a subject, Leerhoek uses a provisional scope: Term 3 + 4 (languages: the whole year), as in Unika's previous November papers.", curTermL: 'Current term', auto: 'Automatic', pickTopics: 'Choose topics', q4: 'T4', q34: 'T3 + 4', qAll: 'Whole year', qNone: 'None', noteP: 'Note, e.g. Ch 5–8, p. 40–62', saveScope: 'Save scope', mistakesShort: 'mistakes open', gamesShort: 'games',
     instTitle: 'Get Leerhoek as an app', instSub: 'Put the icon on your home screen – then open it like any other app.', instBtn: '📲 Install Leerhoek', instHow: 'Show me how', instLater: 'Later', instDone: 'Leerhoek is installed! Open it with the icon from now on.', instIosTitle: 'Put Leerhoek on your home screen', instIosSafari: ['Tap <b>⋯</b> at the bottom right (or <b>Share</b> {S} directly).', 'Tap <b>Share</b> {S}.', 'Scroll down (or tap <b>View More</b>) and choose <b>Add to Home Screen</b>.', 'Make sure <b>Open as Web App</b> is on, then tap <b>Add</b>.'], instIosChrome: ['Tap <b>Share</b> {S} on the right of the address bar (or <b>⋯</b> → <b>Share</b>).', 'Scroll down and choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'], instAndroid: ['Tap <b>⋮</b> at the top right (Samsung Internet: <b>☰</b> at the bottom).', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.', 'Tap <b>Install</b> / <b>Add</b>.'], instGot: 'Got it!', instFoot: 'The Leerhoek icon then appears on your home screen.',
     hello: 'Hi', chooseProfile: 'Who are you today?', tagline: "Diaan & Stefan's study platform", parent: 'Parent', parentSub: 'Mel & Dad',
     level: 'Level', xp: 'XP', streak: 'Streak', days: 'days', quizzes: 'Tests', avg: 'Average', home: 'Home', subjects: 'Subjects', badges: 'Badges', resources: 'Resources',
@@ -52,11 +84,11 @@ const UI = {
     dashboard: 'Parent panel', lastActive: 'Last active', never: 'never', thisWeek: 'this week', timeOn: 'Time on platform', mastery: 'Mastery per subject', weak: 'Topics that need attention', noWeak: 'Nothing urgent – everything above 70 %.', activity: 'Activity', noActivity: 'No activity yet.',
     copyReport: 'Copy report', settings: 'Settings', examDate: 'Exam date (first paper)', examTitle: 'Caption', save: 'Save', saved: 'Saved', changePin: 'Change PIN', importCode: 'Import progress code', importHint: 'Paste the code a boy copied from another device.', importBtn: 'Import', imported: 'Progress imported',
     storage: 'Storage', storageDb: 'Shared store (syncs on all devices)', storageLocal: 'This device only', today: 'Today', yesterday: 'Yesterday',
-    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Signed in' },
+    ev: { quiz: 'Test', read: 'Summary read', flash: 'Key terms', examples: 'Examples', exam: 'Exam practice', paper: 'Practice paper', login: 'Signed in', scope: 'Scope test', redo: 'Mistakes redone', challenge: 'Weekly challenge', game: 'Brain game', chest: 'Treasure chest' },
     resourcesIntro: "Free textbooks, workbooks and past papers. Unika's own exam scope and class notes go in the “Gedeel – Unika dokumente” folder on Dad's computer.",
     allBadges: 'Badges', loading: 'Loading subjects…', switchUser: 'Switch user', continueAs: 'Continue', of: 'of', min: 'min', mixed: 'Mixed questions', chooseGrade: 'Grade',
     hint: 'Hint', showMemo: 'Show memo & mark myself', memo: 'Memo', selfMark: 'How many marks does your answer earn?', papers: 'Practice papers', paper: 'Practice paper', examFormatT: "What Unika's paper looks like", startPaper: 'Start paper', timeLeft: 'Time left', marks: 'marks', section: 'Section', paperDone: 'Paper complete!', perSection: 'Marks per section', paperSub: 'Same format, time and marks as the school paper – new questions. Write long answers on paper or type them, then show the memo and mark yourself honestly.', bestMark: 'Best', skipQ: 'Skip', focus: 'Focus subjects', focusSub: 'Based on your school report – every mark counts most here.', target: 'target', school: 'School', schoolMarks: 'School marks vs platform', schoolSub: 'Report marks per term, the pass target and the platform mastery.', termShort: 'T', passRules: 'Pass requirements: 50 % in Home Language, 40 % in English FAL, 40 % in Mathematics, 40 % in 3 more subjects and 30 % in 2 more.', avgShort: 'Average', platform: 'Platform', gap: 'short',
-    badgeNames: { first: ['First test', 'Complete your first test'], perfect: ['Full marks', 'Score 100 % in a test'], five: ['Five tests', 'Complete 5 tests'], streak3: ['3-day streak', 'Learn 3 days in a row'], streak7: ['Week streak', '7 days in a row'], reader: ['Bookworm', 'Read 10 summaries'], subject: ['Subject boss', 'Every topic of a subject above 70 %'], xp1000: ['Champion', 'Earn 1 000 XP'] },
+    badgeNames: { fixer: ['Mistake muncher', 'Fix 25 mistakes in your mistakes book'], brain: ['Brain power', 'Play 10 brain games'], scope: ['Exam ready', 'Score 80 % or more in a scope test'], first: ['First test', 'Complete your first test'], perfect: ['Full marks', 'Score 100 % in a test'], five: ['Five tests', 'Complete 5 tests'], streak3: ['3-day streak', 'Learn 3 days in a row'], streak7: ['Week streak', '7 days in a row'], reader: ['Bookworm', 'Read 10 summaries'], subject: ['Subject boss', 'Every topic of a subject above 70 %'], xp1000: ['Champion', 'Earn 1 000 XP'] },
   }
 };
 const KIDS = [
@@ -67,8 +99,8 @@ const KIDS = [
    Pass requirements (Laerskool Unika report): 50 % Huistaal, 40 % EAT, 40 % Wiskunde, 40 % in 3 more, 30 % in 2 more. */
 const PASS_TARGET = { afrikaans: 50, english: 40, wiskunde: 40, default: 40 };
 const SCHOOL_EXTRA = { kk: { af: 'Kreatiewe Kunste', en: 'Creative Arts' }, geo: { af: 'Geografie', en: 'Geography' }, gesk: { af: 'Geskiedenis', en: 'History' } };
-const BADGES = ['first', 'perfect', 'five', 'streak3', 'streak7', 'reader', 'subject', 'xp1000'];
-const BADGE_ICONS = { first: '🎯', perfect: '💯', five: '🖐️', streak3: '🔥', streak7: '🌋', reader: '📚', subject: '👑', xp1000: '🏆' };
+const BADGES = ['first', 'perfect', 'five', 'streak3', 'streak7', 'reader', 'subject', 'xp1000', 'scope', 'fixer', 'brain'];
+const BADGE_ICONS = { first: '🎯', perfect: '💯', five: '🖐️', streak3: '🔥', streak7: '🌋', reader: '📚', subject: '👑', xp1000: '🏆', scope: '🎯', fixer: '🛠️', brain: '🧠' };
 const PAIR_COLORS = ['#2f6df6', '#d97706', '#9333ea', '#16a34a', '#db2777', '#0d9488'];
 
 /* ------------------------------------------------------------------ state */
@@ -227,7 +259,7 @@ function notify(kid, ev) {
   // phone push via ntfy.sh (own-website mode only); simple request (no preflight)
   const topic = S.settings && S.settings.ntfyTopic; if (S.storeKind !== 'supa' || !topic || !ev) return;
   const A = UI.af; let title, message, tags;
-  if (['quiz', 'exam', 'paper'].includes(ev.type)) {
+  if (['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) {
     title = `${kid.name}: ${A.ev[ev.type]} ${ev.score}%`; message = `${ev.label || ''}\n${ev.correct}/${ev.total} · +${ev.xp} XP · ${Math.max(1, Math.round((ev.secs || 0) / 60))} min`;
     tags = [ev.score >= 80 ? 'tada' : ev.score >= 50 ? 'books' : 'warning'];
   } else if (ev.type === 'login') {
@@ -318,12 +350,18 @@ async function award(kid, xp, ev) {
   if (!has('streak7') && kid.streak.count >= 7) kid.badges.push('streak7');
   if (!has('reader') && kid.totals.reads >= 10) kid.badges.push('reader');
   if (!has('xp1000') && kid.xp >= 1000) kid.badges.push('xp1000');
+  if (!has('scope') && ev && ev.type === 'scope' && ev.score >= 80) kid.badges.push('scope');
+  if (!has('fixer') && (kid.totals.fixed || 0) >= 25) kid.badges.push('fixer');
+  if (!has('brain') && (kid.totals.games || 0) >= 10) kid.badges.push('brain');
+  // weekly XP (twin challenge) and today's test count (treasure chest)
+  const wk = weekId(); if (!kid.week || kid.week.w !== wk) kid.week = { w: wk, xp: 0 }; kid.week.xp += xp;
+  if (ev && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) { if (!kid.day || kid.day.d !== d) kid.day = { d, tests: 0 }; kid.day.tests++; }
   if (!has('subject') && ev && ev.subject) { const subj = S.content.subjects[ev.subject]; if (subj && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
   if (ev) {
     ev.t = Date.now(); ev.xp = xp;
     const s = ev.subject ? S.content.subjects[ev.subject] : null, f = ev.topic ? findTopic(ev.topic) : null;
     const pe = ev.paper ? findPaper(ev.paper) : null;
-    ev.label = [s ? (s.short.af || s.short.en) : null, f ? (f.tp.title.af || f.tp.title.en) : null, pe ? (pe.ex.title.af || pe.ex.title.en) : null].filter(Boolean).join(' · ');
+    if (!ev.label) ev.label = [s ? (s.short.af || s.short.en) : null, f ? (f.tp.title.af || f.tp.title.en) : null, pe ? (pe.ex.title.af || pe.ex.title.en) : null].filter(Boolean).join(' · ');
   }
   await S.store.saveKid(kid);
   if (ev) { S.store.appendLog(kid.id, ev).catch(() => {}); notify(kid, ev); }
@@ -375,7 +413,15 @@ function parseRoute() {
   if (h === 'kentekens') return { s: 'badges' };
   if (h === 'hulpbronne') return { s: 'resources' };
   if (h === 'profiel') return { s: 'gate' };
+  if (h === 'eksamens') return { s: 'exams' };
+  if (h === 'foute') return { s: 'mistakes' };
+  if (h === 'speel') return { s: 'games' };
+  if (h === 'uitdaging') return { s: 'week' };
+  if (h === 'woordeboek') return { s: 'dict' };
   let m;
+  if ((m = h.match(/^afbakening-(.+)$/))) return { s: 'scope', id: m[1] };
+  if ((m = h.match(/^herdoen(?:-(.+))?$/))) return { s: 'redo', id: m[1] || 'all' };
+  if ((m = h.match(/^spel-(.+)$/))) return { s: 'game', id: m[1] };
   if ((m = h.match(/^vak-(.+)$/))) return { s: 'subject', id: m[1] };
   if ((m = h.match(/^onderwerp-(.+)$/))) return { s: 'topic', id: m[1] };
   if ((m = h.match(/^toets-(.+)$/))) return { s: 'quiz', id: m[1] };
@@ -385,9 +431,10 @@ function parseRoute() {
 }
 function nav() {
   const r = parseRoute();
-  const items = [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['badges', '🏅', t('badges')], ['resources', '🔗', t('resources')], ['parent', '👪', t('parent')]];
-  const hashes = { home: 'home', subjects: 'vakke', badges: 'kentekens', resources: 'hulpbronne', parent: 'ouer' };
-  const on = (k) => (r.s === k || (k === 'subjects' && ['subject', 'topic', 'quiz', 'exam', 'paper'].includes(r.s))) ? 'on' : '';
+  const items = [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
+  const hashes = { home: 'home', subjects: 'vakke', exams: 'eksamens', games: 'speel', dict: 'woordeboek', parent: 'ouer', badges: 'kentekens', resources: 'hulpbronne' };
+  const groups = { subjects: ['subject', 'topic', 'quiz', 'exam', 'paper', 'resources'], exams: ['scope', 'mistakes', 'redo'], games: ['game', 'week', 'badges'] };
+  const on = (k) => (r.s === k || (groups[k] || []).includes(r.s)) ? 'on' : '';
   $('#bottomnav').innerHTML = items.map(([k, ic, lb]) => `<button class="${on(k)}" data-go="${hashes[k]}"><span class="ic">${ic}</span>${esc(lb)}</button>`).join('');
   $('#desknav').innerHTML = items.map(([k, ic, lb]) => `<button class="${on(k)}" data-go="${hashes[k]}">${esc(lb)}</button>`).join('');
   document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
@@ -409,6 +456,7 @@ async function render() {
   const main = $('#main'); main.scrollTop = 0; window.scrollTo(0, 0);
   document.querySelectorAll('.overlay').forEach(o => o.remove());
   if (S.paperTimer) { clearInterval(S.paperTimer); S.paperTimer = null; }
+  clearGame();
   if (r.kid && r.kid !== S.kidId && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(r.kid);
   nav();
   if (!S.content) { main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`; return; }
@@ -422,8 +470,16 @@ async function render() {
     case 'subjects': return renderSubjects(main);
     case 'subject': return renderSubject(main, r.id);
     case 'topic': return renderTopic(main, r.id);
-    case 'quiz': return renderQuiz(main, r.id, false);
-    case 'exam': return renderQuiz(main, r.id, true);
+    case 'quiz': return renderQuiz(main, r.id, 'topic');
+    case 'exam': return renderQuiz(main, r.id, 'exam');
+    case 'scope': return renderQuiz(main, r.id, 'scope');
+    case 'redo': return renderQuiz(main, r.id, 'redo');
+    case 'week': return renderQuiz(main, 'week', 'week');
+    case 'exams': return renderExams(main);
+    case 'mistakes': return renderMistakes(main);
+    case 'games': return renderGames(main);
+    case 'game': return renderGame(main, r.id);
+    case 'dict': return renderDict(main);
     case 'paper': return renderPaper(main, r.id);
     case 'badges': return renderBadges(main);
     default: return renderHome(main);
@@ -466,45 +522,54 @@ function renderHome(main) {
   const kid = S.kid, subjects = subjectsOfGrade(7);
   const lv = levelOf(kid.xp), next = xpForLevel(lv + 1), cur = xpForLevel(lv), pct = clamp(Math.round(100 * (kid.xp - cur) / (next - cur)), 0, 100);
   const acc = kid.totals.answered ? Math.round(100 * kid.totals.correct / kid.totals.answered) : 0;
-  // mission: 3 topics — weakest attempted first, then unread from terms 4,3
   const focus = focusSubjects(kid, subjects);
-  const frank = (sid) => { const i = focus.findIndex(f => f.s.id === sid); return i < 0 ? 9 : i; };
-  const scored = subjects.flatMap(s => allTopics(s).map(x => ({ s, ...x, pct: topicPct(kid, x.tp.id), st: topicStatus(kid, x.tp.id) })));
-  const weak = scored.filter(x => x.st === 'practice').sort((a, b) => (frank(a.s.id) - frank(b.s.id)) || (a.pct - b.pct));
-  const fresh = scored.filter(x => x.st === 'new' || x.st === 'read').sort((a, b) => (frank(a.s.id) - frank(b.s.id)) || (b.term - a.term) || (Math.random() - 0.5));
-  // one from each of the top focus subjects, then weak topics, then fresh work
-  const mission = []; const seen = new Set();
-  const take = (x) => { if (x && !seen.has(x.tp.id) && mission.length < 3) { seen.add(x.tp.id); mission.push(x); } };
-  focus.slice(0, 3).forEach(f => take(weak.find(x => x.s.id === f.s.id) || fresh.find(x => x.s.id === f.s.id)));
-  weak.forEach(take); fresh.forEach(take);
-  const exam = S.settings.examDate ? daysBetween(today(), S.settings.examDate) : null;
+  const plan = dailyPlan(kid), doneN = plan.filter(m => isDoneToday(kid, m.tp.id)).length;
+  const nx = examList().find(x => x.days !== null && x.days >= 0);
+  const exam = nx ? nx.days : (S.settings.examDate ? daysBetween(today(), S.settings.examDate) : null);
+  const examLabel = nx ? `${nx.s.icon} ${tx(nx.s.name)} · ${fmtDate(nx.sc.date)}` : (S.settings.examTitle || '');
+  const term = curTerm(), chest = chestState(kid), mc = mistakeCount(kid), wd = wordOfDay();
   main.innerHTML = `${instSlot()}
   <div class="hero">
     <div class="greet"><h1>${esc(t('hello'))}, <span style="--subject:var(--brand)">${esc(kid.name)}</span>! 👋</h1>
       <p class="muted" style="margin-top:6px">${esc(t('tagline'))}</p>
+      <div class="row" style="margin-top:10px;gap:6px"><span class="chip hi">📅 ${esc(t('termNow'))} ${term}${term === 4 ? ' · ' + esc(t('finalTerm')) : ''}</span></div>
       ${S.storeKind === 'local' ? `<div class="banner" style="margin-top:12px"><span>💾 ${esc(window.LH_CONFIG ? t('notLinked') : t('localOnly'))}</span>${window.LH_CONFIG ? '' : `<button class="btn sm" id="copyCode">${esc(t('copyCode'))}</button>`}</div>` : ''}
-      ${exam !== null && exam >= 0 ? `<div class="card countdown" style="margin-top:14px"><div class="n num">${exam}</div><div><b>${esc(t('examIn'))} ${exam} ${esc(t('examDays'))}</b><div class="small muted">${esc(S.settings.examTitle || '')}</div></div></div>` : ''}
+      ${exam !== null && exam >= 0 ? `<div class="card countdown" id="cdown" style="margin-top:14px;cursor:pointer"><div class="n num">${exam}</div><div><b>${esc(nx ? t('nextExam') : t('examIn'))}${nx ? '' : ` ${exam} ${esc(t('examDays'))}`}</b>${nx ? ` <span class="small">${esc(t('exIn'))} ${exam} ${esc(t('days'))}</span>` : ''}<div class="small muted">${esc(examLabel)}</div></div></div>` : ''}
     </div>
-    <div class="xpcard">
+    <div class="xpcard" id="xpc" style="cursor:pointer">
       <div class="label" style="color:rgba(255,255,255,.7)">${esc(t('level'))} ${lv}</div>
       <div class="lvl">${esc(levelName(lv))}</div>
       <div class="bar-h"><i style="width:${pct}%"></i></div>
       <div class="meta num"><span>${kid.xp} XP</span><span>${next} XP → ${esc(t('level'))} ${lv + 1}</span></div>
-      <div class="stats"><div class="stat"><div class="v num"><span class="flame">🔥</span> ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div class="stat"><div class="v num">${kid.totals.quizzes}</div><div class="k">${esc(t('quizzes'))}</div></div><div class="stat"><div class="v num">${acc}%</div><div class="k">${esc(t('avg'))}</div></div></div>
+      <div class="stats"><div class="stat"><div class="v num"><span class="flame">🔥</span> ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div class="stat"><div class="v num">${kid.totals.quizzes}</div><div class="k">${esc(t('quizzes'))}</div></div><div class="stat"><div class="v num">🏅 ${kid.badges.length}</div><div class="k">${esc(t('badges'))}</div></div></div>
     </div>
+  </div>
+  <div class="tiles">
+    <button class="card tile ${chest.ready ? 'ready' : ''}" id="chestT"><span class="ti">${chest.opened ? '💰' : '🎁'}</span><b>${esc(t('chestT'))}</b><span class="small muted">${chest.opened ? esc(t('chestDone')) : chest.ready ? esc(t('chestReady')) : `<span class="num">${Math.min(3, chest.tests)}/3</span> ${esc(t('testsToday'))}`}</span>${!chest.opened && !chest.ready ? `<div class="bar-h" style="margin-top:auto"><i style="width:${Math.round(100 * Math.min(3, chest.tests) / 3)}%;background:var(--hi)"></i></div>` : ''}</button>
+    <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
+    <button class="card tile" id="wotdT" style="--subject:${wd ? wd.s.color : 'var(--brand)'}"><span class="ti">📖</span><b>${esc(t('wotd'))}</b>${wd ? `<span class="wotd">${esc(dWord(wd))}</span><span class="small muted">${esc(dOther(wd))}</span>` : ''}</button>
+    <button class="card tile" data-go="foute"><span class="ti">❌</span><b>${esc(t('mistakesT'))}</b><span class="big2 num">${mc}</span><span class="small muted">${esc(mc ? t('tapToRedo') : t('noMistakesShort'))}</span></button>
   </div>
   ${focus.length ? `<div class="card" style="margin-top:18px"><div class="row" style="justify-content:space-between"><h2>🎓 ${esc(t('focus'))}</h2><span class="small muted">${esc(t('focusSub'))}</span></div>
     <div class="row" style="margin-top:10px">${focus.map(f => `<button class="chip ${f.margin < 0 ? 'bad' : f.margin < 10 ? 'hi' : 'good'}" data-subj="${f.s.id}" style="font-size:0.85rem;padding:6px 12px">${f.s.icon} ${esc(tx(f.s.short))} <span class="num">${f.mark}%</span> → ${esc(t('target'))} <span class="num">${f.target}%</span></button>`).join('')}</div></div>` : ''}
-  <div class="card mission" style="margin-top:18px"><h2>🎯 ${esc(t('mission'))}</h2><p class="small muted">${esc(t('missionSub'))}</p>
-    <ul>${mission.map(m => `<li><button data-go="${m.st === 'practice' ? 'toets-' : 'onderwerp-'}${m.tp.id}" style="--subject:${m.s.color}"><span class="dot"></span><span><b>${esc(tx(m.tp.title))}</b><br><span class="small muted">${esc(tx(m.s.name))} · ${esc(t('term'))} ${m.term} · ${m.st === 'practice' ? esc(t('test')) : esc(t('learn'))}</span></span></button></li>`).join('')}</ul>
+  <div class="card mission" style="margin-top:18px"><div class="row" style="justify-content:space-between"><h2>🎯 ${esc(t('planT'))}</h2><span class="chip num">${doneN}/${plan.length}</span></div><p class="small muted">${esc(t('planSub'))}</p>
+    <ul>${plan.map(m => { const done = isDoneToday(kid, m.tp.id), st = topicStatus(kid, m.tp.id); return `<li><button class="${done ? 'done' : ''}" data-go="${st === 'new' ? 'onderwerp-' : 'toets-'}${m.tp.id}" style="--subject:${m.s.color}"><span class="dot">${done ? '✓' : ''}</span><span><b>${esc(tx(m.tp.title))}</b><br><span class="small muted">${m.s.icon} ${esc(tx(m.s.short))} · ${esc(t('termShort'))}${m.term} · ${st === 'new' ? esc(t('learn')) : esc(t('test'))}${m.why ? ' · ' + esc(m.why) : ''}</span></span></button></li>`; }).join('')}</ul>
+    ${plan.length && doneN === plan.length ? `<div class="banner" style="margin-top:10px">🎉 ${esc(t('planDone'))}</div>` : ''}
+    <div class="row" style="margin-top:12px"><button class="btn sm" data-go="eksamens">🎯 ${esc(t('exT'))} →</button></div>
   </div>
   <div class="section-h"><h2>${esc(t('subjects'))}</h2><button class="btn sm ghost" id="share">${esc(t('shareProgress'))}</button></div>
   <div class="subjects">${subjects.map((s, i) => subjectCard(s, kid, i)).join('')}</div>`;
   wireSubjectCards(main);
-  document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   wireInstall();
+  const cd = $('#cdown'); if (cd) cd.onclick = () => go('eksamens');
+  $('#xpc').onclick = () => go('kentekens');
+  $('#chestT').onclick = () => { if (chestState(kid).ready) openChest(); else toast(t('chestSub')); };
+  $('#wotdT').onclick = () => wordPopup(wd);
   const cc = $('#copyCode'); if (cc) cc.onclick = async () => { const code = S.store.exportCode(); if (code && await copyText(code)) toast(t('copied')); };
   $('#share').onclick = async () => { if (await copyText(reportText(kid, subjects))) toast(t('shareDone')); };
+  fillTwin($('#twinMini'), true);
+  maybeFact();
 }
 function subjectCard(s, kid, i) {
   const pct = subjectPct(kid, s), n = allTopics(s).length, done = allTopics(s).filter(x => topicStatus(kid, x.tp.id) !== 'new').length;
@@ -513,25 +578,26 @@ function subjectCard(s, kid, i) {
 function wireSubjectCards(root) { root.querySelectorAll('[data-subj]').forEach(b => b.onclick = () => go('vak-' + b.dataset.subj)); }
 function renderSubjects(main) {
   const subjects = subjectsOfGrade(7);
-  main.innerHTML = `<h1>${esc(t('subjects'))}</h1><p class="muted" style="margin:4px 0 16px">${esc(t('chooseGrade'))} 7 · CAPS</p><div class="subjects">${subjects.map((s, i) => subjectCard(s, S.kid, i)).join('')}</div>`;
-  wireSubjectCards(main);
+  main.innerHTML = `<div class="row" style="justify-content:space-between"><h1>${esc(t('subjects'))}</h1><button class="btn sm" data-go="hulpbronne">🔗 ${esc(t('resources'))}</button></div><p class="muted" style="margin:4px 0 16px">${esc(t('chooseGrade'))} 7 · CAPS · ${esc(t('termNow'))} ${curTerm()}</p><div class="subjects">${subjects.map((s, i) => subjectCard(s, S.kid, i)).join('')}</div>`;
+  wireSubjectCards(main); $('[data-go]', main).onclick = () => go('hulpbronne');
 }
 function renderSubject(main, id) {
   const s = S.content.subjects[id]; if (!s) return go('vakke');
   setSubjectColor(s.color);
   const kid = S.kid, pct = subjectPct(kid, s);
-  let term = S._term && S._term[id] || (s.terms.find(tm => tm.topics.length) || s.terms[0]).term;
+  const ct = curTerm(), scope = new Set(scopeOf(s).topics);
+  let term = S._term && S._term[id] || (s.terms.find(tm => tm.term === ct && tm.topics.length) || s.terms.find(tm => tm.topics.length) || s.terms[0]).term;
   const draw = () => {
     const tm = s.terms.find(x => x.term === term) || s.terms[0];
     main.innerHTML = `<button class="back" data-go="vakke">← ${esc(t('subjects'))}</button>
     <div class="subhead"><span class="ic">${s.icon}</span><div class="t"><h1>${esc(tx(s.name))}</h1><p class="small muted">${esc(tx(s.intro))}</p>${schoolMark(kid, s.id) !== null ? `<div class="row" style="margin-top:8px;gap:6px"><span class="chip ${schoolMark(kid, s.id) < passTarget(s.id) ? 'bad' : 'good'}">${esc(t('school'))} ${esc(t('termShort'))}${schoolTerms(kid).slice(-1)[0]}: <span class="num">${schoolMark(kid, s.id)}%</span></span><span class="chip">${esc(t('target'))} <span class="num">${passTarget(s.id)}%</span></span></div>` : ''}</div>${ring(pct)}</div>
     <div class="row" style="margin-top:12px;justify-content:space-between"><details class="tips" style="flex:1;min-width:240px"><summary>💡 ${esc(t('examTips'))}</summary><ul>${(s.examTips || []).map(x => `<li>${esc(tx(x))}</li>`).join('')}</ul></details>
-    <button class="btn subject" data-go="eksamen-${s.id}">🎓 ${esc(t('examPractice'))}</button></div>
+    <div class="row" style="gap:8px"><button class="btn subject" data-go="afbakening-${s.id}">🎯 ${esc(t('scopeTest'))}</button><button class="btn" data-go="eksamen-${s.id}">🎓 ${esc(t('examPractice'))}</button></div></div>
     ${s.examFormat ? `<details class="tips" style="margin-top:10px"><summary>📄 ${esc(t('examFormatT'))}</summary><div class="prose small" style="margin-top:6px">${md(tx(s.examFormat))}</div></details>` : ''}
     ${(s.practiceExams || []).length ? `<div class="card" style="margin-top:10px"><h3>📝 ${esc(t('papers'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('paperSub'))}</p><div class="stack" style="gap:8px">${s.practiceExams.map(ex => { const pp = (kid.papers || {})[ex.id]; return `<div class="row" style="justify-content:space-between"><div><b>${esc(tx(ex.title))}</b><div class="small muted num">${ex.total} ${esc(t('marks'))} · ${ex.minutes} ${esc(t('min'))}${pp ? ` · ${esc(t('bestMark'))} ${pp.best}% (${pp.attempts}×)` : ''}</div></div><button class="btn sm subject" data-go="vraestel-${ex.id}">${esc(t('startPaper'))} →</button></div>`; }).join('')}</div></div>` : ''}
-    <div class="tabs">${s.terms.map(x => `<button class="${x.term === term ? 'on' : ''}" data-term="${x.term}">${esc(t('term'))} ${x.term} <span class="num">(${x.topics.length})</span></button>`).join('')}</div>
+    <div class="tabs">${s.terms.map(x => `<button class="${x.term === term ? 'on' : ''}" data-term="${x.term}">${esc(t('term'))} ${x.term}${x.term === ct ? ' · ' + esc(t('now')) : ''} <span class="num">(${x.topics.length})</span></button>`).join('')}</div>
     <h3 style="margin:6px 0 10px">${esc(tx(tm.title))}</h3>
-    <div class="topics">${tm.topics.length ? tm.topics.map((tp, i) => { const st = topicStatus(kid, tp.id), p = tprog(kid, tp.id); return `<div class="topic" style="animation-delay:${i * 40}ms"><div class="ix">${i + 1}</div><div><div class="tt">${esc(tx(tp.title))}</div><div class="bl">${esc(tx(tp.blurb))}</div><div class="row" style="gap:6px;margin-top:6px">${statusChip(st)}${p.attempts ? `<span class="chip num">${p.best}% · ${p.attempts}×</span>` : ''}</div></div><div class="acts"><button class="btn sm" data-go="onderwerp-${tp.id}">📖 ${esc(t('learn'))}</button><button class="btn sm subject" data-go="toets-${tp.id}">✏️ ${esc(t('test'))}</button></div></div>`; }).join('') : `<div class="card muted">…</div>`}</div>`;
+    <div class="topics">${tm.topics.length ? tm.topics.map((tp, i) => { const st = topicStatus(kid, tp.id), p = tprog(kid, tp.id); return `<div class="topic" style="animation-delay:${i * 40}ms"><div class="ix">${i + 1}</div><div><div class="tt">${esc(tx(tp.title))}</div><div class="bl">${esc(tx(tp.blurb))}</div><div class="row" style="gap:6px;margin-top:6px">${statusChip(st)}${p.attempts ? `<span class="chip num">${p.best}% · ${p.attempts}×</span>` : ''}${scope.has(tp.id) ? `<span class="chip hi">🎯 ${esc(t('inScope'))}</span>` : ''}</div></div><div class="acts"><button class="btn sm" data-go="onderwerp-${tp.id}">📖 ${esc(t('learn'))}</button><button class="btn sm subject" data-go="toets-${tp.id}">✏️ ${esc(t('test'))}</button></div></div>`; }).join('') : `<div class="card muted">…</div>`}</div>`;
     main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     main.querySelectorAll('[data-term]').forEach(b => b.onclick = () => { term = +b.dataset.term; S._term = S._term || {}; S._term[id] = term; draw(); });
   };
@@ -554,7 +620,8 @@ function renderTopic(main, tid) {
     if (innerWidth < 480) main.querySelectorAll('.ttabs .lb').forEach(e => e.hidden = true);
     const body = $('#tabbody');
     if (tab === 'summary') {
-      body.innerHTML = `<div class="card pad-lg"><div class="prose">${md(tx(tp.summary))}</div><div class="sep" style="margin:18px 0"></div><button class="btn ${p.read ? '' : 'hi'}" id="markRead" ${p.read ? 'disabled' : ''}>${esc(p.read ? t('readDone') : t('markRead'))}</button></div>`;
+      body.innerHTML = `<div class="card pad-lg"><p class="small muted" style="margin-bottom:10px">📖 ${esc(t('dwHint'))}</p><div class="prose" id="sumProse">${md(tx(tp.summary))}</div><div class="sep" style="margin:18px 0"></div><button class="btn ${p.read ? '' : 'hi'}" id="markRead" ${p.read ? 'disabled' : ''}>${esc(p.read ? t('readDone') : t('markRead'))}</button></div>`;
+      linkTerms($('#sumProse'), dict().filter(e => e.s.id === subj.id));
       const b = $('#markRead'); if (b) b.onclick = async () => { p.read = true; kid.totals.reads = (kid.totals.reads || 0) + 1; await award(kid, 10, { type: 'read', subject: subj.id, topic: tid }); draw(); };
     } else if (tab === 'terms') {
       let flipped = new Set();
@@ -587,14 +654,26 @@ function renderResources(main) {
 }
 
 /* ------------------------------------------------------------------ quiz engine */
-function buildQuestions(tid, isExam) {
-  if (isExam) {
-    const s = S.content.subjects[tid]; if (!s) return null;
+function buildQuestions(id, mode) {
+  if (mode === 'exam') {
+    const s = S.content.subjects[id]; if (!s) return null;
     const pool = allTopics(s).flatMap(x => x.tp.quiz.map(q => ({ q, topic: x.tp, term: x.term })));
     return { subj: s, title: tx(s.name) + ' · ' + t('examPractice'), qs: shuffle(pool).slice(0, 20), topicId: null };
   }
-  const f = findTopic(tid); if (!f) return null;
-  return { subj: f.subj, tp: f.tp, title: tx(f.tp.title), qs: shuffle(f.tp.quiz.map(q => ({ q, topic: f.tp, term: f.term }))), topicId: tid };
+  if (mode === 'scope') {
+    const s = S.content.subjects[id]; if (!s) return null;
+    const pool = scopeOf(s).topics.flatMap(tid => { const f = findTopic(tid); return f.tp.quiz.map(q => ({ q, topic: f.tp, term: f.term })); });
+    if (!pool.length) return null;
+    return { subj: s, title: tx(s.short) + ' · ' + t('scopeTest'), qs: shuffle(pool).slice(0, 20), topicId: null };
+  }
+  if (mode === 'redo') {
+    const items = mistakeItems(S.kid, id); if (!items.length) return null;
+    const s = id !== 'all' ? S.content.subjects[id] : null;
+    return { subj: s, title: t('redoT') + (s ? ' · ' + tx(s.short) : ''), qs: shuffle(items).slice(0, 10).map(x => ({ q: x.q, topic: x.topic, term: x.term, subj: x.subj })), topicId: null };
+  }
+  if (mode === 'week') { const qs = weekQuestions(); return qs.length ? { subj: null, title: t('chalT'), qs, topicId: null } : null; }
+  const f = findTopic(id); if (!f) return null;
+  return { subj: f.subj, tp: f.tp, title: tx(f.tp.title), qs: shuffle(f.tp.quiz.map(q => ({ q, topic: f.tp, term: f.term }))), topicId: id };
 }
 
 /* mounts one question of any type into body/act; calls finish(ok, detail, marksEarned) exactly once */
@@ -639,24 +718,33 @@ function mountQuestion(q, body, act, finishCb) {
     $('#checkM').onclick = () => { let all = true; body.querySelectorAll('.mitem').forEach(el => el.disabled = true); Object.keys(pairs).forEach(l => { const ok = pairs[l] === +l; if (!ok) all = false; body.querySelector(`[data-l="${l}"]`).classList.add(ok ? 'right' : 'wrong'); body.querySelector(`[data-r="${pairs[l]}"]`).classList.add(ok ? 'right' : 'wrong'); }); finish(all, all ? '' : q.pairs.map(p => `${esc(tx(p.l))} → ${esc(tx(p.r))}`).join('<br>')); };
   }
 }
-function renderQuiz(main, id, isExam) {
-  const built = buildQuestions(id, isExam); if (!built) return go('vakke');
-  setSubjectColor(built.subj.color);
-  const kid = S.kid, qs = built.qs, backHash = isExam ? 'vak-' + built.subj.id : 'onderwerp-' + id;
-  const Q = { i: 0, answered: 0, correct: 0, results: [], start: Date.now() };
+const QEV = { topic: 'quiz', exam: 'exam', scope: 'scope', redo: 'redo', week: 'challenge' };
+function renderQuiz(main, id, mode) {
+  if (mode === true) mode = 'exam'; if (!mode) mode = 'topic';
+  const built = buildQuestions(id, mode);
+  if (!built) return go(mode === 'redo' ? 'foute' : mode === 'scope' ? 'eksamens' : mode === 'week' ? 'speel' : 'vakke');
+  const bs = built.subj || { id: null, color: '#2f6df6', name: { af: 'Leerhoek', en: 'Leerhoek' }, short: { af: '', en: '' } };
+  setSubjectColor(bs.color);
+  const kid = S.kid, qs = built.qs, multi = mode !== 'topic';
+  const backHash = { topic: 'onderwerp-' + id, exam: 'vak-' + bs.id, scope: 'eksamens', redo: 'foute', week: 'speel' }[mode];
+  const backName = { topic: t('summary'), exam: tx(bs.name), scope: t('exT'), redo: t('mistakesT'), week: t('playT') }[mode];
+  const Q = { i: 0, answered: 0, correct: 0, fixed: 0, results: [], start: Date.now() };
   S.quiz = Q;
   const drawQ = () => {
     if (Q.i >= qs.length) return drawResult();
-    const { q } = qs[Q.i];
+    const it = qs[Q.i], { q } = it;
+    if (it.subj) setSubjectColor(it.subj.color);
     const typeLabel = { mc: L === 'af' ? 'Meervoudige keuse' : 'Multiple choice', tf: L === 'af' ? 'Waar of onwaar' : 'True or false', fill: L === 'af' ? 'Vul in' : 'Fill in', match: L === 'af' ? 'Pas bymekaar' : 'Match' }[q.type];
+    const where = multi ? ` · ${it.subj && (mode === 'redo' || mode === 'week') ? esc(it.subj.icon + ' ' + tx(it.subj.short)) + ' · ' : ''}${esc(tx(it.topic.title))}` : '';
     main.innerHTML = `<div class="quiz"><button class="back" data-go="${backHash}">← ${esc(built.title)}</button>
       <div class="qhead"><span class="chip subject num">${Q.i + 1} / ${qs.length}</span><div class="bar-h subject"><i style="width:${Math.round(100 * Q.i / qs.length)}%"></i></div><span class="chip num">${Q.correct} ✓</span></div>
-      <div class="qcard"><div class="chip qtype">${esc(typeLabel)}${isExam ? ` · ${esc(tx(qs[Q.i].topic.title))}` : ''}</div><div class="q">${inline(tx(q.q))}</div><div id="qbody"></div><div id="fb"></div><div class="qfoot"><span></span><span id="qact"></span></div></div></div>`;
+      <div class="qcard"><div class="chip qtype">${esc(typeLabel)}${where}</div><div class="q">${inline(tx(q.q))}</div><div id="qbody"></div><div id="fb"></div><div class="qfoot"><span></span><span id="qact"></span></div></div></div>`;
     $('[data-go]', main).onclick = () => go(backHash);
     const body = $('#qbody'), act = $('#qact');
     let done = false;
     const finish = (ok, detail) => {
       if (done) return; done = true; Q.answered++; if (ok) Q.correct++;
+      Q.fixed += noteMistake(kid, it.topic, q, ok);
       Q.results.push({ q, ok, detail });
       $('#fb').innerHTML = `<div class="feedback ${ok ? 'good' : 'bad'}"><div class="h">${ok ? '🎉 ' + esc(t('correct')) : '🤔 ' + esc(t('wrong'))}</div>${detail ? `<div class="small"><b>${esc(t('rightAnswer'))}:</b> ${detail}</div>` : ''}<div class="small" style="margin-top:4px">${inline(tx(q.explain))}</div></div>`;
       act.innerHTML = `<button class="btn subject" id="nextQ">${Q.i + 1 < qs.length ? esc(t('next')) + ' →' : esc(t('finish')) + ' 🏁'}</button>`;
@@ -665,22 +753,26 @@ function renderQuiz(main, id, isExam) {
     mountQuestion(q, body, act, finish);
   };
   const drawResult = async () => {
+    setSubjectColor(bs.color);
     const score = Math.round(100 * Q.correct / qs.length), secs = Math.round((Date.now() - Q.start) / 1000);
     let xp = Q.correct * 2;
     const p = built.topicId ? (kid.topics[built.topicId] = kid.topics[built.topicId] || {}) : null;
-    const firstBonus = p ? !(p.bonus80 && score >= 80) : true;
     if (score === 100) xp += (p && p.bonus100) ? 20 : 40; else if (score >= 80) xp += (p && p.bonus80) ? 10 : 20;
     if (p) { p.attempts = (p.attempts || 0) + 1; p.best = Math.max(p.best || 0, score); p.last = score; p.lastAt = Date.now(); if (score >= 80) p.bonus80 = true; if (score === 100) p.bonus100 = true; }
+    if (mode === 'redo') xp += Q.fixed * 3;
+    let counted = false;
+    if (mode === 'week') { const w = weekId(); if (!kid.challenge || kid.challenge.w !== w) { kid.challenge = { w, score: Q.correct, total: qs.length, secs }; counted = true; xp += 20; } }
     kid.totals.quizzes++; kid.totals.correct += Q.correct; kid.totals.answered += qs.length; kid.totals.secs = (kid.totals.secs || 0) + secs;
     const msg = score === 100 ? t('msg100') : score >= 80 ? t('msg80') : score >= 60 ? t('msg60') : t('msg0');
     main.innerHTML = `<div class="quiz"><div class="card pad-lg result"><div class="label">${esc(built.title)}</div><div class="score num">${score}%</div><div class="msg">${esc(msg)}</div>
-      <div class="row" style="justify-content:center"><span class="chip hi num">+${xp} XP ${esc(t('earned'))}</span><span class="chip num">${Q.correct}/${qs.length}</span><span class="chip num">${Math.max(1, Math.round(secs / 60))} ${esc(t('min'))}</span></div>
-      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('tryAgain'))}</button><button class="btn" data-go="${backHash}">${esc(t('backTo'))} ${esc(isExam ? tx(built.subj.name) : t('summary'))}</button></div>
-      <h3 style="margin-top:22px;text-align:left">${esc(t('review'))}</h3><div class="review">${Q.results.map((r, i) => `<div class="r ${r.ok ? '' : 'bad'}"><div>${r.ok ? '✅' : '❌'}</div><div><div>${inline(tx(r.q.q))}</div>${r.ok ? '' : `<div class="ex"><b>${esc(t('rightAnswer'))}:</b> ${r.detail}</div>`}<div class="ex">${inline(tx(r.q.explain))}</div></div></div>`).join('')}</div></div></div>`;
-    $('#again').onclick = () => renderQuiz(main, id, isExam);
+      <div class="row" style="justify-content:center"><span class="chip hi num">+${xp} XP ${esc(t('earned'))}</span><span class="chip num">${Q.correct}/${qs.length}</span><span class="chip num">${Math.max(1, Math.round(secs / 60))} ${esc(t('min'))}</span>${Q.fixed ? `<span class="chip good num">🛠️ ${Q.fixed} ${esc(t('fixedN'))}</span>` : ''}</div>
+      ${mode === 'week' ? `<div class="banner" style="margin-top:12px;justify-content:center">${counted ? '⚔️ ' + esc(t('chalCounted')) : esc(t('chalPractice'))}</div>` : ''}
+      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('tryAgain'))}</button><button class="btn" data-go="${backHash}">${esc(t('backTo'))} ${esc(backName)}</button></div>
+      <h3 style="margin-top:22px;text-align:left">${esc(t('review'))}</h3><div class="review">${Q.results.map(r => `<div class="r ${r.ok ? '' : 'bad'}"><div>${r.ok ? '✅' : '❌'}</div><div><div>${inline(tx(r.q.q))}</div>${r.ok ? '' : `<div class="ex"><b>${esc(t('rightAnswer'))}:</b> ${r.detail}</div>`}<div class="ex">${inline(tx(r.q.explain))}</div></div></div>`).join('')}</div></div></div>`;
+    $('#again').onclick = () => renderQuiz(main, id, mode);
     $('[data-go]', main).onclick = () => go(backHash);
     if (score >= 80) confetti(score === 100 ? 200 : 120);
-    await award(kid, xp, { type: isExam ? 'exam' : 'quiz', subject: built.subj.id, topic: built.topicId, score, correct: Q.correct, total: qs.length, secs });
+    await award(kid, xp, { type: QEV[mode], subject: bs.id, topic: built.topicId, score, correct: Q.correct, total: qs.length, secs });
   };
   drawQ();
 }
@@ -753,7 +845,7 @@ function fmtTime(ts) { const d = new Date(ts); return String(d.getHours()).padSt
 function fmtDay(date) { const td = today(); if (date === td) return t('today'); const y = new Date(); y.setDate(y.getDate() - 1); const ys = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0'); if (date === ys) return t('yesterday'); return date; }
 function evText(ev) {
   const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? S.content.subjects[ev.subject] : null;
-  const what = (t('ev')[ev.type] || ev.type) + (ev.type === 'paper' && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
+  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
   return what + (ev.score !== undefined ? ` — <b class="num">${ev.score}%</b> (${ev.correct}/${ev.total})` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
 }
 function reportText(kid, subjects) {
@@ -779,17 +871,17 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>`;
-  wireInstall();
+  </div>${scopeEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
-    const week = events.filter(e => e.t >= weekAgo), quizzesWeek = week.filter(e => e.type === 'quiz' || e.type === 'exam');
+    const week = events.filter(e => e.t >= weekAgo), quizzesWeek = week.filter(e => ['quiz', 'exam', 'scope', 'redo', 'challenge'].includes(e.type));
     const avgWeek = quizzesWeek.length ? Math.round(quizzesWeek.reduce((a, e) => a + e.score, 0) / quizzesWeek.length) : 0;
     const weak = subjects.flatMap(s => allTopics(s).filter(x => topicStatus(kid, x.tp.id) === 'practice').map(x => ({ s, ...x })));
     const last = events[0] ? `${fmtDay(events[0].date)} ${fmtTime(events[0].t)}` : t('never');
     return `<div class="card kidcard" id="kc-${kid.id}"><div class="kh"><span class="av">${kid.avatar}</span><div><h2>${esc(kid.name)}</h2><div class="small muted">${esc(t('level'))} ${levelOf(kid.xp)} · ${esc(levelName(levelOf(kid.xp)))} · ${esc(t('lastActive'))}: ${esc(last)}</div></div></div>
-      <div class="kv"><div><div class="v num">${kid.xp}</div><div class="k">XP</div></div><div><div class="v num">🔥 ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div><div class="v num">${quizzesWeek.length}</div><div class="k">${esc(t('quizzes'))} ${esc(t('thisWeek'))}</div></div><div><div class="v num">${avgWeek}%</div><div class="k">${esc(t('avg'))} ${esc(t('thisWeek'))}</div></div><div><div class="v num">${Math.round((kid.totals.secs || 0) / 60)} ${esc(t('min'))}</div><div class="k">${esc(t('timeOn'))}</div></div></div>
+      <div class="kv"><div><div class="v num">${kid.xp}</div><div class="k">XP</div></div><div><div class="v num">🔥 ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div><div class="v num">${quizzesWeek.length}</div><div class="k">${esc(t('quizzes'))} ${esc(t('thisWeek'))}</div></div><div><div class="v num">${avgWeek}%</div><div class="k">${esc(t('avg'))} ${esc(t('thisWeek'))}</div></div><div><div class="v num">${Math.round((kid.totals.secs || 0) / 60)} ${esc(t('min'))}</div><div class="k">${esc(t('timeOn'))}</div></div><div><div class="v num">🏆 ${weekXp(kid)}</div><div class="k">XP ${esc(t('thisWeek'))}</div></div><div><div class="v num">❌ ${mistakeCount(kid)}</div><div class="k">${esc(t('mistakesShort'))}</div></div><div><div class="v num">🎮 ${(kid.totals.games || 0)}</div><div class="k">${esc(t('gamesShort'))}</div></div></div>
       ${schoolTerms(kid).length ? (() => { const ts = schoolTerms(kid); const rows = subjects.map(s => ({ id: s.id, label: s.icon + ' ' + tx(s.short), target: passTarget(s.id), plat: subjectPct(kid, s) })).concat(Object.keys(SCHOOL_EXTRA).filter(k => ts.some(tm => typeof kid.school.terms[tm][k] === 'number')).map(k => ({ id: k, label: tx(SCHOOL_EXTRA[k]), target: k === 'kk' ? 30 : null, plat: null })));
         return `<h3 style="margin-top:16px">🏫 ${esc(t('schoolMarks'))}</h3><p class="small muted" style="margin:2px 0 8px">${esc(t('schoolSub'))}</p><div class="tbl"><table class="marks"><tr><th></th>${ts.map(tm => `<th class="num">${esc(t('termShort'))}${tm}</th>`).join('')}<th class="num">${esc(t('target'))}</th><th class="num">${esc(t('platform'))}</th></tr>${rows.map(r => { const last = schoolMark(kid, r.id); const bad = r.target !== null && last !== null && last < r.target; return `<tr class="${bad ? 'bad' : ''}"><td>${esc(r.label)}</td>${ts.map(tm => `<td class="num">${typeof kid.school.terms[tm][r.id] === 'number' ? kid.school.terms[tm][r.id] + '%' : '–'}</td>`).join('')}<td class="num">${r.target !== null ? r.target + '%' : '–'}</td><td class="num">${r.plat !== null ? r.plat + '%' : '–'}</td></tr>`; }).join('')}${kid.school.avg ? `<tr><td><b>${esc(t('avgShort'))}</b></td>${ts.map(tm => `<td class="num"><b>${kid.school.avg[tm] !== undefined ? kid.school.avg[tm] + '%' : '–'}</b></td>`).join('')}<td></td><td></td></tr>` : ''}</table></div><p class="small muted" style="margin-top:6px">${esc(t('passRules'))}</p>`; })() : ''}
       <h3 style="margin-top:16px">${esc(t('mastery'))}</h3><div class="bars">${subjects.map(s => `<div class="b" style="--subject:${s.color}"><span>${s.icon} ${esc(tx(s.short))}</span><div class="bar-h subject"><i style="width:${subjectPct(kid, s)}%"></i></div><span class="num" style="text-align:right">${subjectPct(kid, s)}%</span></div>`).join('')}</div>
@@ -819,6 +911,547 @@ async function renderParent(main) {
         await S.store.saveKid(cur); }
       toast(t('imported')); render();
     } catch (e) { toast('✗'); }
+  };
+}
+
+/* ================================================================== v5: term 4, afbakening, study plan, foute-boek, woordeboek, brain games, twin challenge */
+const LANG_SUBJ = ['afrikaans', 'english'];
+const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function weekId() { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return ymd(d); }
+function seeded(str) { let h = 1779033703 ^ str.length; for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); } let a = h >>> 0; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+const sshuffle = (arr, rnd) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const isDoneToday = (kid, tid) => { const p = tprog(kid, tid); return !!(p.lastAt && ymd(new Date(p.lastAt)) === today()); };
+function fmtDate(iso) { try { return new Date(iso + 'T12:00:00').toLocaleDateString(L === 'af' ? 'af-ZA' : 'en-ZA', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) { return iso; } }
+
+/* ---------- current term ---------- */
+function autoTerm() { const m = new Date().getMonth() + 1; return m <= 3 ? 1 : m <= 6 ? 2 : m <= 9 ? 3 : 4; }
+function curTerm() { const v = +((S.settings || {}).currentTerm); return v >= 1 && v <= 4 ? v : autoTerm(); }
+
+/* ---------- afbakening (exam scope) ---------- */
+function defaultScopeTopics(s) { const terms = LANG_SUBJ.includes(s.id) ? [1, 2, 3, 4] : [3, 4]; return allTopics(s).filter(x => terms.includes(x.term)).map(x => x.tp.id); }
+function scopeOf(s) {
+  const e = ((S.settings || {}).exams || {})[s.id] || {};
+  const valid = new Set(allTopics(s).map(x => x.tp.id));
+  const ids = (Array.isArray(e.topics) ? e.topics : defaultScopeTopics(s)).filter(id => valid.has(id));
+  return { topics: ids, date: e.date || '', note: e.note || '', provisional: !Array.isArray(e.topics) };
+}
+function scopePct(kid, s, sc) { sc = sc || scopeOf(s); if (!sc.topics.length) return 0; return Math.round(sc.topics.reduce((a, id) => a + topicPct(kid, id), 0) / sc.topics.length); }
+function scopeReady(kid, sc) { return sc.topics.filter(id => (tprog(kid, id).best || 0) >= 70).length; }
+function examList() {
+  return subjectsOfGrade(7).map(s => { const sc = scopeOf(s); return { s, sc, days: sc.date ? daysBetween(today(), sc.date) : null }; })
+    .sort((a, b) => { const k = (x) => x.days === null ? 999 : x.days < 0 ? 1000 - x.days : x.days; return k(a) - k(b); });
+}
+function examWhen(x) {
+  if (x.days === null) return `<span class="chip">📅 ${esc(t('exDateTBC'))}</span>`;
+  if (x.days < 0) return `<span class="chip good">✓ ${esc(t('exDone'))}</span>`;
+  if (x.days === 0) return `<span class="chip bad">📝 ${esc(t('exToday'))}</span>`;
+  return `<span class="chip ${x.days <= 7 ? 'bad' : x.days <= 14 ? 'hi' : ''}">📅 ${esc(fmtDate(x.sc.date))} · ${esc(t('exIn'))} <span class="num">${x.days}</span> ${esc(t('days'))}</span>`;
+}
+
+/* ---------- daily study plan (replaces the old mission) ---------- */
+function planWhy(kid, sid) {
+  const x = examList().find(e => e.s.id === sid);
+  if (x && x.days !== null && x.days >= 0 && x.days <= 21) return `${t('exam1')} ${t('exIn')} ${x.days} ${t('days')}`;
+  if (focusSubjects(kid, subjectsOfGrade(7)).some(f => f.s.id === sid)) return t('focusShort');
+  return '';
+}
+function studyPlan(kid) {
+  const subjects = subjectsOfGrade(7), td = today(), cur = curTerm();
+  const ex = examList().filter(x => x.days === null || x.days >= 0);
+  const near = ex.filter(x => x.days !== null && x.days <= 21).map(x => x.s.id);
+  const focus = focusSubjects(kid, subjects).map(f => f.s.id);
+  const rnd = seeded(td + kid.id);
+  const order = [...near, ...focus, ...sshuffle(ex.map(x => x.s.id), rnd)].filter((v, i, a) => a.indexOf(v) === i);
+  const rank = { practice: 0, read: 1, new: 2, good: 3, master: 9 };
+  const plan = [], used = new Set();
+  for (const sid of order) {
+    if (plan.length >= 3) break;
+    const s = S.content.subjects[sid];
+    const c = scopeOf(s).topics.map(id => { const f = findTopic(id); return { s, tp: f.tp, term: f.term, pct: topicPct(kid, id), st: topicStatus(kid, id), r: rnd() }; })
+      .filter(x => !used.has(x.tp.id) && x.st !== 'master')
+      .sort((a, b) => (rank[a.st] - rank[b.st]) || ((b.term === cur) - (a.term === cur)) || (a.pct - b.pct) || (a.r - b.r))[0];
+    if (c) { used.add(c.tp.id); plan.push(c); }
+  }
+  return plan;
+}
+function dailyPlan(kid) {
+  const d = today(), sig = curTerm() + ':' + JSON.stringify((S.settings || {}).exams || {}).length;
+  let items = null;
+  if (kid.plan && kid.plan.d === d && kid.plan.sig === sig) items = kid.plan.ids.map(id => findTopic(id)).filter(Boolean).map(f => ({ s: f.subj, tp: f.tp, term: f.term }));
+  if (!items || !items.length) { items = studyPlan(kid); kid.plan = { d, sig, ids: items.map(x => x.tp.id) }; S.store.saveKid(kid).catch(() => {}); }
+  return items.map(x => ({ ...x, why: planWhy(kid, x.s.id) }));
+}
+
+/* ---------- exams screen ---------- */
+function renderExams(main) {
+  const kid = S.kid, list = examList();
+  main.innerHTML = `<h1>🎯 ${esc(t('exT'))}</h1><p class="muted" style="margin:4px 0 6px;max-width:70ch">${esc(t('exSub'))}</p>
+  <div class="row" style="gap:6px;margin-bottom:14px"><span class="chip hi">📅 ${esc(t('termNow'))} ${curTerm()}${curTerm() === 4 ? ' · ' + esc(t('finalTerm')) : ''}</span><button class="btn sm" data-go="foute">❌ ${esc(t('mistakesT'))} <span class="chip bad num">${mistakeCount(kid)}</span></button></div>
+  ${list.some(x => x.sc.provisional) ? `<div class="banner" style="margin-bottom:14px">⏳ ${esc(t('provisionalHint'))}</div>` : ''}
+  <div class="stack">${list.map(x => {
+    const s = x.s, sc = x.sc, pct = scopePct(kid, s, sc), rd = scopeReady(kid, sc), paper = (s.practiceExams || [])[0];
+    return `<div class="card excard" style="--subject:${s.color}"><div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div style="min-width:0"><h2>${s.icon} ${esc(tx(s.name))}</h2><div class="row" style="gap:6px;margin-top:6px">${examWhen(x)}${sc.provisional ? `<span class="chip">⏳ ${esc(t('provisional'))}</span>` : `<span class="chip good">✓ ${esc(t('confirmed'))}</span>`}</div></div>${ring(pct)}</div>
+    ${sc.note ? `<p class="small" style="margin-top:8px">📌 ${esc(sc.note)}</p>` : ''}
+    <div class="small muted" style="margin:10px 0 6px"><span class="num">${rd}/${sc.topics.length}</span> ${esc(t('scopeTopics'))} ${esc(t('ready'))} (≥70 %)</div>
+    <div class="bar-h subject"><i style="width:${sc.topics.length ? Math.round(100 * rd / sc.topics.length) : 0}%"></i></div>
+    <div class="row" style="margin-top:12px"><button class="btn subject" data-go="afbakening-${s.id}" ${sc.topics.length ? '' : 'disabled'}>🎯 ${esc(t('scopeTest'))}</button>${paper ? `<button class="btn" data-go="vraestel-${paper.id}">📝 ${esc(t('paper'))}</button>` : ''}</div>
+    <details class="tips" style="margin-top:10px"><summary>📋 ${esc(t('showTopics'))} (${sc.topics.length})</summary><div class="stack" style="gap:6px;margin-top:8px">${sc.topics.map(id => { const f = findTopic(id); return `<div class="row scopetopic" style="justify-content:space-between"><span style="min-width:0"><span class="chip">${esc(t('termShort'))}${f.term}</span> ${esc(tx(f.tp.title))}</span><span class="row" style="gap:6px">${statusChip(topicStatus(kid, id))}<button class="btn sm" data-go="onderwerp-${id}" aria-label="${esc(t('learn'))}">📖</button><button class="btn sm subject" data-go="toets-${id}" aria-label="${esc(t('test'))}">✏️</button></span></div>`; }).join('')}</div></details></div>`;
+  }).join('')}</div>`;
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+}
+
+/* ---------- foute-boek (mistakes) ---------- */
+function mistakeCount(kid) { return Object.keys(kid.mistakes || {}).length; }
+function noteMistake(kid, topic, q, ok) {
+  if (!topic || !topic.quiz) return 0;
+  const qi = topic.quiz.indexOf(q); if (qi < 0) return 0;
+  const m = kid.mistakes = kid.mistakes || {}, k = topic.id + '|' + qi;
+  if (!ok) {
+    m[k] = { t: Date.now(), n: ((m[k] || {}).n || 0) + 1 };
+    const keys = Object.keys(m); if (keys.length > 300) keys.sort((a, b) => m[a].t - m[b].t).slice(0, keys.length - 300).forEach(x => delete m[x]);
+    return 0;
+  }
+  if (m[k]) { delete m[k]; kid.totals.fixed = (kid.totals.fixed || 0) + 1; return 1; }
+  return 0;
+}
+function mistakeItems(kid, sid) {
+  return Object.keys(kid.mistakes || {}).map(k => { const [tid, qi] = k.split('|'); const f = findTopic(tid); if (!f || !f.tp.quiz[+qi]) return null; return { k, q: f.tp.quiz[+qi], topic: f.tp, term: f.term, subj: f.subj, t: kid.mistakes[k].t }; })
+    .filter(x => x && (!sid || sid === 'all' || x.subj.id === sid)).sort((a, b) => b.t - a.t);
+}
+function renderMistakes(main) {
+  const kid = S.kid, items = mistakeItems(kid), subjects = subjectsOfGrade(7);
+  const per = subjects.map(s => ({ s, n: items.filter(x => x.subj.id === s.id).length })).filter(x => x.n);
+  main.innerHTML = `<button class="back" data-go="eksamens">← ${esc(t('exT'))}</button><h1>❌ ${esc(t('mistakesT'))}</h1><p class="muted" style="margin:4px 0 14px;max-width:70ch">${esc(t('mistakesSub'))}</p>
+  ${items.length ? `<div class="card"><div class="row" style="justify-content:space-between"><div><div class="big2 num">${items.length}</div><div class="small muted">${esc(t('open_'))} · <span class="num">${kid.totals.fixed || 0}</span> ${esc(t('fixedN'))}</div></div><button class="btn hi" data-go="herdoen">🔁 ${esc(t('redoAll'))}</button></div></div>
+  <div class="grid two" style="margin-top:14px">${per.map(x => `<div class="card row" style="justify-content:space-between;--subject:${x.s.color};border-left:6px solid var(--subject)"><span><b>${x.s.icon} ${esc(tx(x.s.short))}</b> <span class="chip bad num">${x.n}</span></span><button class="btn sm subject" data-go="herdoen-${x.s.id}">🔁 ${esc(t('redo'))}</button></div>`).join('')}</div>
+  <h3 style="margin:18px 0 8px">${esc(t('recentMistakes'))}</h3><div class="review">${items.slice(0, 15).map(x => `<div class="r bad"><div>❌</div><div><div>${inline(tx(x.q.q))}</div><div class="ex">${x.subj.icon} ${esc(tx(x.subj.short))} · ${esc(tx(x.topic.title))}</div></div></div>`).join('')}</div>`
+  : `<div class="card center pad-lg"><div style="font-size:48px">🎉</div><h2>${esc(t('noMistakes'))}</h2><p class="muted small" style="margin-top:6px"><span class="num">${kid.totals.fixed || 0}</span> ${esc(t('fixedN'))}</p></div>`}`;
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+}
+
+/* ---------- weekly twin challenge ---------- */
+function weekQuestions() {
+  const pool = [];
+  subjectsOfGrade(7).forEach(s => scopeOf(s).topics.forEach(tid => { const f = findTopic(tid); f.tp.quiz.forEach(q => { if (q.type !== 'match') pool.push({ q, topic: f.tp, term: f.term, subj: s }); }); }));
+  return sshuffle(pool, seeded('week' + weekId())).slice(0, 10);
+}
+function weekXp(k) { return k && k.week && k.week.w === weekId() ? k.week.xp : 0; }
+async function twinData() {
+  const other = KIDS.find(k => k.id !== S.kid.id);
+  if (S._twin && S._twin.id === other.id && Date.now() - S._twin.at < 60000) return S._twin.kid;
+  try { const o = await S.store.loadKid(other.id); S._twin = { id: other.id, kid: o, at: Date.now() }; return o; } catch (e) { return null; }
+}
+function twinRows(o) { return [S.kid, o].filter(Boolean).map(k => ({ k, xp: weekXp(k), ch: k.challenge && k.challenge.w === weekId() ? k.challenge : null })).sort((a, b) => b.xp - a.xp); }
+async function fillTwin(box, mini) {
+  if (!box) return; const o = await twinData(); if (!document.body.contains(box)) return;
+  const rows = twinRows(o), max = Math.max(1, ...rows.map(r => r.xp)), lead = rows.length > 1 && rows[0].xp > rows[1].xp;
+  if (mini) { box.innerHTML = rows.map((r, i) => `<span class="num">${r.k.avatar} ${r.xp}${i === 0 && lead ? ' 👑' : ''}</span>`).join(' <span class="muted">vs</span> '); return; }
+  box.innerHTML = rows.map((r, i) => `<div class="twin"><span class="av">${r.k.avatar}</span><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><b>${esc(r.k.name)}${i === 0 && lead ? ' 👑' : ''}</b><span class="num small">${r.xp} XP${r.ch ? ` · ⚔️ ${r.ch.score}/${r.ch.total}` : ''}</span></div><div class="bar-h"><i style="width:${Math.round(100 * r.xp / max)}%;background:${i === 0 ? 'var(--hi)' : 'var(--brand)'}"></i></div></div></div>`).join('')
+    + `<div class="small" style="margin-top:6px"><b>${esc(rows.length > 1 ? (lead ? `${rows[0].k.name} ${t('weekLead')}` : t('weekTie')) : '')}</b> <span class="muted">${esc(t('weekReset'))}</span></div>`;
+}
+
+/* ---------- daily treasure chest & fun facts ---------- */
+function chestState(kid) { const d = today(); const tests = kid.day && kid.day.d === d ? kid.day.tests : 0; return { tests, opened: kid.chest === d, ready: tests >= 3 && kid.chest !== d }; }
+async function openChest() {
+  const kid = S.kid; if (!chestState(kid).ready) return;
+  kid.chest = today(); const xp = 15 + Math.floor(Math.random() * 26);
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal"><div class="chestbig" id="cb">🎁</div><h2>${esc(t('chestT'))}</h2><p id="cp" style="margin:8px 0 18px">…</p><button class="btn hi" id="cc" disabled>${esc(t('close'))}</button></div>`;
+  document.body.appendChild(ov);
+  setTimeout(() => { $('#cb', ov).textContent = '💰'; $('#cb', ov).classList.add('open'); $('#cp', ov).innerHTML = `${esc(t('chestWin'))} <b class="num">${xp} XP</b>! 🎉`; $('#cc', ov).disabled = false; confetti(160); }, 1300);
+  $('#cc', ov).onclick = () => { ov.remove(); if (S.route.s === 'home') render(); };
+  await award(kid, xp, { type: 'chest' });
+}
+const FACTS = [
+  { af: 'Op die maan weeg jy net sowat ’n sesde van jou gewig op Aarde – maar jou massa bly presies dieselfde.', en: 'On the Moon you weigh only about a sixth of your weight on Earth – but your mass stays exactly the same.' },
+  { af: 'Lig van die son neem sowat 8 minute om die Aarde te bereik.', en: 'Light from the Sun takes about 8 minutes to reach Earth.' },
+  { af: 'Die maan beweeg elke jaar sowat 3,8 cm verder weg van die Aarde.', en: 'The Moon moves about 3.8 cm further away from Earth every year.' },
+  { af: 'Diamant en die grafiet in jou potlood is albei net koolstof – die atome is net anders gerangskik.', en: 'Diamond and the graphite in your pencil are both just carbon – the atoms are simply arranged differently.' },
+  { af: 'Water kom op Aarde natuurlik in al drie toestande voor: ys, vloeibare water en waterdamp.', en: 'On Earth, water occurs naturally in all three states: ice, liquid water and water vapour.' },
+  { af: 'Jou hart klop ongeveer 100 000 keer per dag.', en: 'Your heart beats about 100,000 times a day.' },
+  { af: 'Jou brein gebruik sowat 20 % van al die energie wat jou liggaam verbruik.', en: 'Your brain uses about 20% of all the energy your body uses.' },
+  { af: 'Die Vredefortkoepel naby Parys in die Vrystaat is die grootste bevestigde meteoorimpakstruktuur op Aarde.', en: 'The Vredefort Dome near Parys in the Free State is the largest confirmed meteorite impact structure on Earth.' },
+  { af: 'Die Oranjerivier is Suid-Afrika se langste rivier – meer as 2 000 km lank.', en: 'The Orange River is South Africa’s longest river – more than 2,000 km long.' },
+  { af: 'Die Kaapse Floraryk is die kleinste van die wêreld se blommeryke, maar het meer as 9 000 plantspesies.', en: 'The Cape Floral Kingdom is the smallest of the world’s floral kingdoms, yet it has more than 9,000 plant species.' },
+  { af: 'Mapungubwe in Limpopo was sowat 800 jaar gelede ’n ryk koninkryk – die beroemde goue renoster is daar gevind.', en: 'Mapungubwe in Limpopo was a rich kingdom about 800 years ago – the famous golden rhino was found there.' },
+  { af: 'Die eerste munte is meer as 2 500 jaar gelede in Lidië (vandag deel van Turkye) gemaak.', en: 'The first coins were made more than 2,500 years ago in Lydia (today part of Turkey).' },
+  { af: 'Die Suid-Afrikaanse Reserwebank is in 1921 gestig en is die enigste instelling wat ons banknote mag uitreik.', en: 'The South African Reserve Bank was founded in 1921 and is the only institution allowed to issue our banknotes.' },
+  { af: 'Die Romeine het nie ’n simbool vir nul gehad nie.', en: 'The Romans had no symbol for zero.' },
+  { af: 'Tel 1 + 2 + 3 + … + 100 op en jy kry 5 050. Die jong Gauss het dit glo binne sekondes uitgewerk: 50 pare van 101.', en: 'Add 1 + 2 + 3 + … + 100 and you get 5,050. Young Gauss supposedly worked it out in seconds: 50 pairs of 101.' },
+  { af: '’n Sirkel se omtrek is altyd ’n bietjie meer as drie keer sy middellyn – dis waar π ≈ 3,14 vandaan kom.', en: 'A circle’s circumference is always a little more than three times its diameter – that is where π ≈ 3.14 comes from.' },
+  { af: 'In die 9-tafel tel die syfers van elke antwoord op tot 9: 9 × 7 = 63 en 6 + 3 = 9.', en: 'In the 9 times table the digits of each answer add up to 9: 9 × 7 = 63 and 6 + 3 = 9.' },
+  { af: 'Driehoeke is die sterkste vorm in strukture – daarom sien jy hulle in brûe, dakkappe en kraanarms.', en: 'Triangles are the strongest shape in structures – that is why you see them in bridges, roof trusses and crane arms.' },
+  { af: '’n Hefboom laat jou ’n swaar las met minder krag lig. Archimedes het glo gesê: “Gee my ’n plek om te staan en ek sal die Aarde beweeg.”', en: 'A lever lets you lift a heavy load with less effort. Archimedes supposedly said: “Give me a place to stand and I will move the Earth.”' },
+  { af: 'Afrikaans is in 1925 as amptelike taal van Suid-Afrika erken.', en: 'Afrikaans was recognised as an official language of South Africa in 1925.' },
+  { af: '’n Palindroom lees agteruit presies dieselfde, soos “lepel” en “kajak”.', en: 'A palindrome reads exactly the same backwards, like “level” and “kayak”.' },
+  { af: 'Kort leersessies van 20–30 minute met ’n blaaskans tussenin werk beter as een lang sit-sessie.', en: 'Short study sessions of 20–30 minutes with a break in between work better than one long session.' },
+  { af: 'Slaap help jou brein om te onthou wat jy geleer het – tieners het elke nag 8 tot 10 uur nodig.', en: 'Sleep helps your brain remember what you learned – teenagers need 8 to 10 hours every night.' },
+  { af: 'As jy iets aan iemand anders verduidelik, onthou jy dit self baie beter.', en: 'When you explain something to someone else, you remember it much better yourself.' },
+  { af: 'Die primêre kleure in verf is rooi, geel en blou – meng enige twee en jy kry ’n sekondêre kleur.', en: 'The primary colours in paint are red, yellow and blue – mix any two and you get a secondary colour.' },
+  { af: 'Komplementêre kleure lê oorkant mekaar op die kleurwiel, soos rooi en groen of blou en oranje.', en: 'Complementary colours sit opposite each other on the colour wheel, like red and green or blue and orange.' },
+  { af: 'Blits is sowat vyf keer warmer as die oppervlak van die son.', en: 'Lightning is about five times hotter than the surface of the Sun.' },
+  { af: 'Plante maak hul eie kos uit sonlig, water en koolstofdioksied – en gee suurstof af wat ons inasem.', en: 'Plants make their own food from sunlight, water and carbon dioxide – and give off the oxygen we breathe.' },
+];
+function maybeFact() {
+  let last = null; try { last = localStorage.getItem('lh.fact'); } catch (e) {}
+  if (last === today()) return;
+  setTimeout(() => {
+    if (S.route.s !== 'home' || document.querySelector('.overlay')) return;
+    try { localStorage.setItem('lh.fact', today()); } catch (e) {}
+    const f = FACTS[Math.floor(seeded(today() + (S.kid ? S.kid.id : ''))() * FACTS.length)];
+    const ov = document.createElement('div'); ov.className = 'overlay';
+    ov.innerHTML = `<div class="modal"><div class="big">💡</div><h2>${esc(t('factT'))}</h2><p style="margin:10px 0 18px;font-size:1.05rem">${esc(tx(f))}</p><button class="btn hi" id="fOk">${esc(t('factBtn'))}</button></div>`;
+    document.body.appendChild(ov); $('#fOk', ov).onclick = () => ov.remove(); ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  }, 1500);
+}
+
+/* ---------- woordeboek (dictionary) ---------- */
+const VRAAGWOORDE = [
+  { w: { af: 'Noem', en: 'Name / State' }, d: { af: 'Gee net die feite of name – geen verduideliking nodig nie.', en: 'Just give the facts or names – no explanation needed.' }, tip: { af: '1 punt = 1 feit. Vra die vraag 3 punte, noem 3 dinge.', en: '1 mark = 1 fact. If the question is worth 3 marks, name 3 things.' } },
+  { w: { af: 'Lys', en: 'List' }, d: { af: 'Skryf die items kort onder mekaar neer.', en: 'Write the items briefly, one below the other.' } },
+  { w: { af: 'Identifiseer', en: 'Identify' }, d: { af: 'Herken iets in ’n bron, prent of teks en noem dit.', en: 'Recognise something in a source, picture or text and name it.' } },
+  { w: { af: 'Definieer', en: 'Define' }, d: { af: 'Gee die presiese betekenis van ’n woord of begrip.', en: 'Give the exact meaning of a word or concept.' }, tip: { af: 'Leer jou sleutelterme woord vir woord – dit is maklike punte.', en: 'Learn your key terms word for word – they are easy marks.' } },
+  { w: { af: 'Beskryf', en: 'Describe' }, d: { af: 'Sê hoe iets lyk, werk of gebeur – gee die kenmerke in volsinne.', en: 'Say what something looks like, how it works or what happens – give the features in full sentences.' } },
+  { w: { af: 'Verduidelik', en: 'Explain' }, d: { af: 'Sê hoekom of hoe iets gebeur.', en: 'Say why or how something happens.' }, tip: { af: 'Gebruik woorde soos “omdat”, “want” en “daarom”.', en: 'Use words like “because”, “so” and “therefore”.' } },
+  { w: { af: 'Bespreek', en: 'Discuss' }, d: { af: 'Kyk na verskillende kante van ’n saak en gee voorbeelde.', en: 'Look at different sides of an issue and give examples.' } },
+  { w: { af: 'Vergelyk', en: 'Compare' }, d: { af: 'Wys die ooreenkomste én die verskille tussen twee dinge.', en: 'Show the similarities and the differences between two things.' }, tip: { af: 'Maak ’n tabel, of gebruik “albei … maar …”.', en: 'Make a table, or use “both … but …”.' } },
+  { w: { af: 'Onderskei', en: 'Distinguish' }, d: { af: 'Wys duidelik hoe twee dinge van mekaar verskil.', en: 'Show clearly how two things differ from each other.' } },
+  { w: { af: 'Klassifiseer', en: 'Classify' }, d: { af: 'Sorteer dinge in groepe volgens hul eienskappe.', en: 'Sort things into groups according to their properties.' } },
+  { w: { af: 'Gee ’n voorbeeld', en: 'Give an example' }, d: { af: 'Noem ’n spesifieke geval wat by die begrip pas.', en: 'Name a specific case that fits the concept.' } },
+  { w: { af: 'Motiveer', en: 'Justify' }, d: { af: 'Gee redes vir jou antwoord of keuse.', en: 'Give reasons for your answer or choice.' }, tip: { af: 'Antwoord + “want” + rede.', en: 'Answer + “because” + reason.' } },
+  { w: { af: 'Evalueer', en: 'Evaluate' }, d: { af: 'Weeg die goeie en swak punte op en gee jou eie oordeel.', en: 'Weigh up the strong and weak points and give your own judgement.' } },
+  { w: { af: 'Voorspel', en: 'Predict' }, d: { af: 'Sê wat waarskynlik gaan gebeur, gebaseer op wat jy weet.', en: 'Say what will probably happen, based on what you know.' } },
+  { w: { af: 'Lei af', en: 'Infer / Deduce' }, d: { af: 'Kom tot ’n gevolgtrekking uit leidrade in die teks of bron.', en: 'Reach a conclusion from clues in the text or source.' } },
+  { w: { af: 'Som op', en: 'Summarise' }, d: { af: 'Gee die hoofpunte kort in jou eie woorde.', en: 'Give the main points briefly in your own words.' } },
+  { w: { af: 'Analiseer', en: 'Analyse' }, d: { af: 'Breek iets op in dele en kyk hoe die dele saamwerk.', en: 'Break something into parts and look at how the parts work together.' } },
+  { w: { af: 'Interpreteer', en: 'Interpret' }, d: { af: 'Verduidelik wat ’n grafiek, prent of gedig eintlik vir jou sê.', en: 'Explain what a graph, picture or poem is really telling you.' } },
+  { w: { af: 'Bereken', en: 'Calculate' }, d: { af: 'Werk die antwoord met getalle uit en wys al jou bewerkings.', en: 'Work out the answer with numbers and show all your working.' }, tip: { af: 'Bewerkings kry ook punte, selfs al is die finale antwoord verkeerd.', en: 'Working earns marks too, even if the final answer is wrong.' } },
+  { w: { af: 'Skat', en: 'Estimate' }, d: { af: 'Gee ’n redelike benaderde antwoord sonder om presies te bereken.', en: 'Give a reasonable approximate answer without calculating exactly.' } },
+  { w: { af: 'Teken', en: 'Draw' }, d: { af: 'Maak ’n duidelike skets of diagram – met byskrifte.', en: 'Make a clear sketch or diagram – with labels.' } },
+  { w: { af: 'Benoem', en: 'Label' }, d: { af: 'Skryf die regte name by die dele van ’n diagram.', en: 'Write the correct names next to the parts of a diagram.' } },
+  { w: { af: 'Stel voor', en: 'Suggest' }, d: { af: 'Gee jou eie idee of oplossing wat sin maak.', en: 'Give your own sensible idea or solution.' } },
+  { w: { af: 'Ontwerp', en: 'Design' }, d: { af: 'Beplan ’n oplossing met sketse, materiale en afmetings.', en: 'Plan a solution with sketches, materials and measurements.' } },
+];
+let DICT = null;
+function dict() {
+  if (DICT) return DICT;
+  const seen = new Set(); DICT = [];
+  subjectsOfGrade(7).forEach(s => allTopics(s).forEach(({ tp, term }) => (tp.keyTerms || []).forEach(k => {
+    const e = { af: (k.term && k.term.af) || '', en: (k.term && k.term.en) || '', daf: (k.def && k.def.af) || '', den: (k.def && k.def.en) || '', s, tp, term };
+    const key = s.id + '|' + fold(e.af); if (!e.af || seen.has(key)) return; seen.add(key); DICT.push(e);
+  })));
+  return DICT;
+}
+const dWord = (e) => (L === 'af' ? e.af : e.en) || e.af;
+const dOther = (e) => (L === 'af' ? e.en : e.af) || '';
+const dDef = (e) => (L === 'af' ? e.daf : e.den) || e.daf || e.den;
+function wordPopup(e) {
+  if (!e) return;
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal wordpop" style="--subject:${e.s.color}"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><h2 style="margin:10px 0 2px">${esc(dWord(e))}</h2>${dOther(e) ? `<div class="small muted">${L === 'af' ? 'English' : 'Afrikaans'}: <b>${esc(dOther(e))}</b></div>` : ''}<p style="margin:12px 0 16px;text-align:left">${esc(dDef(e))}</p><div class="row" style="justify-content:center"><button class="btn" id="wTopic">📖 ${esc(t('toTopic'))}</button><button class="btn hi" id="wClose">${esc(t('close'))}</button></div></div>`;
+  document.body.appendChild(ov);
+  $('#wClose', ov).onclick = () => ov.remove();
+  $('#wTopic', ov).onclick = () => { ov.remove(); go('onderwerp-' + e.tp.id); };
+  ov.addEventListener('click', ev => { if (ev.target === ov) ov.remove(); });
+}
+/* underline subject words in a rendered summary; tap → popup */
+function linkTerms(root, entries) {
+  if (!root || !entries.length) return;
+  const map = new Map();
+  entries.forEach(e => { const w = dWord(e).trim(); if (w.length >= 3 && !map.has(w.toLowerCase())) map.set(w.toLowerCase(), e); });
+  const words = [...map.keys()].sort((a, b) => b.length - a.length).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (!words.length) return;
+  let re; try { re = new RegExp(`(?<![\\p{L}\\p{N}])(${words.join('|')})(?![\\p{L}\\p{N}])`, 'giu'); } catch (e) { return; }
+  const done = new Set(); let count = 0;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => (n.parentElement && n.parentElement.closest('.dw, code, button, th')) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    if (count >= 30) break;
+    const txt = node.nodeValue; re.lastIndex = 0; let m, last = 0, changed = false; const frag = document.createDocumentFragment();
+    while ((m = re.exec(txt))) {
+      const key = m[1].toLowerCase(); if (done.has(key) || !map.has(key)) continue;
+      done.add(key); count++; changed = true;
+      frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'dw'; b.textContent = m[1]; b.dataset.k = key; frag.appendChild(b);
+      last = m.index + m[1].length;
+    }
+    if (changed) { frag.appendChild(document.createTextNode(txt.slice(last))); node.parentNode.replaceChild(frag, node); }
+  }
+  root.querySelectorAll('.dw').forEach(b => b.onclick = () => wordPopup(map.get(b.dataset.k)));
+}
+function wordOfDay() {
+  const sets = {}; subjectsOfGrade(7).forEach(s => { sets[s.id] = new Set(scopeOf(s).topics); });
+  const pool = dict().filter(e => sets[e.s.id] && sets[e.s.id].has(e.tp.id) && dOther(e));
+  const P = pool.length ? pool : dict();
+  return P[Math.floor(seeded('wotd' + today())() * P.length)];
+}
+function subjChips(cur, attr) {
+  return `<div class="row chipsel" style="gap:6px">${[['all', '🌈', t('allSubj')]].concat(subjectsOfGrade(7).map(s => [s.id, s.icon, tx(s.short)])).map(([id, ic, nm]) => `<button class="chip ${cur === id ? 'on' : ''}" data-${attr}="${id}">${ic} ${esc(nm)}</button>`).join('')}</div>`;
+}
+function renderDict(main) {
+  const tab = S.dictTab || 'terms';
+  main.innerHTML = `<h1>📖 ${esc(t('dictT'))}</h1><p class="muted" style="margin:4px 0 6px;max-width:70ch">${esc(t('dictSub'))}</p>
+  <div class="tabs"><button class="${tab === 'terms' ? 'on' : ''}" data-dt="terms">🔤 ${esc(t('dictTabTerms'))} <span class="num">(${dict().length})</span></button><button class="${tab === 'q' ? 'on' : ''}" data-dt="q">❓ ${esc(t('dictTabQ'))} <span class="num">(${VRAAGWOORDE.length})</span></button></div><div id="dbody"></div>`;
+  main.querySelectorAll('[data-dt]').forEach(b => b.onclick = () => { S.dictTab = b.dataset.dt; renderDict(main); });
+  const body = $('#dbody');
+  if (tab === 'q') {
+    body.innerHTML = `<p class="small muted" style="margin-bottom:12px;max-width:70ch">${esc(t('dictQSub'))}</p><div class="grid two">${VRAAGWOORDE.map(v => `<div class="card qword"><h3>${esc(tx(v.w))} <span class="chip">${esc(L === 'af' ? v.w.en : v.w.af)}</span></h3><p style="margin:6px 0">${esc(tx(v.d))}</p>${v.tip ? `<p class="small muted">💡 ${esc(tx(v.tip))}</p>` : ''}</div>`).join('')}</div>`;
+    return;
+  }
+  const sid = S.dictSubj || 'all';
+  body.innerHTML = `<input type="search" id="dq" class="dsearch" placeholder="${esc(t('dictSearch'))}" value="${esc(S.dictQ || '')}" autocomplete="off" autocapitalize="off" spellcheck="false">${subjChips(sid, 'ds')}<div id="dres" style="margin-top:12px"></div>`;
+  body.querySelectorAll('[data-ds]').forEach(b => b.onclick = () => { S.dictSubj = b.dataset.ds; renderDict(main); });
+  let limit = 40;
+  const show = () => {
+    const q = fold(S.dictQ || '').trim();
+    let list = dict().filter(e => sid === 'all' || e.s.id === sid);
+    if (q) list = list.map(e => { const a = fold(dWord(e)), b = fold(dOther(e)), d = fold(e.daf + ' ' + e.den); return { e, r: a.startsWith(q) ? 0 : a.includes(q) ? 1 : b.includes(q) ? 2 : d.includes(q) ? 3 : 9 }; }).filter(x => x.r < 9).sort((x, y) => x.r - y.r || dWord(x.e).localeCompare(dWord(y.e), L)).map(x => x.e);
+    else list = list.slice().sort((x, y) => dWord(x).localeCompare(dWord(y), L));
+    const n = list.length;
+    $('#dres').innerHTML = n ? `<div class="small muted" style="margin-bottom:8px"><span class="num">${n}</span> ${esc(t('dictWords'))}</div><div class="dlist">${list.slice(0, limit).map(e => `<div class="dentry" style="--subject:${e.s.color}"><div class="row" style="justify-content:space-between;gap:6px"><b class="dt">${esc(dWord(e))}</b>${dOther(e) ? `<span class="chip">${L === 'af' ? 'EN' : 'AF'}: ${esc(dOther(e))}</span>` : ''}</div><div class="dd">${esc(dDef(e))}</div><div class="row small" style="gap:6px;margin-top:6px"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><button class="linkbtn" data-tp="${e.tp.id}">${esc(tx(e.tp.title))} →</button></div></div>`).join('')}</div>${n > limit ? `<div class="center" style="margin-top:12px"><button class="btn" id="dmore">${esc(t('showMore'))}</button></div>` : ''}`
+      : `<div class="card muted">${esc(t('dictNone'))}</div>`;
+    $('#dres').querySelectorAll('[data-tp]').forEach(b => b.onclick = () => go('onderwerp-' + b.dataset.tp));
+    const m = $('#dmore'); if (m) m.onclick = () => { limit += 60; show(); };
+  };
+  let tmr; $('#dq').oninput = (ev) => { S.dictQ = ev.target.value; clearTimeout(tmr); tmr = setTimeout(() => { limit = 40; show(); }, 120); };
+  show();
+}
+
+/* ---------- brain games ---------- */
+const GAMES = [['geheue', 'memory', '🧩'], ['raai', 'hangman', '🔤'], ['sprint', 'sprint', '⚡'], ['blits', 'blitz', '✅']];
+const GAME_ICON = { memory: '🧩', hangman: '🔤', sprint: '⚡', blitz: '✅' };
+function gameSubj() { if (!S.gameSubj) { try { S.gameSubj = localStorage.getItem('lh.gsubj') || 'all'; } catch (e) { S.gameSubj = 'all'; } } return S.gameSubj; }
+function setGameSubj(v) { S.gameSubj = v; try { localStorage.setItem('lh.gsubj', v); } catch (e) {} }
+function bestText(key, best) { if (best === null || best === undefined) return '–'; if (key === 'memory') return `${best} ${t('moves')}`; if (key === 'hangman') return `${Math.floor(best / 100)}/5`; return String(best); }
+function renderGames(main) {
+  const kid = S.kid, cur = gameSubj(), w = weekId(), g = kid.games || {};
+  const ch = kid.challenge && kid.challenge.w === w ? kid.challenge : null;
+  main.innerHTML = `<h1>🎮 ${esc(t('playT'))}</h1><p class="muted" style="margin:4px 0 14px;max-width:70ch">${esc(t('playSub'))}</p>
+  <div class="grid two">
+    <div class="card"><h3>🏆 ${esc(t('weekT'))}</h3><div id="twinBox" class="small muted" style="margin-top:8px">…</div></div>
+    <div class="card"><h3>⚔️ ${esc(t('chalT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chalSub'))}</p><div class="row" style="justify-content:space-between"><span class="chip ${ch ? 'good' : ''}">${ch ? `✓ ${esc(t('chalDone'))}: <span class="num">${ch.score}/${ch.total}</span>` : esc(t('chalNot'))}</span><button class="btn subject" data-go="uitdaging">${esc(ch ? t('chalReplay') : t('chalPlay'))} →</button></div></div>
+  </div>
+  <h2 style="margin:22px 0 8px">🧠 ${esc(t('brainGames'))}</h2><p class="small muted" style="margin-bottom:8px">${esc(t('pickSubj'))}</p>${subjChips(cur, 'gs')}
+  <div class="games" style="margin-top:12px">${GAMES.map(([slug, key, ic], i) => { const [nm, ds] = t('g.' + key); const st = g[key] || {}; return `<button class="game" data-go="spel-${slug}" style="animation-delay:${i * 60}ms"><span class="gi">${ic}</span><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span>${st.plays ? `<span class="chip hi num">${esc(t('best'))}: ${esc(bestText(key, st.best))}</span>` : ''}</button>`; }).join('')}</div>
+  <div class="row" style="margin-top:18px"><button class="btn" data-go="kentekens">🏅 ${esc(t('badges'))}</button><button class="btn" data-go="foute">❌ ${esc(t('mistakesT'))}</button></div>`;
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  main.querySelectorAll('[data-gs]').forEach(b => b.onclick = () => { setGameSubj(b.dataset.gs); renderGames(main); });
+  fillTwin($('#twinBox'));
+}
+function gamePool(sid) { return dict().filter(e => !sid || sid === 'all' || e.s.id === sid); }
+function gameHead(main, key, right) {
+  const [nm, ds] = t('g.' + key);
+  return `<button class="back" data-go="speel">← ${esc(t('playT'))}</button><div class="row" style="justify-content:space-between"><h1>${GAME_ICON[key]} ${esc(nm)}</h1>${right || ''}</div><p class="small muted" style="margin:4px 0 12px">${esc(ds)}</p>`;
+}
+function wireBack(main) { main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go)); }
+async function gameOver(main, key, score, xp, big, line, lowerBetter, extra) {
+  const kid = S.kid; kid.games = kid.games || {};
+  const st = kid.games[key] = kid.games[key] || { plays: 0, best: null };
+  const rec = st.best === null || st.best === undefined || (lowerBetter ? score < st.best : score > st.best);
+  st.plays++; if (rec) st.best = score; kid.totals.games = (kid.totals.games || 0) + 1;
+  const [nm] = t('g.' + key);
+  main.innerHTML = `<div class="quiz"><div class="card pad-lg result"><div class="label">${GAME_ICON[key]} ${esc(nm)}</div><div class="score num">${esc(big)}</div><div class="msg">${rec && st.plays > 1 ? '🏆 ' + esc(t('newRecord')) + ' ' : ''}${esc(line)}</div>
+    <div class="row" style="justify-content:center"><span class="chip hi num">+${xp} XP ${esc(t('earned'))}</span><span class="chip num">${esc(t('best'))}: ${esc(bestText(key, st.best))}</span></div>${extra || ''}
+    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn subject" id="again">🔁 ${esc(t('playAgain'))}</button><button class="btn" data-go="speel">${esc(t('back'))}</button></div></div></div>`;
+  $('#again').onclick = () => render();
+  wireBack(main);
+  if (rec && st.plays > 1) confetti(160); else if (xp >= 20) confetti(70);
+  await award(kid, xp, { type: 'game', game: key, label: `${nm}: ${line}` });
+}
+function clearGame() { if (S._gameTimer) { clearInterval(S._gameTimer); S._gameTimer = null; } if (S._keyH) { document.removeEventListener('keydown', S._keyH); S._keyH = null; } }
+function setKeys(fn) { if (S._keyH) document.removeEventListener('keydown', S._keyH); S._keyH = fn; document.addEventListener('keydown', fn); }
+
+/* memory pairs: Afrikaans word ↔ English word */
+function renderMemory(main) {
+  const okPair = (e) => e.af && e.en && fold(e.af) !== fold(e.en) && e.af.length <= 26 && e.en.length <= 26;
+  let pool = gamePool(gameSubj()).filter(okPair); if (pool.length < 6) pool = dict().filter(okPair);
+  const pick = [], seenA = new Set(), seenE = new Set();
+  for (const e of shuffle(pool)) { if (pick.length >= 6) break; if (seenA.has(fold(e.af)) || seenE.has(fold(e.en))) continue; seenA.add(fold(e.af)); seenE.add(fold(e.en)); pick.push(e); }
+  const cards = shuffle(pick.flatMap((e, i) => [{ p: i, txt: e.af, lang: 'AF' }, { p: i, txt: e.en, lang: 'EN' }]));
+  const G = { open: [], got: 0, moves: 0, lock: false, start: Date.now() };
+  main.innerHTML = gameHead(main, 'memory', `<span class="chip num" id="mvs">0 ${esc(t('moves'))}</span>`) + `<div class="memgrid">${cards.map((c, i) => `<button class="mcard" data-i="${i}" aria-label="?"><span class="in"><span class="f">?</span><span class="b"><small>${c.lang}</small>${esc(c.txt)}</span></span></button>`).join('')}</div>`;
+  wireBack(main);
+  const done = () => {
+    const secs = Math.round((Date.now() - G.start) / 1000), xp = clamp(30 - (G.moves - 6) * 2, 8, 30);
+    const extra = `<div class="review" style="margin-top:16px;text-align:left">${pick.map(e => `<div class="r"><div>🧩</div><div><b>${esc(e.af)}</b> = ${esc(e.en)}<div class="ex">${e.s.icon} ${esc(tx(e.s.short))}</div></div></div>`).join('')}</div>`;
+    gameOver(main, 'memory', G.moves, xp, `${G.moves}`, `${t('moves')} · ${secs} s`, true, extra);
+  };
+  main.querySelectorAll('.mcard').forEach(el => el.onclick = () => {
+    const i = +el.dataset.i; if (G.lock || el.classList.contains('got') || G.open.includes(i)) return;
+    el.classList.add('flip'); G.open.push(i);
+    if (G.open.length < 2) return;
+    G.moves++; $('#mvs').textContent = `${G.moves} ${t('moves')}`;
+    const [a, b] = G.open, ea = main.querySelector(`[data-i="${a}"]`), eb = main.querySelector(`[data-i="${b}"]`);
+    if (cards[a].p === cards[b].p) { G.open = []; G.got++; setTimeout(() => { ea.classList.add('got'); eb.classList.add('got'); }, 250); if (G.got === pick.length) setTimeout(done, 800); }
+    else { G.lock = true; setTimeout(() => { ea.classList.remove('flip'); eb.classList.remove('flip'); G.open = []; G.lock = false; }, 950); }
+  });
+}
+
+/* raai die woord: hangman with the definition as the clue */
+function renderHangman(main) {
+  const okWord = (w) => w && w.length >= 3 && w.length <= 18 && [...fold(w)].every(c => /[a-z' -]/.test(c)) && (fold(w).match(/[a-z]/g) || []).length >= 3;
+  let pool = gamePool(gameSubj()).filter(e => okWord(dWord(e)) && dDef(e)); if (pool.length < 5) pool = dict().filter(e => okWord(dWord(e)) && dDef(e));
+  const words = shuffle(pool).slice(0, 5);
+  const G = { i: 0, solved: 0, livesLeft: 0, log: [] };
+  const KEYS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const finish = () => {
+    clearGame();
+    const score = G.solved * 100 + G.livesLeft, xp = G.solved * 6 + (G.solved === words.length ? 10 : 0);
+    const extra = `<div class="review" style="margin-top:16px;text-align:left">${G.log.map(x => `<div class="r ${x.won ? '' : 'bad'}"><div>${x.won ? '✅' : '❌'}</div><div><b>${esc(x.word)}</b><div class="ex">${esc(x.def)}</div></div></div>`).join('')}</div>`;
+    gameOver(main, 'hangman', score, xp, `${G.solved}/${words.length}`, t('wordsOf'), false, extra);
+  };
+  const drawWord = () => {
+    if (G.i >= words.length) return finish();
+    const e = words[G.i], word = dWord(e), letters = [...word];
+    const W = { guessed: new Set(), lives: 6, over: false };
+    const isL = (c) => /[a-z]/.test(fold(c));
+    const solved = () => letters.every(c => !isL(c) || W.guessed.has(fold(c)));
+    main.innerHTML = gameHead(main, 'hangman', `<span class="chip num">${G.i + 1} / ${words.length}</span>`) + `<div class="card pad-lg" style="--subject:${e.s.color}"><div class="row" style="justify-content:space-between"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><span id="hlives" class="lives" aria-label="${esc(t('lives'))}"></span></div>
+      <p class="hdef">${esc(dDef(e))}</p><div class="hword" id="hword"></div><div id="hmsg" class="center" style="min-height:28px;margin:8px 0"></div>
+      <div class="keys" id="keys">${KEYS.map(k => `<button class="key" data-k="${k}">${k.toUpperCase()}</button>`).join('')}</div>
+      <div class="row" style="justify-content:center;margin-top:12px" id="hact"><button class="btn sm ghost" id="hint">💡 ${esc(t('hintLetter'))}</button></div></div>`;
+    wireBack(main);
+    const paint = () => {
+      $('#hword').innerHTML = letters.map(c => !isL(c) ? `<span class="hs">${c === ' ' ? '&nbsp;' : esc(c)}</span>` : (() => { const shown = W.guessed.has(fold(c)) || W.over; return `<span class="hl ${shown ? 'on' : ''} ${W.over && !W.guessed.has(fold(c)) ? 'miss' : ''}">${shown ? esc(c.toUpperCase()) : ''}</span>`; })()).join('');
+      $('#hlives').textContent = '❤️'.repeat(Math.max(0, W.lives)) + '🤍'.repeat(6 - Math.max(0, W.lives));
+    };
+    const end = (won) => {
+      W.over = true; paint(); main.querySelectorAll('.key').forEach(b => b.disabled = true);
+      if (won) { G.solved++; G.livesLeft += W.lives; }
+      G.log.push({ word, won, def: dDef(e) });
+      $('#hmsg').innerHTML = won ? `<b style="color:var(--good)">🎉 ${esc(t('correct'))}</b>` : `<b style="color:var(--bad)">${esc(t('wordWas'))}: ${esc(word)}</b>`;
+      $('#hact').innerHTML = `<button class="btn subject" id="nextW">${G.i + 1 < words.length ? esc(t('nextWord')) + ' →' : esc(t('finish')) + ' 🏁'}</button>`;
+      $('#nextW').onclick = () => { G.i++; drawWord(); };
+      if (won) confetti(40);
+    };
+    const guess = (k) => {
+      if (W.over || W.guessed.has(k)) return;
+      W.guessed.add(k); const b = main.querySelector(`[data-k="${k}"]`); const hit = letters.some(c => isL(c) && fold(c) === k);
+      if (b) { b.disabled = true; b.classList.add(hit ? 'hit' : 'miss'); }
+      if (!hit) W.lives--;
+      paint(); if (solved()) end(true); else if (W.lives <= 0) end(false);
+    };
+    main.querySelectorAll('.key').forEach(b => b.onclick = () => guess(b.dataset.k));
+    $('#hint').onclick = () => { if (W.over || W.lives <= 1) return; const hidden = letters.filter(c => isL(c) && !W.guessed.has(fold(c))); if (!hidden.length) return; W.lives--; guess(fold(hidden[Math.floor(Math.random() * hidden.length)])); };
+    setKeys((ev) => { if (ev.metaKey || ev.ctrlKey || ev.altKey) return; const k = (ev.key || '').toLowerCase(); if (/^[a-z]$/.test(k)) guess(k); else if (ev.key === 'Enter' && W.over) { const n = $('#nextW'); if (n) n.click(); } });
+    paint();
+  };
+  drawWord();
+}
+
+/* wiskunde-sprint: 60 seconds of mental maths */
+const fmtN = (n) => n < 0 ? `(−${-n})` : String(n);
+function mathQ() {
+  const r = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  switch (r(0, 7)) {
+    case 0: { const a = r(2, 12), b = r(2, 12); return { q: `${a} × ${b}`, a: a * b }; }
+    case 1: { const b = r(2, 12), c = r(2, 12); return { q: `${b * c} ÷ ${b}`, a: c }; }
+    case 2: { const a = r(12, 99), b = r(11, 99); return { q: `${a} + ${b}`, a: a + b }; }
+    case 3: { const a = r(30, 150), b = r(11, a); return { q: `${a} − ${b}`, a: a - b }; }
+    case 4: { const a = r(-12, 12), b = r(-12, 12); return Math.random() < 0.5 ? { q: `${fmtN(a)} + ${fmtN(b)}`, a: a + b } : { q: `${fmtN(a)} − ${fmtN(b)}`, a: a - b }; }
+    case 5: { const a = r(1, 12); return { q: `${a}²`, a: a * a }; }
+    case 6: { const p = [10, 20, 25, 50, 75][r(0, 4)], base = r(1, 20) * 20; return { q: `${p}% ${L === 'af' ? 'van' : 'of'} ${base}`, a: base * p / 100 }; }
+    default: { const a = r(1, 10), b = r(2, 6), c = r(2, 6); return { q: `${a} + ${b} × ${c}`, a: a + b * c }; }
+  }
+}
+function renderSprint(main) {
+  const DUR = 60;
+  main.innerHTML = gameHead(main, 'sprint') + `<div class="card pad-lg center"><div style="font-size:56px">⚡</div><h2 style="margin:6px 0">${DUR} s</h2><p class="muted small" style="margin-bottom:14px">${esc(t('sprintHow'))}</p><button class="btn subject" id="go">▶ ${esc(t('start'))}</button></div>`;
+  wireBack(main);
+  $('#go').onclick = () => {
+    const G = { score: 0, n: 0, streak: 0, end: Date.now() + DUR * 1000, cur: null, inp: '', wrong: [], busy: false };
+    main.innerHTML = gameHead(main, 'sprint', `<span class="row" style="gap:6px"><span class="chip num" id="sT">${DUR}</span><span class="chip hi num" id="sS">0 ✓</span></span>`) + `<div class="card pad-lg"><div class="center small" id="sStreak" style="min-height:20px"></div><div class="sq num" id="sQ"></div><div class="sinp num" id="sI"></div>
+      <div class="keypad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '0', 'del'].map(k => `<button data-k="${k}">${k === 'del' ? '⌫' : k === '-' ? '−' : k}</button>`).join('')}</div><button class="btn subject block" id="sOk">OK ✓</button></div>`;
+    wireBack(main);
+    const paint = () => { $('#sQ').textContent = G.cur.q + ' = ?'; $('#sI').textContent = G.inp ? G.inp.replace('-', '−') : ' '; $('#sS').textContent = `${G.score} ✓`; $('#sStreak').textContent = G.streak >= 3 ? `🔥 ×${G.streak}` : ''; };
+    const next = () => { G.cur = mathQ(); G.inp = ''; paint(); };
+    const press = (k) => { if (G.busy) return; if (k === 'del') G.inp = G.inp.slice(0, -1); else if (k === '-') G.inp = G.inp.startsWith('-') ? G.inp.slice(1) : '-' + G.inp; else if (G.inp.replace('-', '').length < 5) G.inp += k; paint(); };
+    const ok = () => {
+      if (G.busy || !G.inp || G.inp === '-') return;
+      const v = parseInt(G.inp, 10), box = $('#sI'); G.n++;
+      if (v === G.cur.a) { G.score++; G.streak++; box.className = 'sinp num good'; G.busy = true; setTimeout(() => { box.className = 'sinp num'; G.busy = false; next(); }, 180); }
+      else { G.streak = 0; G.wrong.push({ q: G.cur.q, a: G.cur.a, v }); box.className = 'sinp num bad'; box.textContent = `${G.cur.a}`; G.busy = true; setTimeout(() => { box.className = 'sinp num'; G.busy = false; next(); }, 700); }
+    };
+    main.querySelectorAll('.keypad [data-k]').forEach(b => b.onclick = () => press(b.dataset.k));
+    $('#sOk').onclick = ok;
+    setKeys((ev) => { if (/^[0-9]$/.test(ev.key)) press(ev.key); else if (ev.key === '-') press('-'); else if (ev.key === 'Backspace') { ev.preventDefault(); press('del'); } else if (ev.key === 'Enter') ok(); });
+    const finish = () => {
+      clearGame();
+      const extra = G.wrong.length ? `<h3 style="margin-top:16px;text-align:left">${esc(t('review'))}</h3><div class="review" style="text-align:left">${G.wrong.slice(0, 8).map(w => `<div class="r bad"><div>❌</div><div class="num">${esc(w.q)} = <b>${w.a}</b> <span class="muted">(${esc(String(w.v).replace('-', '−'))})</span></div></div>`).join('')}</div>` : '';
+      gameOver(main, 'sprint', G.score, Math.min(30, G.score), `${G.score}`, `${G.score}/${G.n} ${t('correctN')} · ${t('timeUp')}`, false, extra);
+    };
+    S._gameTimer = setInterval(() => { const left = Math.max(0, Math.ceil((G.end - Date.now()) / 1000)); const el = $('#sT'); if (el) { el.textContent = left; el.classList.toggle('bad', left <= 10); } if (left <= 0) finish(); }, 250);
+    next();
+  };
+}
+
+/* waar/onwaar-blits: 60 seconds of true/false statements from their own tests */
+function renderBlitz(main) {
+  const DUR = 60, sid = gameSubj();
+  const pool = []; subjectsOfGrade(7).filter(s => sid === 'all' || s.id === sid).forEach(s => allTopics(s).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === 'tf') pool.push({ q, topic: tp, term, subj: s }); })));
+  main.innerHTML = gameHead(main, 'blitz') + `<div class="card pad-lg center"><div style="font-size:56px">✅</div><h2 style="margin:6px 0">${DUR} s</h2><p class="muted small" style="margin-bottom:14px">${esc(t('blitzHow'))}</p><button class="btn subject" id="go" ${pool.length ? '' : 'disabled'}>▶ ${esc(t('start'))}</button></div>`;
+  wireBack(main);
+  $('#go').onclick = () => {
+    const qs = shuffle(pool), kid = S.kid;
+    const G = { i: 0, score: 0, streak: 0, end: Date.now() + DUR * 1000, wrong: [], busy: false };
+    main.innerHTML = gameHead(main, 'blitz', `<span class="row" style="gap:6px"><span class="chip num" id="bT">${DUR}</span><span class="chip hi num" id="bS">0 ✓</span></span>`) + `<div class="card pad-lg" id="bCard"><div class="row" style="justify-content:space-between"><span class="chip subject" id="bSubj"></span><span class="small" id="bStreak"></span></div><div class="blitzq" id="bQ"></div>
+      <div class="blitzbtns"><button class="yes" data-v="1">✓ ${esc(t('true_'))}</button><button class="no" data-v="0">✗ ${esc(t('false_'))}</button></div></div>`;
+    wireBack(main);
+    const paint = () => { const it = qs[G.i]; document.documentElement.style.setProperty('--subject', it.subj.color); $('#bSubj').textContent = `${it.subj.icon} ${tx(it.subj.short)}`; $('#bQ').innerHTML = inline(tx(it.q.q)); $('#bS').textContent = `${G.score} ✓`; $('#bStreak').textContent = G.streak >= 3 ? `🔥 ×${G.streak}` : ''; };
+    const finish = () => {
+      clearGame();
+      const extra = G.wrong.length ? `<h3 style="margin-top:16px;text-align:left">${esc(t('review'))}</h3><div class="review" style="text-align:left">${G.wrong.slice(0, 10).map(it => `<div class="r bad"><div>❌</div><div><div>${inline(tx(it.q.q))}</div><div class="ex"><b>${esc(it.q.answer ? t('true_') : t('false_'))}</b> – ${inline(tx(it.q.explain))}</div></div></div>`).join('')}</div><p class="small muted" style="margin-top:8px">${esc(t('wentToMistakes'))}</p>` : '';
+      gameOver(main, 'blitz', G.score, Math.min(30, G.score), `${G.score}`, `${G.score}/${G.i} ${t('correctN')} · ${t('timeUp')}`, false, extra);
+    };
+    const answer = (v) => {
+      if (G.busy) return; const it = qs[G.i], ok = v === it.q.answer, card = $('#bCard');
+      noteMistake(kid, it.topic, it.q, ok);
+      if (ok) { G.score++; G.streak++; } else { G.streak = 0; G.wrong.push(it); }
+      card.classList.remove('flashok', 'flashno'); void card.offsetWidth; card.classList.add(ok ? 'flashok' : 'flashno');
+      G.i++; G.busy = true; setTimeout(() => { G.busy = false; if (G.i >= qs.length) finish(); else paint(); }, ok ? 150 : 450);
+    };
+    main.querySelectorAll('.blitzbtns [data-v]').forEach(b => b.onclick = () => answer(b.dataset.v === '1'));
+    setKeys((ev) => { if (ev.key === 'ArrowLeft' || ev.key.toLowerCase() === 'w' || ev.key.toLowerCase() === 't') answer(true); else if (ev.key === 'ArrowRight' || ev.key.toLowerCase() === 'o' || ev.key.toLowerCase() === 'f') answer(false); });
+    S._gameTimer = setInterval(() => { const left = Math.max(0, Math.ceil((G.end - Date.now()) / 1000)); const el = $('#bT'); if (el) { el.textContent = left; el.classList.toggle('bad', left <= 10); } if (left <= 0) finish(); }, 250);
+    paint();
+  };
+}
+function renderGame(main, slug) {
+  if (slug === 'geheue') return renderMemory(main);
+  if (slug === 'raai') return renderHangman(main);
+  if (slug === 'sprint') return renderSprint(main);
+  if (slug === 'blits') return renderBlitz(main);
+  return go('speel');
+}
+
+/* ---------- parent: afbakening & exam timetable editor ---------- */
+function scopeEditor(subjects) {
+  return `<div class="card" style="margin-top:14px" id="scopeCard"><h3>🎯 ${esc(t('scopeT'))}</h3><p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('scopeHelp'))}</p>
+  <div class="form-row" style="max-width:280px;margin-bottom:12px"><label for="curT">${esc(t('curTermL'))}</label><select id="curT"><option value="">${esc(t('auto'))} (${esc(t('term'))} ${autoTerm()})</option>${[1, 2, 3, 4].map(n => `<option value="${n}" ${+S.settings.currentTerm === n ? 'selected' : ''}>${esc(t('term'))} ${n}</option>`).join('')}</select></div>
+  <div class="stack" style="gap:10px">${subjects.map(s => { const sc = scopeOf(s), set = new Set(sc.topics); return `<div class="scoperow" data-sid="${s.id}"><div class="row" style="justify-content:space-between;gap:8px"><b>${s.icon} ${esc(tx(s.short))}</b><input type="date" data-date value="${esc(sc.date)}" aria-label="${esc(t('exam1'))} ${esc(tx(s.short))}"></div>
+    <details><summary><span class="chip ${sc.provisional ? '' : 'good'}" data-cnt>${sc.topics.length} ${esc(t('topics'))}${sc.provisional ? ' · ' + esc(t('provisional')) : ''}</span> ${esc(t('pickTopics'))}</summary>
+    <div class="row" style="gap:6px;margin:8px 0">${[['4', t('q4')], ['34', t('q34')], ['1234', t('qAll')], ['', t('qNone')]].map(([v, lb]) => `<button type="button" class="btn sm" data-q="${v}">${esc(lb)}</button>`).join('')}</div>
+    ${s.terms.map(tm => `<div class="label" style="margin-top:8px">${esc(t('term'))} ${tm.term}</div>${tm.topics.map(tp => `<label class="ck"><input type="checkbox" data-tid="${tp.id}" data-term="${tm.term}" ${set.has(tp.id) ? 'checked' : ''}> <span>${esc(tx(tp.title))}</span></label>`).join('')}`).join('')}
+    <input data-note placeholder="${esc(t('noteP'))}" value="${esc(sc.note)}" style="margin-top:8px;width:100%"></details></div>`; }).join('')}</div>
+  <button class="btn primary" id="saveScope" style="margin-top:12px">💾 ${esc(t('saveScope'))}</button></div>`;
+}
+function wireScopeEditor(root) {
+  root.querySelectorAll('.scoperow').forEach(row => {
+    const upd = () => { row.dataset.touched = '1'; row.querySelector('[data-cnt]').textContent = `${row.querySelectorAll('[data-tid]:checked').length} ${t('topics')}`; };
+    row.querySelectorAll('[data-tid]').forEach(c => c.onchange = upd);
+    row.querySelectorAll('[data-q]').forEach(b => b.onclick = () => { const terms = b.dataset.q.split('').map(Number); row.querySelectorAll('[data-tid]').forEach(c => { c.checked = terms.includes(+c.dataset.term); }); upd(); });
+  });
+  $('#saveScope', root).onclick = async () => {
+    const ex = Object.assign({}, S.settings.exams || {});
+    root.querySelectorAll('.scoperow').forEach(row => {
+      const sid = row.dataset.sid, cur = Object.assign({}, ex[sid] || {});
+      cur.date = row.querySelector('[data-date]').value || ''; cur.note = row.querySelector('[data-note]').value.trim();
+      if (row.dataset.touched) cur.topics = [...row.querySelectorAll('[data-tid]:checked')].map(c => c.dataset.tid);
+      ex[sid] = cur;
+    });
+    S.settings.exams = ex; const ct = $('#curT', root).value; S.settings.currentTerm = ct ? +ct : null;
+    await S.store.saveSettings(S.settings); toast(t('saved')); render();
   };
 }
 
@@ -876,7 +1509,7 @@ function checkForUpdate() {
     let done = null; try { done = sessionStorage.getItem('lh.upd'); } catch (e) {}
     if (done === j.v) return; // already tried once for this version
     const reload = () => { try { sessionStorage.setItem('lh.upd', j.v); } catch (e) {} const p = new URLSearchParams(location.search); p.set('u', j.v); location.replace(location.pathname + '?' + p.toString() + location.hash); };
-    if (['quiz', 'exam', 'paper'].includes(S.route.s)) {
+    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'game'].includes(S.route.s)) {
       if (document.getElementById('updBar')) return;
       const bar = document.createElement('button'); bar.id = 'updBar'; bar.className = 'toast show'; bar.style.pointerEvents = 'auto'; bar.style.cursor = 'pointer';
       bar.textContent = L === 'af' ? '✨ Nuwe weergawe – tik om op te dateer' : '✨ New version – tap to update'; bar.onclick = reload; document.body.appendChild(bar);
@@ -899,7 +1532,7 @@ async function boot() {
   $('#logoBtn').onclick = () => go(S.kid ? 'home' : 'profiel');
   $('#whoBtn').onclick = () => go('profiel');
   window.addEventListener('hashchange', render);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { flushTime(); if (S.kid) S.store.saveKid(S.kid).catch(() => {}); } else S.tStart = Date.now(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { flushTime(); if (S.kid) S.store.saveKid(S.kid).catch(() => {}); } else { S.tStart = Date.now(); if (S.store) S.store.loadSettings().then(st => { if (st) S.settings = st; }).catch(() => {}); } });
   render(); // splash
   const [content] = await Promise.all([loadContent(), initStore()]);
   S.content = content;
