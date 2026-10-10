@@ -488,7 +488,8 @@ function parseRoute() {
   if (h === 'uitdaging') return { s: 'week' };
   if (h === 'woordeboek') return { s: 'dict' };
   if (h === 'afrigter') return { s: 'coach' };
-  if (h === 'skaak') return { s: 'chess' };
+  if (h === 'skaak' || h === 'vraagspel') return { s: 'chess' };
+  if (h === 'rooster') return { s: 'rooster' };
   if (h === 'klets') return { s: 'chat' };
   let m;
   if ((m = h.match(/^skaak-([A-Za-z0-9]+)$/))) return { s: 'chessGame', id: m[1] };
@@ -507,7 +508,7 @@ function nav() {
   const parentDev = deviceLock() === 'ouer';
   const items = parentDev && !S.kid ? [['parent', '👪', t('parent')], ['chess', '♟️', t('navChess')], ['chat', '💬', t('navChat')]] : [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
   const hashes = { home: 'home', subjects: 'vakke', exams: 'eksamens', games: 'speel', dict: 'woordeboek', parent: 'ouer', badges: 'kentekens', resources: 'hulpbronne', chess: 'skaak', chat: 'klets' };
-  const groups = { subjects: ['subject', 'topic', 'quiz', 'exam', 'paper', 'resources'], exams: ['scope', 'mistakes', 'redo'], games: ['game', 'week', 'badges', 'chess', 'chessGame'], chess: ['chessGame'] };
+  const groups = { subjects: ['subject', 'topic', 'quiz', 'exam', 'paper', 'resources'], exams: ['scope', 'mistakes', 'redo', 'rooster'], games: ['game', 'week', 'badges', 'chess', 'chessGame'], chess: ['chessGame'] };
   const on = (k) => (r.s === k || (groups[k] || []).includes(r.s)) ? 'on' : '';
   $('#bottomnav').innerHTML = items.map(([k, ic, lb]) => `<button class="${on(k)}" data-go="${hashes[k]}"><span class="ic">${ic}</span>${esc(lb)}</button>`).join('');
   $('#desknav').innerHTML = items.map(([k, ic, lb]) => `<button class="${on(k)}" data-go="${hashes[k]}">${esc(lb)}</button>`).join('');
@@ -556,6 +557,7 @@ async function render() {
     case 'redo': return renderQuiz(main, r.id, 'redo');
     case 'week': return renderQuiz(main, 'week', 'week');
     case 'exams': return renderExams(main);
+    case 'rooster': return renderRooster(main);
     case 'mistakes': return renderMistakes(main);
     case 'games': return renderGames(main);
     case 'game': return renderGame(main, r.id);
@@ -627,7 +629,7 @@ function renderHome(main) {
       <div class="stats"><div class="stat"><div class="v num"><span class="flame">🔥</span> ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div class="stat"><div class="v num">${kid.totals.quizzes}</div><div class="k">${esc(t('quizzes'))}</div></div><div class="stat"><div class="v num">🏅 ${kid.badges.length}</div><div class="k">${esc(t('badges'))}</div></div></div>
     </div>
   </div>
-  ${missionCard(kid)}${chessHomeBanner()}
+  ${missionCard(kid)}${chessHomeBanner()}${roosterHomeCard(kid)}<div id="kpHome" style="margin-top:14px"></div>
   <div class="tiles">
     <button class="card tile ${chest.ready ? 'ready' : ''}" id="chestT"><span class="ti">${chest.opened ? '💰' : '🎁'}</span><b>${esc(t('chestT'))}</b><span class="small muted">${chest.opened ? esc(t('chestDone')) : chest.ready ? esc(t('chestReady')) : `<span class="num">${Math.min(3, chest.tests)}/3</span> ${esc(t('testsToday'))}`}</span>${!chest.opened && !chest.ready ? `<div class="bar-h" style="margin-top:auto"><i style="width:${Math.round(100 * Math.min(3, chest.tests) / 3)}%;background:var(--hi)"></i></div>` : ''}</button>
     <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
@@ -656,6 +658,7 @@ function renderHome(main) {
   const cc = $('#copyCode'); if (cc) cc.onclick = async () => { const code = S.store.exportCode(); if (code && await copyText(code)) toast(t('copied')); };
   $('#share').onclick = async () => { if (await copyText(reportText(kid, subjects))) toast(t('shareDone')); };
   fillTwin($('#twinMini'), true);
+  kidPushCard($('#kpHome'));
   const misEl = $('#misC'); if (misEl) misEl.onclick = () => go(kid.mission && kid.mission.k === 'games' ? 'speel' : 'eksamens');
   maybeWelcome();
 }
@@ -955,7 +958,7 @@ function fmtTime(ts) { const d = new Date(ts); return String(d.getHours()).padSt
 function fmtDay(date) { const td = today(); if (date === td) return t('today'); const y = new Date(); y.setDate(y.getDate() - 1); const ys = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0'); if (date === ys) return t('yesterday'); return date; }
 function evText(ev) {
   const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? S.content.subjects[ev.subject] : null;
-  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach' || ev.type === 'mission') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
+  const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach' || ev.type === 'mission' || ev.type === 'remind') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
   if (ev.type === 'logout') return what + ` — <b class="num">${ev.mins < 1 ? '&lt;1' : ev.mins} min</b>` + (ev.tests ? ` · ${ev.tests} ${esc(t('quizzes').toLowerCase())}` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
   return what + (ev.score !== undefined ? ` — <b class="num">${ev.score}%</b> (${ev.correct}/${ev.total})` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
 }
@@ -982,8 +985,8 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${coachParentCard()}${scopeEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main);
+  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${coachParentCard()}${scopeEditor(subjects)}${testsEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireTestsEditor(main, subjects); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
@@ -1062,6 +1065,8 @@ function examWhen(x) {
 
 /* ---------- daily study plan (replaces the old mission) ---------- */
 function planWhy(kid, sid) {
+  const tt = schedItems(kid.id).find(e => e.kind === 'test' && e.subj === sid && inStudyWindow(e));
+  if (tt) return tf('rePlanWhy', { n: tt.days });
   const x = examList().find(e => e.s.id === sid);
   if (x && x.days !== null && x.days >= 0 && x.days <= 21) return `${t('exam1')} ${t('exIn')} ${x.days} ${t('days')}`;
   if (focusSubjects(kid, subjectsOfGrade(7)).some(f => f.s.id === sid)) return t('focusShort');
@@ -1070,7 +1075,8 @@ function planWhy(kid, sid) {
 function studyPlan(kid) {
   const subjects = subjectsOfGrade(7), td = today(), cur = curTerm();
   const ex = examList().filter(x => x.days === null || x.days >= 0);
-  const near = ex.filter(x => x.days !== null && x.days <= 21).map(x => x.s.id);
+  const tests = schedItems(kid.id).filter(x => x.kind === 'test' && inStudyWindow(x));
+  const near = tests.map(x => x.subj).concat(ex.filter(x => x.days !== null && x.days <= 21).map(x => x.s.id));
   const focus = focusSubjects(kid, subjects).map(f => f.s.id);
   const rnd = seeded(td + kid.id);
   const order = [...near, ...focus, ...sshuffle(ex.map(x => x.s.id), rnd)].filter((v, i, a) => a.indexOf(v) === i);
@@ -1079,7 +1085,8 @@ function studyPlan(kid) {
   for (const sid of order) {
     if (plan.length >= 3) break;
     const s = S.content.subjects[sid];
-    const c = scopeOf(s).topics.map(id => { const f = findTopic(id); return { s, tp: f.tp, term: f.term, pct: topicPct(kid, id), st: topicStatus(kid, id), r: rnd() }; })
+    const tp = tests.find(x => x.subj === sid && x.topics && x.topics.length);
+    const c = (tp ? tp.topics : scopeOf(s).topics).filter(id => findTopic(id)).map(id => { const f = findTopic(id); return { s, tp: f.tp, term: f.term, pct: topicPct(kid, id), st: topicStatus(kid, id), r: rnd() }; })
       .filter(x => !used.has(x.tp.id) && x.st !== 'master')
       .sort((a, b) => (rank[a.st] - rank[b.st]) || ((b.term === cur) - (a.term === cur)) || (a.pct - b.pct) || (a.r - b.r))[0];
     if (c) { used.add(c.tp.id); plan.push(c); }
@@ -1087,7 +1094,7 @@ function studyPlan(kid) {
   return plan;
 }
 function dailyPlan(kid) {
-  const d = today(), sig = curTerm() + ':' + JSON.stringify((S.settings || {}).exams || {}).length;
+  const d = today(), sig = curTerm() + ':' + JSON.stringify((S.settings || {}).exams || {}).length + ':' + JSON.stringify((S.settings || {}).tests || []).length;
   let items = null;
   if (kid.plan && kid.plan.d === d && kid.plan.sig === sig) items = kid.plan.ids.map(id => findTopic(id)).filter(Boolean).map(f => ({ s: f.subj, tp: f.tp, term: f.term }));
   if (!items || !items.length) { items = studyPlan(kid); kid.plan = { d, sig, ids: items.map(x => x.tp.id) }; S.store.saveKid(kid).catch(() => {}); }
@@ -1098,7 +1105,7 @@ function dailyPlan(kid) {
 function renderExams(main) {
   const kid = S.kid, list = examList();
   main.innerHTML = `<h1>🎯 ${esc(t('exT'))}</h1><p class="muted" style="margin:4px 0 6px;max-width:70ch">${esc(t('exSub'))}</p>
-  <div class="row" style="gap:6px;margin-bottom:14px"><span class="chip hi">📅 ${esc(t('termNow'))} ${curTerm()}${curTerm() === 4 ? ' · ' + esc(t('finalTerm')) : ''}</span><button class="btn sm" data-go="foute">❌ ${esc(t('mistakesT'))} <span class="chip bad num">${mistakeCount(kid)}</span></button></div>
+  <div class="row" style="gap:6px;margin-bottom:14px"><span class="chip hi">📅 ${esc(t('termNow'))} ${curTerm()}${curTerm() === 4 ? ' · ' + esc(t('finalTerm')) : ''}</span><button class="btn sm" data-go="foute">❌ ${esc(t('mistakesT'))} <span class="chip bad num">${mistakeCount(kid)}</span></button><button class="btn sm hi" data-go="rooster">📅 ${esc(t('roT'))}</button></div>
   ${list.some(x => x.sc.provisional) ? `<div class="banner" style="margin-bottom:14px">⏳ ${esc(t('provisionalHint'))}</div>` : ''}
   <div class="stack">${list.map(x => {
     const s = x.s, sc = x.sc, pct = scopePct(kid, s, sc), rd = scopeReady(kid, sc), paper = (s.practiceExams || [])[0];
@@ -1880,6 +1887,7 @@ async function wireNotifyCard(root) {
   if (sub && keyB64u(sub.options && sub.options.applicationServerKey) !== info.publicKey) sub = null;
   if (sub && Notification.permission === 'granted') {
     try { localStorage.setItem('lh.parentDevice', '1'); } catch (e) {}
+    const tag = parentMe() || 'parent'; if (lsGet('lh.pushWho', '') !== tag) pushCall('subscribe', { sub: sub.toJSON(), key: info.publicKey, who: tag }).then(() => lsSet('lh.pushWho', tag)).catch(() => {});
     here.innerHTML = `<div class="row" style="gap:8px;align-items:center"><span class="chip good">✅ ${esc(t('pushIsOn'))}</span><button class="btn sm primary" id="pushTest">🔔 ${esc(t('pushTest'))}</button><button class="btn sm" id="pushOff">${esc(t('pushOff'))}</button></div><p class="small muted" style="margin:8px 0 0">${esc(t('pushParentNote'))}</p>`;
     $('#pushTest', here).onclick = async (e) => { e.target.disabled = true; try { const r = await pushCall('send', { title: 'Leerhoek ✅', body: t('ntfyTestMsg'), tag: 'test' }); toast(t('pushSent').replace('{n}', r.sent)); } catch (err) { toast(t('pushFail') + ': ' + err.message); } e.target.disabled = false; };
     $('#pushOff', here).onclick = async (e) => {
@@ -1901,7 +1909,7 @@ async function wireNotifyCard(root) {
       if (s && keyB64u(s.options && s.options.applicationServerKey) !== info.publicKey) { await s.unsubscribe().catch(() => {}); s = null; }
       if (!s) s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8key(info.publicKey) });
       const label = ($('#pushLabel', here).value || devLabel()).trim().slice(0, 30);
-      const r = await pushCall('subscribe', { sub: s.toJSON(), label, key: info.publicKey });
+      const r = await pushCall('subscribe', { sub: s.toJSON(), label, key: info.publicKey, who: parentMe() || 'parent' });
       try { localStorage.setItem('lh.parentDevice', '1'); } catch (x) {}
       await syncFlag(r.devices); showDevs(r.devices);
       pushCall('send', { title: 'Leerhoek ✅', body: t('pushWelcome').replace('{d}', label), tag: 'test' }).catch(() => {});
@@ -2269,6 +2277,253 @@ const CHESS = (() => {
   return { START, start, parseFEN, toFEN, sqName, colorOf, other, isKing, attacked, inCheck, legal, apply, pass, status, perft, bestMove, evaluate, insufficient };
 })();
 
+/* ---------- Vraag-speletjies: rules + small engines for Dambord, Vier-op-'n-ry, Seeslag, Slange & Lere ----------
+   Every engine: init(cfg) → state, turn(st) → 'w'|'b', moves(st) → [move], apply(st, move) → { st, info } | null,
+   pass(st) → st (a wrong answer), status(st, info) → { over, winner, res }, ai(st, level, rnd) → move. */
+const ENGINES = (() => {
+  const other = (c) => c === 'w' ? 'b' : 'w';
+  const rndInt = (rnd, n) => Math.floor(rnd() * n);
+  const shuf = (a, rnd) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rndInt(rnd, i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  function seedRnd(str) { let h = 1779033703 ^ String(str).length; for (let i = 0; i < String(str).length; i++) { h = Math.imul(h ^ String(str).charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); } let a = h >>> 0; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+
+  /* ===== Dambord (English draughts, 8×8): forced capture, multi-jumps, men capture forward only, kings one step any way ===== */
+  const CK = (() => {
+    const isW = (p) => p === 'w' || p === 'W', isKing = (p) => p === 'W' || p === 'B';
+    const colorOf = (p) => !p ? null : isW(p) ? 'w' : 'b';
+    function init() {
+      const b = Array(64).fill(null);
+      for (let s = 0; s < 64; s++) { const r = s >> 3, f = s & 7; if ((r + f) % 2 !== 1) continue; if (r <= 2) b[s] = 'b'; else if (r >= 5) b[s] = 'w'; }
+      return { b, t: 'w', quiet: 0 };
+    }
+    const dirsOf = (p) => isKing(p) ? [[-1, -1], [-1, 1], [1, -1], [1, 1]] : isW(p) ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+    const crowns = (p, r) => (p === 'w' && r === 0) || (p === 'b' && r === 7);
+    function jumps(b, s, p, path, caps, out) {
+      const r = s >> 3, f = s & 7; let found = false;
+      for (const [dr, df] of dirsOf(p)) {
+        const mr = r + dr, mf = f + df, lr = r + 2 * dr, lf = f + 2 * df;
+        if (lr < 0 || lr > 7 || lf < 0 || lf > 7) continue;
+        const mid = mr * 8 + mf, land = lr * 8 + lf;
+        if (!b[mid] || colorOf(b[mid]) === colorOf(p) || caps.includes(mid) || b[land]) continue;
+        found = true;
+        const np = path.concat([land]), nc = caps.concat([mid]);
+        if (!isKing(p) && crowns(p, lr)) { out.push({ path: np, caps: nc }); continue; } // crowning ends the move
+        const b2 = b.slice(); b2[s] = null; b2[land] = p;
+        jumps(b2, land, p, np, nc, out);
+      }
+      if (!found && path.length) out.push({ path, caps });
+    }
+    function moves(st) {
+      const b = st.b, caps = [], quiet = [];
+      for (let s = 0; s < 64; s++) {
+        const p = b[s]; if (!p || colorOf(p) !== st.t) continue;
+        const seqs = []; jumps(b, s, p, [], [], seqs);
+        seqs.forEach(q => caps.push({ f: s, to: q.path[q.path.length - 1], p: q.path, caps: q.caps }));
+        if (caps.length) continue;
+        const r = s >> 3, f = s & 7;
+        for (const [dr, df] of dirsOf(p)) { const nr = r + dr, nf = f + df; if (nr < 0 || nr > 7 || nf < 0 || nf > 7) continue; const to = nr * 8 + nf; if (!b[to]) quiet.push({ f: s, to, p: [to], caps: [] }); }
+      }
+      return caps.length ? caps : quiet;
+    }
+    function applyMove(st, m) {
+      const b = st.b.slice(), p = b[m.f]; b[m.f] = null; m.caps.forEach(c => { b[c] = null; });
+      const r = m.to >> 3; let np = p; if (!isKing(p) && crowns(p, r)) np = p.toUpperCase();
+      b[m.to] = np;
+      return { b, t: other(st.t), quiet: m.caps.length || np !== p ? 0 : st.quiet + 1 };
+    }
+    function apply(st, e) {
+      const ms = moves(st);
+      const m = ms.find(x => x.f === e.f && x.to === e.to && (!e.p || JSON.stringify(x.p) === JSON.stringify(e.p))) || null;
+      if (!m) return null;
+      return { st: applyMove(st, m), info: { m, piece: st.b[m.f], crowned: !isKing(st.b[m.f]) && crowns(st.b[m.f], m.to >> 3) } };
+    }
+    const pass = (st) => ({ b: st.b.slice(), t: other(st.t), quiet: st.quiet + 1 });
+    function status(st) {
+      const ms = moves(st);
+      if (!ms.length) return { over: true, res: st.b.some(p => colorOf(p) === st.t) ? 'blocked' : 'allgone', winner: other(st.t), moves: ms };
+      if (st.quiet >= 80) return { over: true, res: 'quiet', winner: null, moves: ms };
+      return { over: false, moves: ms, mustTake: ms.some(m => m.caps.length) };
+    }
+    function evaluate(st) {
+      let s = 0;
+      st.b.forEach((p, i) => { if (!p) return; const r = i >> 3, f = i & 7; let v = isKing(p) ? 165 : 100; if (!isKing(p)) v += (isW(p) ? (7 - r) : r) * 4; if (f >= 2 && f <= 5 && r >= 2 && r <= 5) v += 6; if (!isKing(p) && ((isW(p) && r === 7) || (!isW(p) && r === 0))) v += 8; s += isW(p) ? v : -v; });
+      return st.t === 'w' ? s : -s;
+    }
+    function negamax(st, d, a, z, ctx) {
+      ctx.n++;
+      const ms = moves(st);
+      if (!ms.length) return -100000 + ctx.ply;
+      if (d <= 0 && !ms[0].caps.length) return evaluate(st);
+      if (d <= -4 || ctx.n > ctx.max) return evaluate(st);
+      let best = -Infinity;
+      ms.sort((x, y) => y.caps.length - x.caps.length);
+      for (const m of ms) { ctx.ply++; const v = -negamax(applyMove(st, m), d - 1, -z, -a, ctx); ctx.ply--; if (v > best) best = v; if (v > a) a = v; if (a >= z) break; }
+      return best;
+    }
+    const LV = { easy: { d: 1, noise: 60, rand: 0.3, max: 8000 }, med: { d: 3, noise: 15, rand: 0.05, max: 40000 }, hard: { d: 6, noise: 3, rand: 0, max: 120000 } };
+    function ai(st, level, rnd) {
+      rnd = rnd || Math.random; const cfg = LV[level] || LV.med; const ms = shuf(moves(st), rnd);
+      if (!ms.length) return null;
+      if (rnd() < cfg.rand) return ms[0];
+      let best = ms[0], bs = -Infinity; const ctx = { n: 0, ply: 1, max: cfg.max };
+      for (const m of ms) { const v = -negamax(applyMove(st, m), cfg.d - 1, -Infinity, Infinity, ctx) + (rnd() * 2 - 1) * cfg.noise; if (v > bs) { bs = v; best = m; } }
+      return best;
+    }
+    function perft(st, d) { if (!d) return 1; let n = 0; for (const m of moves(st)) n += perft(applyMove(st, m), d - 1); return n; }
+    return { init, moves, apply, applyMove, pass, status, ai, perft, turn: (st) => st.t, isKing, colorOf };
+  })();
+
+  /* ===== Vier-op-'n-ry (Connect Four, 7 columns × 6 rows) ===== */
+  const C4 = (() => {
+    const W = 7, H = 6;
+    const init = () => ({ g: Array(W * H).fill(null), t: 'w', n: 0, last: -1 });
+    const moves = (st) => { const out = []; for (let c = 0; c < W; c++) if (!st.g[c]) out.push({ c }); return out; };
+    function drop(g, c, t) { for (let r = H - 1; r >= 0; r--) { const i = r * W + c; if (!g[i]) { const g2 = g.slice(); g2[i] = t; return { g: g2, i }; } } return null; }
+    function apply(st, e) { if (!(e.c >= 0 && e.c < W)) return null; const d = drop(st.g, e.c, st.t); if (!d) return null; return { st: { g: d.g, t: other(st.t), n: st.n + 1, last: d.i }, info: { c: e.c, i: d.i } }; }
+    const pass = (st) => ({ g: st.g, t: other(st.t), n: st.n, last: st.last });
+    function lineAt(g, i) {
+      const p = g[i]; if (!p) return null; const r = Math.floor(i / W), c = i % W;
+      for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+        const cells = [i];
+        for (const s of [1, -1]) { let rr = r + dr * s, cc = c + dc * s; while (rr >= 0 && rr < H && cc >= 0 && cc < W && g[rr * W + cc] === p) { cells.push(rr * W + cc); rr += dr * s; cc += dc * s; } }
+        if (cells.length >= 4) return cells;
+      }
+      return null;
+    }
+    function status(st) {
+      if (st.last >= 0) { const l = lineAt(st.g, st.last); if (l) return { over: true, res: 'four', winner: st.g[st.last], line: l }; }
+      if (st.g.every(x => x)) return { over: true, res: 'full', winner: null };
+      return { over: false, moves: moves(st) };
+    }
+    function scoreWindow(w, me) { const m = w.filter(x => x === me).length, o = w.filter(x => x && x !== me).length; if (m && o) return 0; if (m === 4) return 1000; if (m === 3) return 6; if (m === 2) return 2; if (o === 3) return -8; if (o === 2) return -2; return 0; }
+    function evaluate(g, me) {
+      let s = 0;
+      for (let r = 0; r < H; r++) if (g[r * W + 3] === me) s += 4; else if (g[r * W + 3]) s -= 4;
+      for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+        const er = r + 3 * dr, ec = c + 3 * dc; if (er < 0 || er >= H || ec < 0 || ec >= W) continue;
+        s += scoreWindow([0, 1, 2, 3].map(k => g[(r + k * dr) * W + c + k * dc]), me);
+      }
+      return s;
+    }
+    const ORDER = [3, 2, 4, 1, 5, 0, 6];
+    function negamax(g, t, d, a, z, last, ctx) {
+      ctx.n++;
+      if (last >= 0 && lineAt(g, last)) return -(100000 + d); // the previous mover just won
+      if (g.every(x => x)) return 0;
+      if (d === 0 || ctx.n > ctx.max) return evaluate(g, t);
+      let best = -Infinity;
+      for (const c of ORDER) { const dd = drop(g, c, t); if (!dd) continue; const v = -negamax(dd.g, other(t), d - 1, -z, -a, dd.i, ctx); if (v > best) best = v; if (v > a) a = v; if (a >= z) break; }
+      return best;
+    }
+    const LV = { easy: { d: 2, noise: 40, rand: 0.3 }, med: { d: 4, noise: 6, rand: 0.05 }, hard: { d: 7, noise: 1, rand: 0 } };
+    function ai(st, level, rnd) {
+      rnd = rnd || Math.random; const cfg = LV[level] || LV.med; const ms = moves(st); if (!ms.length) return null;
+      if (rnd() < cfg.rand) return ms[rndInt(rnd, ms.length)];
+      let best = ms[0], bs = -Infinity; const ctx = { n: 0, max: 400000 };
+      for (const c of shuf(ORDER, rnd).sort((x, y) => Math.abs(3 - x) - Math.abs(3 - y))) {
+        const dd = drop(st.g, c, st.t); if (!dd) continue;
+        const v = -negamax(dd.g, other(st.t), cfg.d - 1, -Infinity, Infinity, dd.i, ctx) + (rnd() * 2 - 1) * cfg.noise;
+        if (v > bs) { bs = v; best = { c }; }
+      }
+      return best;
+    }
+    return { W, H, init, moves, apply, pass, status, ai, turn: (st) => st.t, lineAt };
+  })();
+
+  /* ===== Seeslag (Battleship, 8×8, ships 4-3-3-2-2, one shot per turn) ===== */
+  const SH = (() => {
+    const N = 8, SIZES = [4, 3, 3, 2, 2];
+    function fleet(rnd) {
+      for (let tries = 0; tries < 500; tries++) {
+        const taken = new Set(), near = new Set(), ships = []; let ok = true;
+        for (const n of SIZES) {
+          let placed = false;
+          for (let k = 0; k < 200 && !placed; k++) {
+            const hz = rnd() < 0.5, r = rndInt(rnd, hz ? N : N - n + 1), c = rndInt(rnd, hz ? N - n + 1 : N);
+            const cells = Array.from({ length: n }, (_, j) => hz ? r * N + c + j : (r + j) * N + c);
+            if (cells.some(x => near.has(x))) continue;
+            cells.forEach(x => { taken.add(x); const xr = Math.floor(x / N), xc = x % N; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const rr = xr + dr, cc = xc + dc; if (rr >= 0 && rr < N && cc >= 0 && cc < N) near.add(rr * N + cc); } });
+            ships.push({ n, cells }); placed = true;
+          }
+          if (!placed) { ok = false; break; }
+        }
+        if (ok) return ships;
+      }
+      return null;
+    }
+    function init(cfg) { const rnd = seedRnd('ships:' + (cfg.seed || cfg.id || 'x')); return { fleet: { w: fleet(rnd), b: fleet(rnd) }, shots: { w: [], b: [] }, t: 'w' }; }
+    const enemy = (c) => other(c);
+    const moves = (st) => { const shot = new Set(st.shots[st.t]); const out = []; for (let i = 0; i < N * N; i++) if (!shot.has(i)) out.push({ to: i }); return out; };
+    const shipAt = (ships, i) => ships.find(s => s.cells.includes(i)) || null;
+    const sunk = (ship, shots) => ship.cells.every(x => shots.includes(x));
+    function apply(st, e) {
+      const i = e.to; if (!(i >= 0 && i < N * N) || st.shots[st.t].includes(i)) return null;
+      const shots = { w: st.shots.w.slice(), b: st.shots.b.slice() }; shots[st.t].push(i);
+      const ship = shipAt(st.fleet[enemy(st.t)], i);
+      return { st: { fleet: st.fleet, shots, t: other(st.t) }, info: { to: i, hit: !!ship, sunk: ship && sunk(ship, shots[st.t]) ? ship.n : 0 } };
+    }
+    const pass = (st) => ({ fleet: st.fleet, shots: st.shots, t: other(st.t) });
+    const shipsLeft = (st, c) => st.fleet[c].filter(s => !sunk(s, st.shots[other(c)])).length;
+    function status(st) {
+      for (const c of ['w', 'b']) if (st.fleet[c].every(s => sunk(s, st.shots[other(c)]))) return { over: true, res: 'sunk', winner: other(c) };
+      return { over: false, moves: moves(st) };
+    }
+    function ai(st, level, rnd) {
+      rnd = rnd || Math.random; const me = st.t, shots = st.shots[me], foe = st.fleet[other(me)];
+      const free = moves(st).map(m => m.to); if (!free.length) return null;
+      if (level === 'easy') return { to: free[rndInt(rnd, free.length)] };
+      // hits on ships that are not sunk yet → target mode
+      const hits = shots.filter(i => { const s = shipAt(foe, i); return s && !sunk(s, shots); });
+      const nb = (i) => { const r = Math.floor(i / N), c = i % N; return [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].filter(([a, z]) => a >= 0 && a < N && z >= 0 && z < N).map(([a, z]) => a * N + z); };
+      if (hits.length) {
+        let cand = [];
+        if (hits.length >= 2) { // continue in the line of the hits
+          const rs = new Set(hits.map(i => Math.floor(i / N))), cs = new Set(hits.map(i => i % N));
+          if (rs.size === 1) { const r = [...rs][0], cols = hits.map(i => i % N); cand = [Math.min(...cols) - 1, Math.max(...cols) + 1].filter(c => c >= 0 && c < N).map(c => r * N + c); }
+          else if (cs.size === 1) { const c = [...cs][0], rows = hits.map(i => Math.floor(i / N)); cand = [Math.min(...rows) - 1, Math.max(...rows) + 1].filter(r => r >= 0 && r < N).map(r => r * N + c); }
+        }
+        cand = cand.filter(i => free.includes(i));
+        if (!cand.length) cand = [...new Set(hits.flatMap(nb))].filter(i => free.includes(i));
+        if (cand.length) return { to: cand[rndInt(rnd, cand.length)] };
+      }
+      if (level === 'hard') { // where can the remaining ships still fit? shoot the most likely cell
+        const left = foe.filter(s => !sunk(s, shots)).map(s => s.n), heat = Array(N * N).fill(0), miss = new Set(shots);
+        const blocked = (i) => miss.has(i);
+        for (const n of left) for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) for (const hz of [true, false]) {
+          if (hz ? c + n > N : r + n > N) continue; const cells = Array.from({ length: n }, (_, j) => hz ? r * N + c + j : (r + j) * N + c);
+          if (cells.some(blocked)) continue; cells.forEach(x => heat[x]++);
+        }
+        let best = -1, bi = free[0]; free.forEach(i => { const v = heat[i] + rnd() * 0.5; if (v > best) { best = v; bi = i; } });
+        return { to: bi };
+      }
+      const par = free.filter(i => (Math.floor(i / N) + i % N) % 2 === 0); // medium: checkerboard hunt
+      const pool = par.length ? par : free; return { to: pool[rndInt(rnd, pool.length)] };
+    }
+    return { N, SIZES, init, moves, apply, pass, status, ai, turn: (st) => st.t, shipAt, sunk, shipsLeft, fleet };
+  })();
+
+  /* ===== Slange & Lere (snakes and ladders, 1–100, bounce back from 100) ===== */
+  const SL = (() => {
+    const LADDERS = { 1: 38, 4: 14, 9: 31, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 80: 100 };
+    const SNAKES = { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 64: 60, 87: 24, 93: 73, 95: 75, 98: 78 };
+    const init = () => ({ pos: { w: 0, b: 0 }, t: 'w' });
+    const moves = () => [{ roll: 0 }];
+    function apply(st, e) {
+      const roll = e.roll; if (!(roll >= 1 && roll <= 6 && Math.floor(roll) === roll)) return null;
+      const from = st.pos[st.t]; let mid = from + roll; if (mid > 100) mid = 100 - (mid - 100);
+      let to = mid, kind = null; if (LADDERS[mid]) { to = LADDERS[mid]; kind = 'ladder'; } else if (SNAKES[mid]) { to = SNAKES[mid]; kind = 'snake'; }
+      const pos = Object.assign({}, st.pos); pos[st.t] = to;
+      return { st: { pos, t: other(st.t) }, info: { roll, from, mid, to, kind, c: st.t } };
+    }
+    const pass = (st) => ({ pos: st.pos, t: other(st.t) });
+    function status(st) { for (const c of ['w', 'b']) if (st.pos[c] === 100) return { over: true, res: 'finish', winner: c }; return { over: false, moves: moves() }; }
+    const ai = (st, level, rnd) => ({ roll: 1 + rndInt(rnd || Math.random, 6) });
+    const AIMISS = { easy: 0.45, med: 0.3, hard: 0.15 }; // the app "answers" too: how often it misses
+    function cell(n) { const row = Math.floor((n - 1) / 10), k = (n - 1) % 10, col = row % 2 === 0 ? k : 9 - k; return { x: col * 10 + 5, y: (9 - row) * 10 + 5, row, col }; }
+    return { LADDERS, SNAKES, init, moves, apply, pass, status, ai, AIMISS, cell, turn: (st) => st.t };
+  })();
+  return { CK, C4, SH, SL, seedRnd };
+})();
+
 /* ================================================================== v7: Vraag-skaak (question chess) + Familie-klets (family chat)
    Chess: tap a piece, tap a square → a question pops up with a countdown. Right = the move is made; wrong or too slow = the turn passes.
    Modes: against the app (3 levels), family online (each on own phone, synced through Supabase kv), or two players on one phone.
@@ -2398,12 +2653,76 @@ function lhAfterUnlock() {
   return false;
 }
 
-/* ---------- game state from the event log ---------- */
+
+/* ================================================================== v8: Vraag-speletjies (5 games), notifications for the boys, study schedule */
+Object.assign(UI.af, {
+  qgT: 'Vraag-speletjies', qgSub: 'Elke skuif kos ’n vraag! Antwoord reg en binne die tyd, anders is jou beurt verby. Kies ’n speletjie – party is slim-speletjies, ander is meer geluk.',
+  qgHow: ['Kies ’n speletjie en teen wie jy speel: die app, iemand in die familie (elkeen op sy eie foon) of op dieselfde foon.', 'Wanneer jy ’n skuif maak, spring ’n vraag op – antwoord voordat die tyd op is.', 'Reg ✅ – jou skuif word gemaak. Verkeerd of te stadig ❌ – jou skuif tel nie en dit is die ander speler se beurt.', 'Skaak: staan jy skaak en antwoord jy verkeerd, mag die ander speler jou koning vang!', 'Slange & Lere is net geluk – die app moet daar ook “antwoord”, en op Maklik mis hy die meeste.', 'Elke spel verdien XP, en verkeerde antwoorde gaan in jou foute-boek.'],
+  qgWhich: 'Watter speletjie?',
+  qgN: { chess: 'Skaak', checkers: 'Dambord', four: 'Vier-op-’n-ry', ships: 'Seeslag', snakes: 'Slange & Lere' },
+  qgD: { chess: 'Die koning van slim-speletjies', checkers: 'Spring oor en vang', four: 'Kry vier in ’n ry', ships: 'Soek en sink die vloot', snakes: 'Geluk met die dobbelsteen' },
+  qgCard: ['Vraag-speletjies', 'Skaak, Dambord, Vier-op-’n-ry, Seeslag en Slange & Lere – elke skuif kos ’n vraag!'],
+  qgChallenges: '{n} daag jou uit vir {g}!', qgWho1: 'Wie begin?', qgMeFirst: '🥇 Ek begin', qgThemFirst: '🥈 Hulle begin', qgRed: 'Rooi', qgYellow: 'Geel',
+  qgAppSmart: 'Hoe slim is die app?', qgAppSmartHint: 'Die app moet ook “antwoord”: op Maklik mis hy die meeste vrae.', qgAppMissed: '🤖 Die app het sy vraag gemis!',
+  qgTapCol: 'Tik op ’n kolom – tik weer om jou skyf te laat val', qgTapCol2: 'Tik weer op die kolom om te laat val (of kies ’n ander een)',
+  qgTapCell: 'Kies ’n blokkie in {n} se see – tik weer om te skiet', qgTapCell2: 'Tik weer op die 🎯 om te skiet (of kies ’n ander blokkie)',
+  qgTapDice: 'Tik op die dobbelsteen om te gooi', qgRoll: 'Gooi', qgMustTake: 'Jy móét vang – kies een van die stukke wat gloei.',
+  qgEnemySea: '{n} se see', qgMyFleet: 'Jou vloot', qgFleetOf: '{n} se vloot', qgShipsLeft: 'skepe oor', qgSquare: 'blokkie', qgPieces: 'stukke', qgKings: 'konings', qgCol: 'kolom',
+  qgShoot: 'Skiet op {c}', qgDrop: 'Laat val in kolom {c}', qgRollQ: 'Gooi die dobbelsteen', qgHit: '💥 Treffer!', qgMiss: '🌊 Mis', qgSunk: '🚢 Gesink!', qgLadder: '🪜 Leer op!', qgSnake: '🐍 Slang af!', qgJump: '✖ {n} gevang', qgCrown: '👑 Koning!',
+  qgResRec: '{w} gewen · {l} verloor · {d} gelykop',
+  qgPickGame: 'Kies eers ’n speletjie',
+  /* notifications for the boys */
+  kpT: '🔔 Kennisgewings op my foon', kpSub: 'Kry ’n boodskap as iemand jou uitdaag, as dit jou beurt is, as iemand in die klets skryf – en jou leer-herinneringe.', kpOn: 'Skakel aan', kpIsOn: 'Kennisgewings is aan op hierdie foon', kpOff: 'Skakel af', kpTest: 'Toets', kpTestMsg: 'Dit werk! Jy sal nou kennisgewings van Leerhoek kry. 🎉', kpIos: 'Op ’n iPhone werk kennisgewings net as jy Leerhoek oopmaak vanaf die ikoon op jou tuisskerm (iOS 16.4 of nuwer).', kpDenied: 'Kennisgewings is afgeskakel in jou foon se instellings. Skakel dit aan by Instellings → Leerhoek → Kennisgewings.', kpNo: 'Hierdie blaaier ondersteun nie kennisgewings nie.', kpLater: 'Later',
+  /* study schedule */
+  roT: 'My rooster', roSub: 'Watter toetse en eksamens kom, en wat jy vandag moet leer.', roToday: 'Vandag leer', roNothing: 'Niks dringends vandag nie – doen jou daaglikse plan of speel ’n vraag-speletjie! 🎮', roNext: 'Wat kom', roNone: 'Nog geen toetse of eksamens op die rooster nie. Pa of Ma sit dit by in die ouerpaneel.', roTest: 'Toets', roExam: 'Eksamen', roStart: 'Begin leer', roStarted: 'Leer nou!', roIn: 'oor {n} dae', roTomorrow: 'môre', roToday2: 'vandag', roOpen: 'Leer ▶', roHome: 'Volgende', roPlan: 'Vandag se plan', roLast: 'Laaste hersiening vanaand!',
+  teT: '📝 Toetse, rooster & herinneringe', teSub: 'Sit die seuns se toetse hier by (die eksamenrooster is in die afbakening hierbo). Die seuns sien dit in “My rooster” en kry herinneringe op hul fone.', teFor: 'Vir', teBoth: 'Albei', teSubj: 'Vak', teDate: 'Datum', teWhat: 'Wat (bv. Hfst 3 toets)', teAdd: '➕ Voeg toets by', teNone: 'Nog geen toetse nie.', teDel: 'Verwyder',
+  reT: '⏰ Herinneringe', reOn: 'Stuur leer-herinneringe na die seuns se fone', reStudy: 'Leer-herinnering (skooldae)', reWeekend: 'Naweek', reEvening: 'Aand voor ’n toets', reMorning: 'Oggend van die toets', reTestDays: 'Begin leer vir ’n toets … dae voor', reExamDays: 'Begin leer vir ’n eksamen … dae voor', reParents: 'Stuur ’n kopie aan Pa en Ma', reSaved: 'Herinneringe gestoor',
+  rePlanWhy: 'toets oor {n} dae',
+});
+Object.assign(UI.en, {
+  qgT: 'Question games', qgSub: 'Every move costs a question! Answer correctly and in time, or your turn is over. Pick a game – some are thinking games, others are more luck.',
+  qgHow: ['Choose a game and who you play: the app, someone in the family (each on their own phone) or on the same phone.', 'When you make a move, a question pops up – answer before the time runs out.', 'Right ✅ – your move is made. Wrong or too slow ❌ – your move doesn’t count and it’s the other player’s turn.', 'Chess: if you are in check and answer wrong, the other player may capture your king!', 'Snakes & Ladders is pure luck – the app has to “answer” too, and on Easy it misses the most.', 'Every game earns XP, and wrong answers go into your mistakes book.'],
+  qgWhich: 'Which game?',
+  qgN: { chess: 'Chess', checkers: 'Checkers', four: 'Four in a row', ships: 'Battleships', snakes: 'Snakes & Ladders' },
+  qgD: { chess: 'The king of thinking games', checkers: 'Jump over and capture', four: 'Get four in a row', ships: 'Find and sink the fleet', snakes: 'Luck with the dice' },
+  qgCard: ['Question games', 'Chess, Checkers, Four in a row, Battleships and Snakes & Ladders – every move costs a question!'],
+  qgChallenges: '{n} challenges you to {g}!', qgWho1: 'Who starts?', qgMeFirst: '🥇 I start', qgThemFirst: '🥈 They start', qgRed: 'Red', qgYellow: 'Yellow',
+  qgAppSmart: 'How smart is the app?', qgAppSmartHint: 'The app has to “answer” too: on Easy it misses the most questions.', qgAppMissed: '🤖 The app missed its question!',
+  qgTapCol: 'Tap a column – tap again to drop your disc', qgTapCol2: 'Tap the column again to drop (or pick another one)',
+  qgTapCell: 'Pick a square in {n}’s sea – tap again to fire', qgTapCell2: 'Tap the 🎯 again to fire (or pick another square)',
+  qgTapDice: 'Tap the dice to roll', qgRoll: 'Roll', qgMustTake: 'You must capture – pick one of the glowing pieces.',
+  qgEnemySea: '{n}’s sea', qgMyFleet: 'Your fleet', qgFleetOf: '{n}’s fleet', qgShipsLeft: 'ships left', qgSquare: 'square', qgPieces: 'pieces', qgKings: 'kings', qgCol: 'column',
+  qgShoot: 'Fire at {c}', qgDrop: 'Drop in column {c}', qgRollQ: 'Roll the dice', qgHit: '💥 Hit!', qgMiss: '🌊 Miss', qgSunk: '🚢 Sunk!', qgLadder: '🪜 Up the ladder!', qgSnake: '🐍 Down the snake!', qgJump: '✖ {n} captured', qgCrown: '👑 King!',
+  qgResRec: '{w} won · {l} lost · {d} drawn',
+  qgPickGame: 'Choose a game first',
+  kpT: '🔔 Notifications on my phone', kpSub: 'Get a message when someone challenges you, when it’s your turn, when someone writes in the chat – and your study reminders.', kpOn: 'Turn on', kpIsOn: 'Notifications are on for this phone', kpOff: 'Turn off', kpTest: 'Test', kpTestMsg: 'It works! You will now get notifications from Leerhoek. 🎉', kpIos: 'On an iPhone notifications only work when you open Leerhoek from the icon on your home screen (iOS 16.4 or newer).', kpDenied: 'Notifications are switched off in your phone’s settings. Turn them on at Settings → Leerhoek → Notifications.', kpNo: 'This browser does not support notifications.', kpLater: 'Later',
+  roT: 'My schedule', roSub: 'Which tests and exams are coming, and what to study today.', roToday: 'Study today', roNothing: 'Nothing urgent today – do your daily plan or play a question game! 🎮', roNext: 'Coming up', roNone: 'No tests or exams on the schedule yet. Mom or Dad adds them in the parent panel.', roTest: 'Test', roExam: 'Exam', roStart: 'Start studying', roStarted: 'Study now!', roIn: 'in {n} days', roTomorrow: 'tomorrow', roToday2: 'today', roOpen: 'Study ▶', roHome: 'Next', roPlan: 'Today’s plan', roLast: 'Last revision tonight!',
+  teT: '📝 Tests, schedule & reminders', teSub: 'Add the boys’ tests here (the exam timetable is in the scope editor above). The boys see them in “My schedule” and get reminders on their phones.', teFor: 'For', teBoth: 'Both', teSubj: 'Subject', teDate: 'Date', teWhat: 'What (e.g. Ch 3 test)', teAdd: '➕ Add test', teNone: 'No tests yet.', teDel: 'Remove',
+  reT: '⏰ Reminders', reOn: 'Send study reminders to the boys’ phones', reStudy: 'Study reminder (school days)', reWeekend: 'Weekend', reEvening: 'Evening before a test', reMorning: 'Morning of the test', reTestDays: 'Start studying for a test … days before', reExamDays: 'Start studying for an exam … days before', reParents: 'Send a copy to Mom and Dad', reSaved: 'Reminders saved',
+  rePlanWhy: 'test in {n} days',
+});
+Object.assign(UI.af.chRes, { allgone: 'Al die stukke gevang', blocked: 'Kan nie meer skuif nie', quiet: '40 skuiwe sonder vang – gelykop', four: 'Vier op ’n ry!', full: 'Die bord is vol – gelykop', sunk: 'Die hele vloot gesink!', finish: 'Eerste op 100!' });
+Object.assign(UI.en.chRes, { allgone: 'All pieces captured', blocked: 'Cannot move any more', quiet: '40 moves without a capture – draw', four: 'Four in a row!', full: 'The board is full – draw', sunk: 'The whole fleet sunk!', finish: 'First to 100!' });
+UI.af.chatSys = { inv: '🎲 {a} het {b} uitgedaag vir {g}', acc: '🎲 {b} het aanvaar – {g} het begin!', win: '🏆 {a} het {g} teen {b} gewen ({r})', draw: '🤝 {a} en {b} het {g} gelykop gespeel ({r})' };
+UI.en.chatSys = { inv: '🎲 {a} challenged {b} to {g}', acc: '🎲 {b} accepted – {g} has started!', win: '🏆 {a} won {g} against {b} ({r})', draw: '🤝 {a} and {b} drew {g} ({r})' };
+Object.assign(UI.af, { chParentT: '🎲 Speletjies & 💬 Familie-klets', chParentSub: 'Speel Vraag-speletjies teen die seuns (of teen die app), en gesels saam in die familie-klets.', chPlay: '🎲 Speel', navChess: 'Speel', chatQuick: ['Hallo! 👋', 'Goeie skuif! 👏', 'Jou beurt! ⏰', 'Haha 😂', 'Kom speel ’n speletjie 🎲', 'Ek is besig met leer 📚', 'Lief vir julle ❤️'] });
+Object.assign(UI.en, { chParentT: '🎲 Games & 💬 Family chat', chParentSub: 'Play question games against the boys (or the app), and chat together in the family chat.', chPlay: '🎲 Play', navChess: 'Play', chatQuick: ['Hello! 👋', 'Good move! 👏', 'Your turn! ⏰', 'Haha 😂', 'Come play a game 🎲', 'Busy studying 📚', 'Love you all ❤️'] });
+UI.af.ev.remind = 'Leer-herinnering gestuur'; UI.en.ev.remind = 'Study reminder sent';
+
+/* ---------- Vraag-speletjies: shared game model ----------
+   One family game = an append-only event log (kv "chess/g/<id>" for every game type; the first event { t:'new', game } says which game).
+   Local games (app / same phone) live in localStorage "lh.chess.loc.<player>". */
 function pname(id, cfg, lang) { if (id === 'app') return (UI[lang || L].chApp); if (id === 'friend') return (cfg && cfg.fn) || UI[lang || L].chFriend; return famName(id, lang); }
 const pav = (id) => id === 'app' ? '🤖' : id === 'friend' ? '🙂' : famAv(id);
-function chessReplay(evs) {
+const gname = (g, lang) => (UI[lang || L].qgN || {})[g || 'chess'] || g;
+const GICON = { chess: '♟️', checkers: '⛀', four: '🔴', ships: '🚢', snakes: '🎲' };
+const GORDER = ['chess', 'checkers', 'four', 'ships', 'snakes'];
+const QG = {}; // game id → module (rules + board UI), filled below
+
+function qgReplay(evs) {
   const nw = (evs || []).find(e => e && e.t === 'new'); if (!nw) return null;
-  const R = { cfg: nw, pos: CHESS.start(), ply: 0, status: nw.kind === 'online' ? 'invite' : 'active', hist: [], stats: { w: { ok: 0, n: 0 }, b: { ok: 0, n: 0 } }, last: null, result: null, updated: nw.at || 0, n: 0 };
+  const G = QG[nw.game || 'chess']; if (!G) return null;
+  const R = { cfg: nw, G, game: G.id, st: G.init(nw), ply: 0, status: nw.kind === 'online' ? 'invite' : 'active', hist: [], stats: { w: { ok: 0, n: 0 }, b: { ok: 0, n: 0 } }, last: null, result: null, updated: nw.at || 0, n: 0, lastInfo: null };
   const who = (c) => c === 'w' ? nw.w : nw.b;
   const colorOf = (id) => id === nw.w ? 'w' : id === nw.b ? 'b' : null;
   const invitee = nw.by === nw.w ? nw.b : nw.w;
@@ -2418,33 +2737,35 @@ function chessReplay(evs) {
     }
     if (R.status !== 'active') continue;
     if (e.t === 'res') { const c = colorOf(e.by); if (!c) continue; R.status = 'over'; R.result = { res: 'res', winner: CHESS.other(c), by: e.by }; continue; }
-    if ((e.t !== 'mv' && e.t !== 'miss') || e.n !== R.ply || e.by !== who(R.pos.t)) continue;
-    const c = R.pos.t;
+    const c = G.turn(R.st);
+    if ((e.t !== 'mv' && e.t !== 'miss') || e.n !== R.ply || e.by !== who(c)) continue;
+    let info = null;
     if (e.t === 'mv') {
-      const m = CHESS.legal(R.pos).find(x => x.f === e.f && x.t === e.to && (x.pr || '') === (e.pr || ''));
-      if (!m) continue;
-      R.pos = CHESS.apply(R.pos, m); R.last = { f: m.f, t: m.t }; R.hist.push({ c, by: e.by, m, at: e.at });
+      const r = G.apply(R.st, e); if (!r) continue;
+      R.st = r.st; info = Object.assign({ c }, r.info); R.last = G.lastOf ? G.lastOf(info) : null;
+      R.hist.push({ c, by: e.by, e, info, at: e.at });
       if (e.q) { R.stats[c].n++; R.stats[c].ok++; }
-      R.ply++;
-      if (CHESS.isKing(m.x)) { R.status = 'over'; R.result = { res: 'kingx', winner: c }; continue; }
     } else {
-      R.pos = CHESS.pass(R.pos); R.hist.push({ c, by: e.by, miss: true, f: e.f, to: e.to, p: e.p, at: e.at }); R.stats[c].n++; R.ply++;
+      R.st = G.pass(R.st); R.hist.push({ c, by: e.by, e, miss: true, at: e.at }); R.stats[c].n++;
     }
-    const st = CHESS.status(R.pos);
-    if (st.over) { R.status = 'over'; R.result = { res: st.res, winner: st.winner || null }; }
+    R.ply++; R.lastInfo = info;
+    const st = G.status(R.st, info);
+    if (st.over) { R.status = 'over'; R.result = { res: st.res, winner: st.winner || null, line: st.line }; }
   }
-  R.st = R.status === 'active' ? CHESS.status(R.pos) : null;
-  R.toMove = R.status === 'active' ? who(R.pos.t) : null;
+  R.ms = R.status === 'active' ? G.status(R.st, R.lastInfo) : null;
+  R.cur = R.status === 'active' ? G.turn(R.st) : null;
+  R.toMove = R.cur ? who(R.cur) : null;
   R.colorOf = colorOf; R.who = who; R.invitee = invitee;
   return R;
 }
+const chessReplay = qgReplay; // older name, still used in a few places
 function resultText(R, lang) {
   const U = UI[lang || L], r = R.result; if (!r) return '';
   if (r.res === 'res') return tfa(U.chRes.res, { n: pname(r.by, R.cfg, lang) });
   return U.chRes[r.res] || r.res;
 }
 
-/* ---------- pieces + board ---------- */
+/* ---------- chess pieces ---------- */
 const PIECE_SHAPES = {
   p: '<path d="M22.5 9.5a4.6 4.6 0 0 0-3.4 7.7 6.3 6.3 0 0 0-2.6 5.1 6.2 6.2 0 0 0 2.4 4.9c-3.6 1.5-6.4 5.2-6.9 9.8h21c-.5-4.6-3.3-8.3-6.9-9.8a6.2 6.2 0 0 0 2.4-4.9 6.3 6.3 0 0 0-2.6-5.1 4.6 4.6 0 0 0-3.4-7.7z"/><rect x="10.5" y="36.5" width="24" height="3.5" rx="1.6"/>',
   r: '<path d="M11 9.5h4.2v3h4.4v-3h5.8v3h4.4v-3H34v6.2l-3.2 2.8v11l2.2 3.6H12l2.2-3.6v-11L11 15.7z"/><rect x="9.5" y="33.5" width="26" height="6.5" rx="1.8"/><path class="d" d="M14.2 18.5h16.6M14.2 29.5h16.6"/>',
@@ -2456,7 +2777,7 @@ const PIECE_SHAPES = {
 function pieceSvg(pc) { const w = pc === pc.toUpperCase(); return `<svg class="pc ${w ? 'w' : 'b'}" viewBox="0 0 45 45" aria-hidden="true">${PIECE_SHAPES[pc.toLowerCase()]}</svg>`; }
 const PIECE_NAMES = { af: { p: 'pion', n: 'perd', b: 'loper', r: 'toring', q: 'koningin', k: 'koning' }, en: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
 const START_COUNT = { p: 8, n: 2, b: 2, r: 2, q: 1 };
-function capturedBy(pos, c) { // pieces of the other colour that colour c has captured
+function capturedBy(pos, c) {
   const opp = c === 'w' ? 'b' : 'w', have = { p: 0, n: 0, b: 0, r: 0, q: 0 };
   pos.b.forEach(pc => { if (pc && CHESS.colorOf(pc) === opp && have[pc.toLowerCase()] !== undefined) have[pc.toLowerCase()]++; });
   const out = []; ['q', 'r', 'b', 'n', 'p'].forEach(k => { for (let i = have[k]; i < START_COUNT[k]; i++) out.push(opp === 'w' ? k.toUpperCase() : k); });
@@ -2464,16 +2785,302 @@ function capturedBy(pos, c) { // pieces of the other colour that colour c has ca
 }
 const MAT = { p: 1, n: 3, b: 3, r: 5, q: 9 };
 const matOf = (arr) => arr.reduce((a, pc) => a + MAT[pc.toLowerCase()], 0);
+const discHtml = (c, king) => `<span class="disc ${c}${king ? ' king' : ''}">${king ? '<span class="crown">♛</span>' : ''}</span>`;
+const sqA = (s) => CHESS.sqName(s);
+
+/* ---------- board helpers shared by chess and checkers ---------- */
+function gridBoard(el, onTap) {
+  el.classList.add('cboard');
+  el.innerHTML = Array.from({ length: 64 }, (_, i) => `<button class="csq" data-i="${i}"></button>`).join('');
+  el.onclick = (e) => { const b = e.target.closest('.csq'); if (b) onTap(+b.dataset.sq); };
+  return [...el.children];
+}
+function slideIn(cells, a, sel) {
+  const toI = cells.findIndex(el => +el.dataset.sq === a.t), fromI = cells.findIndex(el => +el.dataset.sq === a.f);
+  const node = cells[toI] && cells[toI].querySelector(sel);
+  if (!node || fromI < 0) return;
+  const dx = (fromI % 8) - (toI % 8), dy = Math.floor(fromI / 8) - Math.floor(toI / 8);
+  node.style.transform = `translate(${dx * 100}%, ${dy * 100}%)`; node.style.zIndex = 3;
+  requestAnimationFrame(() => requestAnimationFrame(() => { node.style.transition = 'transform .3s cubic-bezier(.2,.8,.2,1)'; node.style.transform = ''; }));
+}
+const coordHtml = (bc, r, f) => `${(bc === 'w' ? r === 7 : r === 0) ? `<span class="cf">${'abcdefgh'[f]}</span>` : ''}${(bc === 'w' ? f === 0 : f === 7) ? `<span class="cr">${8 - r}</span>` : ''}`;
+
+/* ===== ♟️ Skaak ===== */
+QG.chess = {
+  id: 'chess', flip: true, colors: { w: '⚪', b: '⚫' }, colorLabel: (c) => c === 'w' ? t('chW') : t('chB'),
+  init: () => CHESS.start(), turn: (p) => p.t, pass: CHESS.pass,
+  apply(p, e) { const m = CHESS.legal(p).find(x => x.f === e.f && x.t === e.to && (x.pr || '') === (e.pr || '')); return m ? { st: CHESS.apply(p, m), info: { m } } : null; },
+  status(p, info) { if (info && info.m && CHESS.isKing(info.m.x)) return { over: true, res: 'kingx', winner: info.c }; return CHESS.status(p); },
+  lastOf: (info) => ({ f: info.m.f, t: info.m.t }),
+  ai(p, lvl) { const m = CHESS.bestMove(p, lvl); return m ? { f: m.f, to: m.t, pr: m.pr || undefined } : null; },
+  label(e, st) { const pc = st.b[e.f] || 'P'; const x = st.b[e.to]; return { icon: pieceSvg(pc), text: `${sqA(e.f)} → ${sqA(e.to)}${x ? ' ✖ ' + PIECE_NAMES[L][x.toLowerCase()] : ''}`, piece: pc }; },
+  logText(h) {
+    if (h.miss) return h.e.p ? `(${esc(PIECE_NAMES[L][h.e.p.toLowerCase()])} ${sqA(h.e.f)}→${sqA(h.e.to)})` : '';
+    const m = h.info.m; return `${esc(PIECE_NAMES[L][m.p.toLowerCase()])} ${sqA(m.f)}→${sqA(m.t)}${m.x ? ' ✖ ' + esc(PIECE_NAMES[L][m.x.toLowerCase()]) : ''}${m.pr ? ' = ' + esc(PIECE_NAMES[L][m.pr]) : ''}${m.cs ? ' (0-0' + (m.cs.toLowerCase() === 'q' ? '-0' : '') + ')' : ''}`;
+  },
+  barExtra(R, c) { const caps = capturedBy(R.st, c), diff = matOf(caps) - matOf(capturedBy(R.st, CHESS.other(c))); return `<span class="cp-caps">${caps.map(pc => pieceSvg(pc)).join('')}${diff > 0 ? `<span class="small muted">+${diff}</span>` : ''}</span>`; },
+  prompt(R, ui) {
+    const st = R.ms, opp = pname(R.cfg[CHESS.other(R.cur)], R.cfg);
+    if (st.canTakeKing) return `👑 ${esc(tf('chTakeKing', { n: opp }))}`;
+    if (st.check) return `⚠️ <b>${esc(t('chCheck'))}</b> ${esc(t('chInCheck'))}`;
+    return esc(ui.sel === null ? t('chTapPiece') : t('chTapTarget'));
+  },
+  waitNote(R) { return R.ms && R.ms.check && !R.ms.canTakeKing ? `⚠️ <b>${esc(t('chCheck'))}</b> · ` : ''; },
+  board(api) {
+    const ui = { sel: null }; let cells;
+    const onTap = (sq) => {
+      if (!api.canAct()) { api.blocked(); return; }
+      const R = api.R(), st = R.ms, pc = R.st.b[sq];
+      if (ui.sel !== null) { const mv = st.moves.filter(m => m.f === ui.sel && m.t === sq); if (mv.length) { const from = ui.sel; ui.sel = null; promo(mv, from); return; } }
+      if (pc && CHESS.colorOf(pc) === R.st.t && st.moves.some(m => m.f === sq)) { ui.sel = ui.sel === sq ? null : sq; sfx('tap'); } else ui.sel = null;
+      api.repaint();
+    };
+    const promo = (mvs) => {
+      const go2 = (m) => api.attempt({ f: m.f, to: m.t, pr: m.pr || undefined });
+      if (mvs.length > 1 && mvs[0].pr) {
+        const ov = document.createElement('div'); ov.className = 'overlay'; const c = api.R().st.t;
+        ov.innerHTML = `<div class="modal"><h2 style="margin-bottom:12px">${esc(t('chPromo'))}</h2><div class="cpromo">${['q', 'r', 'b', 'n'].map(p => `<button data-pr="${p}" aria-label="${esc(PIECE_NAMES[L][p])}">${pieceSvg(c === 'w' ? p.toUpperCase() : p)}</button>`).join('')}</div></div>`;
+        document.body.appendChild(ov);
+        ov.querySelectorAll('[data-pr]').forEach(b => b.onclick = () => { ov.remove(); go2(mvs.find(m => m.pr === b.dataset.pr)); });
+        return;
+      }
+      go2(mvs[0]);
+    };
+    cells = gridBoard(api.el, onTap);
+    return {
+      ui,
+      paint(R, pend, anim) {
+        const bc = api.bottomColor(), st = R.ms, pos = R.st;
+        api.el.classList.toggle('flipped', bc === 'b');
+        const kingInCheck = R.status !== 'active' || !st ? -1 : st.canTakeKing ? pos.b.indexOf(pos.t === 'w' ? 'k' : 'K') : st.check ? pos.b.indexOf(pos.t === 'w' ? 'K' : 'k') : -1;
+        const targets = ui.sel !== null && st ? st.moves.filter(m => m.f === ui.sel).map(m => m.t) : [];
+        cells.forEach((el, i) => {
+          const sq = bc === 'w' ? i : 63 - i, r = sq >> 3, f = sq & 7, pc = pos.b[sq];
+          el.dataset.sq = sq;
+          el.className = 'csq ' + ((r + f) % 2 ? 'dk' : 'lt') + (R.last && (R.last.f === sq || R.last.t === sq) ? ' last' : '') + (ui.sel === sq ? ' sel' : '') + (targets.includes(sq) ? (pc ? ' tgt cap' : ' tgt') : '') + (sq === kingInCheck ? ' chk' : '') + (pend && (pend.f === sq || pend.to === sq) ? ' pend' : '');
+          el.innerHTML = coordHtml(bc, r, f) + (pc ? pieceSvg(pc) : '');
+          el.setAttribute('aria-label', CHESS.sqName(sq) + (pc ? ' ' + PIECE_NAMES[L][pc.toLowerCase()] : ''));
+        });
+        if (anim) slideIn(cells, { f: anim.f, t: anim.to }, '.pc');
+      },
+    };
+  },
+};
+
+/* ===== ⛀ Dambord ===== */
+QG.checkers = {
+  id: 'checkers', flip: true, colors: { w: '⚪', b: '⚫' }, colorLabel: (c) => c === 'w' ? t('chW') : t('chB'),
+  init: () => ENGINES.CK.init(), turn: (s) => s.t, pass: (s) => ENGINES.CK.pass(s), apply: (s, e) => ENGINES.CK.apply(s, e), status: (s) => ENGINES.CK.status(s),
+  lastOf: (info) => ({ f: info.m.f, t: info.m.to }),
+  ai(s, lvl) { const m = ENGINES.CK.ai(s, lvl); return m ? { f: m.f, to: m.to, p: m.p } : null; },
+  label(e, st) { const pc = st.b[e.f]; const m = ENGINES.CK.moves(st).find(x => x.f === e.f && x.to === e.to); return { icon: discHtml(ENGINES.CK.colorOf(pc), ENGINES.CK.isKing(pc)), text: `${sqA(e.f)} → ${sqA(e.to)}${m && m.caps.length ? ' · ' + tf('qgJump', { n: m.caps.length }) : ''}` }; },
+  logText(h) { if (h.miss) return `(${sqA(h.e.f)}→${sqA(h.e.to)})`; const m = h.info.m; return `${sqA(m.f)}→${sqA(m.to)}${m.caps.length ? ' ' + esc(tf('qgJump', { n: m.caps.length })) : ''}${h.info.crowned ? ' ' + esc(t('qgCrown')) : ''}`; },
+  barExtra(R, c) { const b = R.st.b; const n = b.filter(p => p && ENGINES.CK.colorOf(p) === c).length, k = b.filter(p => p && ENGINES.CK.colorOf(p) === c && ENGINES.CK.isKing(p)).length; return `<span class="small muted cp-x">${discHtml(c)} ${n}${k ? ` · 👑 ${k}` : ''}</span>`; },
+  prompt(R, ui) { return R.ms.mustTake && ui.sel === null ? `⚠️ ${esc(t('qgMustTake'))}` : esc(ui.sel === null ? t('chTapPiece') : t('chTapTarget')); },
+  board(api) {
+    const ui = { sel: null }; let cells;
+    const onTap = (sq) => {
+      if (!api.canAct()) { api.blocked(); return; }
+      const R = api.R(), ms = R.ms.moves;
+      if (ui.sel !== null) { const mv = ms.filter(m => m.f === ui.sel && m.to === sq).sort((a, z) => z.caps.length - a.caps.length); if (mv.length) { ui.sel = null; api.attempt({ f: mv[0].f, to: mv[0].to, p: mv[0].p }); return; } }
+      if (ms.some(m => m.f === sq)) { ui.sel = ui.sel === sq ? null : sq; sfx('tap'); } else ui.sel = null;
+      api.repaint();
+    };
+    cells = gridBoard(api.el, onTap);
+    api.el.classList.add('ckboard');
+    return {
+      ui,
+      paint(R, pend, anim) {
+        const bc = api.bottomColor(), st = R.st, ms = R.ms ? R.ms.moves : [];
+        api.el.classList.toggle('flipped', bc === 'b');
+        const sel = ui.sel, targets = sel !== null ? ms.filter(m => m.f === sel).map(m => m.to) : [];
+        const caps = sel !== null ? ms.filter(m => m.f === sel).flatMap(m => m.caps) : [];
+        const movable = R.status === 'active' && api.canActQuiet() && R.ms.mustTake ? ms.map(m => m.f) : [];
+        cells.forEach((el, i) => {
+          const sq = bc === 'w' ? i : 63 - i, r = sq >> 3, f = sq & 7, pc = st.b[sq];
+          el.dataset.sq = sq;
+          el.className = 'csq ' + ((r + f) % 2 ? 'dk' : 'lt') + (R.last && (R.last.f === sq || R.last.t === sq) ? ' last' : '') + (sel === sq ? ' sel' : '') + (targets.includes(sq) ? ' tgt' : '') + (caps.includes(sq) ? ' capx' : '') + (movable.includes(sq) ? ' glow' : '') + (pend && (pend.f === sq || pend.to === sq) ? ' pend' : '');
+          el.innerHTML = coordHtml(bc, r, f) + (pc ? discHtml(ENGINES.CK.colorOf(pc), ENGINES.CK.isKing(pc)) : '');
+          el.setAttribute('aria-label', CHESS.sqName(sq) + (pc ? ' ' + (ENGINES.CK.colorOf(pc) === 'w' ? t('chW') : t('chB')) : ''));
+        });
+        if (anim) slideIn(cells, { f: anim.f, t: anim.to }, '.disc');
+      },
+    };
+  },
+};
+
+/* ===== 🔴 Vier-op-'n-ry ===== */
+QG.four = {
+  id: 'four', flip: false, colors: { w: '🔴', b: '🟡' }, colorLabel: (c) => c === 'w' ? t('qgRed') : t('qgYellow'),
+  init: () => ENGINES.C4.init(), turn: (s) => s.t, pass: (s) => ENGINES.C4.pass(s), apply: (s, e) => ENGINES.C4.apply(s, e), status: (s) => ENGINES.C4.status(s),
+  lastOf: (info) => ({ i: info.i }),
+  ai: (s, lvl) => ENGINES.C4.ai(s, lvl),
+  label(e, st) { return { icon: `<span class="c4d ${st.t === 'w' ? 'r' : 'y'} mini"></span>`, text: tf('qgDrop', { c: e.c + 1 }) }; },
+  logText(h) { return h.miss ? `(${esc(t('qgCol'))} ${h.e.c + 1})` : `${h.c === 'w' ? '🔴' : '🟡'} ${esc(t('qgCol'))} ${h.info.c + 1}`; },
+  barExtra(R, c) { return `<span class="c4d ${c === 'w' ? 'r' : 'y'} mini"></span>`; },
+  prompt(R, ui) { return esc(ui.col === null ? t('qgTapCol') : t('qgTapCol2')); },
+  board(api) {
+    const ui = { col: null }; const W = 7, H = 6;
+    api.el.className = 'c4board';
+    api.el.innerHTML = `<div class="c4ghost">${Array.from({ length: W }, (_, c) => `<span data-gc="${c}"></span>`).join('')}</div><div class="c4grid">${Array.from({ length: W * H }, (_, i) => `<button class="c4c" data-c="${i % W}" data-i="${i}" aria-label="${esc(t('qgCol'))} ${(i % W) + 1}"></button>`).join('')}</div>`;
+    const cells = [...api.el.querySelectorAll('.c4c')], ghosts = [...api.el.querySelectorAll('[data-gc]')];
+    api.el.onclick = (e) => {
+      const b = e.target.closest('[data-c],[data-gc]'); if (!b) return;
+      if (!api.canAct()) { api.blocked(); return; }
+      const c = +(b.dataset.c !== undefined ? b.dataset.c : b.dataset.gc);
+      const R = api.R(); if (!R.ms.moves.some(m => m.c === c)) return;
+      if (ui.col === c) { ui.col = null; api.attempt({ c }); return; }
+      ui.col = c; sfx('tap'); api.repaint();
+    };
+    return {
+      ui,
+      paint(R, pend, anim) {
+        const g = R.st.g, line = R.result && R.result.line ? R.result.line : [];
+        const turnC = R.cur === 'b' ? 'y' : 'r', pc = pend ? pend.c : ui.col;
+        ghosts.forEach((gh, c) => { gh.innerHTML = pc === c && R.status === 'active' ? `<span class="c4d ${turnC}"></span>` : ''; });
+        cells.forEach((el, i) => {
+          const v = g[i];
+          el.className = 'c4c' + ((i % W) === pc && R.status === 'active' ? ' colsel' : '') + (line.includes(i) ? ' win' : '') + (R.last && R.last.i === i ? ' last' : '');
+          el.innerHTML = v ? `<span class="c4d ${v === 'w' ? 'r' : 'y'}"></span>` : '';
+        });
+        if (anim && R.last) { const el = cells[R.last.i]; const d = el && el.querySelector('.c4d'); if (d) { const row = Math.floor(R.last.i / W) + 1; d.style.setProperty('--drop', row); d.classList.add('drop'); } }
+      },
+    };
+  },
+};
+
+/* ===== 🚢 Seeslag ===== */
+const SHN = 8, shipName = (i) => 'ABCDEFGH'[i % SHN] + (Math.floor(i / SHN) + 1);
+QG.ships = {
+  id: 'ships', flip: false, colors: { w: '🔵', b: '🟠' }, colorLabel: (c) => c === 'w' ? t('qgMeFirst') : t('qgThemFirst'), startsLabel: true,
+  init: (cfg) => ENGINES.SH.init(cfg), turn: (s) => s.t, pass: (s) => ENGINES.SH.pass(s), apply: (s, e) => ENGINES.SH.apply(s, e), status: (s) => ENGINES.SH.status(s),
+  lastOf: (info) => ({ i: info.to, c: info.c }),
+  ai: (s, lvl) => ENGINES.SH.ai(s, lvl),
+  label(e) { return { icon: '<span class="qicon">🎯</span>', text: tf('qgShoot', { c: shipName(e.to) }) }; },
+  logText(h) { if (h.miss) return `(🎯 ${shipName(h.e.to)})`; const i = h.info; return `🎯 ${shipName(i.to)} ${i.hit ? (i.sunk ? esc(t('qgSunk')) : esc(t('qgHit'))) : esc(t('qgMiss'))}`; },
+  barExtra(R, c) { return `<span class="small muted cp-x">🚢 ${ENGINES.SH.shipsLeft(R.st, c)}/5 ${esc(t('qgShipsLeft'))}</span>`; },
+  prompt(R, ui) { const o = R.cfg[CHESS.other(R.cur)]; let n = pname(o, R.cfg); if (o === 'app' && L === 'af') n = n.toLowerCase(); return esc(ui.cell === null ? tf('qgTapCell', { n }) : t('qgTapCell2')); },
+  board(api) {
+    const ui = { cell: null };
+    api.el.className = 'shboard';
+    api.el.innerHTML = `<div class="shsea"><div class="shcap" id="shCapA"></div><div class="shgrid big" id="shA">${Array.from({ length: SHN * SHN }, (_, i) => `<button class="shc" data-i="${i}" aria-label="${shipName(i)}"></button>`).join('')}</div></div><div class="shsea small"><div class="shcap" id="shCapB"></div><div class="shgrid" id="shB">${Array.from({ length: SHN * SHN }, (_, i) => `<span class="shc" data-j="${i}"></span>`).join('')}</div></div>`;
+    const A = [...api.el.querySelectorAll('#shA .shc')], B = [...api.el.querySelectorAll('#shB .shc')];
+    api.el.querySelector('#shA').onclick = (e) => {
+      const b = e.target.closest('[data-i]'); if (!b) return;
+      if (api.spectator()) return;
+      if (!api.canAct()) { api.blocked(); return; }
+      const i = +b.dataset.i, R = api.R(); if (R.st.shots[R.cur].includes(i)) return;
+      if (ui.cell === i) { ui.cell = null; api.attempt({ to: i }); return; }
+      ui.cell = i; sfx('tap'); api.repaint();
+    };
+    const drawSea = (cells, st, fleetC, showShips, pend, sel, lastI) => {
+      const shots = st.shots[CHESS.other(fleetC)], fleet = st.fleet[fleetC];
+      cells.forEach((el, i) => {
+        const ship = ENGINES.SH.shipAt(fleet, i), shot = shots.includes(i), sunk = ship && ENGINES.SH.sunk(ship, shots);
+        el.className = 'shc' + (showShips && ship ? ' ship' : '') + (shot ? (ship ? ' hit' : ' miss') : '') + (sunk ? ' sunk' : '') + (sel === i ? ' aim' : '') + (pend === i ? ' aim' : '') + (lastI === i ? ' last' : '');
+        el.innerHTML = shot ? (ship ? '💥' : '•') : (sel === i || pend === i ? '🎯' : '');
+      });
+    };
+    return {
+      ui,
+      paint(R, pend, anim) {
+        const st = R.st, spec = api.spectator();
+        let me = api.myColor() || (R.cur || 'w');
+        if (spec) me = 'w';
+        const foe = CHESS.other(me), lastI = R.last ? R.last.i : null;
+        $('#shCapA', api.el).textContent = spec ? tf('qgFleetOf', { n: pname(R.cfg.b, R.cfg) }) : tf('qgEnemySea', { n: pname(R.cfg[foe], R.cfg) });
+        $('#shCapB', api.el).textContent = spec ? tf('qgFleetOf', { n: pname(R.cfg.w, R.cfg) }) : (api.kind() === 'phone' ? tf('qgFleetOf', { n: pname(R.cfg[me], R.cfg) }) : t('qgMyFleet'));
+        drawSea(A, st, foe, spec || R.status === 'over', pend ? pend.to : null, ui.cell, R.last && R.last.c === me ? lastI : null);
+        drawSea(B, st, me, true, null, null, R.last && R.last.c === foe ? lastI : null);
+        if (anim && R.lastInfo) { const i = R.lastInfo; const el = (i.c === me ? A : B)[i.to]; if (el) { el.classList.add('boom'); } }
+      },
+    };
+  },
+};
+
+/* ===== 🎲 Slange & Lere ===== */
+const DICE = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+function snakesSvg() {
+  const SL = ENGINES.SL, c = SL.cell; let s = '';
+  for (const a in SL.LADDERS) {
+    const p = c(+a), q = c(SL.LADDERS[a]); const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy), nx = -dy / len * 1.6, ny = dx / len * 1.6;
+    s += `<g class="lad"><line x1="${p.x + nx}" y1="${p.y + ny}" x2="${q.x + nx}" y2="${q.y + ny}"/><line x1="${p.x - nx}" y1="${p.y - ny}" x2="${q.x - nx}" y2="${q.y - ny}"/>`;
+    const steps = Math.max(2, Math.round(len / 4)); for (let k = 1; k < steps; k++) { const tt = k / steps; s += `<line class="rung" x1="${p.x + dx * tt + nx}" y1="${p.y + dy * tt + ny}" x2="${p.x + dx * tt - nx}" y2="${p.y + dy * tt - ny}"/>`; }
+    s += '</g>';
+  }
+  let k = 0;
+  for (const h in SL.SNAKES) {
+    const p = c(+h), q = c(SL.SNAKES[h]); const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2, dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
+    const bend = (k++ % 2 ? 1 : -1) * Math.min(9, len / 3), cx1 = mx + (-dy / len) * bend, cy1 = my + (dx / len) * bend;
+    const col = ['#16a34a', '#d97706', '#db2777', '#7c3aed', '#0d9488'][k % 5];
+    s += `<g class="snk"><path d="M${p.x} ${p.y} Q ${cx1} ${cy1} ${q.x} ${q.y}" stroke="${col}"/><path class="belly" d="M${p.x} ${p.y} Q ${cx1} ${cy1} ${q.x} ${q.y}"/><circle cx="${p.x}" cy="${p.y}" r="2.6" fill="${col}"/><circle cx="${p.x - 0.9}" cy="${p.y - 0.6}" r="0.6" fill="#fff"/><circle cx="${p.x + 0.9}" cy="${p.y - 0.6}" r="0.6" fill="#fff"/></g>`;
+  }
+  return `<svg class="slsvg" viewBox="0 0 100 100" aria-hidden="true">${s}</svg>`;
+}
+QG.snakes = {
+  id: 'snakes', flip: false, colors: { w: '🔵', b: '🟠' }, colorLabel: (c) => c === 'w' ? t('qgMeFirst') : t('qgThemFirst'), startsLabel: true, luck: true,
+  init: () => ENGINES.SL.init(), turn: (s) => s.t, pass: (s) => ENGINES.SL.pass(s), apply: (s, e) => ENGINES.SL.apply(s, e), status: (s) => ENGINES.SL.status(s),
+  lastOf: (info) => ({ c: info.c, roll: info.roll }),
+  ai: (s, lvl) => ENGINES.SL.ai(s, lvl), aiMiss: (lvl) => ENGINES.SL.AIMISS[lvl] || 0.3,
+  finalize: (m) => Object.assign({}, m, { roll: 1 + Math.floor(Math.random() * 6) }),
+  label() { return { icon: '<span class="qicon">🎲</span>', text: t('qgRollQ') }; },
+  logText(h) { if (h.miss) return ''; const i = h.info; return `🎲 ${i.roll} → ${i.mid}${i.kind ? ` ${i.kind === 'ladder' ? '🪜' : '🐍'} ${i.to}` : ''}`; },
+  barExtra(R, c) { return `<span class="small muted cp-x">📍 ${R.st.pos[c] || 0}</span>`; },
+  prompt() { return esc(t('qgTapDice')); },
+  board(api) {
+    const ui = {};
+    const nums = []; for (let r = 9; r >= 0; r--) for (let k = 0; k < 10; k++) { const col = k, n = r % 2 === 0 ? r * 10 + col + 1 : r * 10 + (9 - col) + 1; nums.push(n); }
+    api.el.className = 'slwrap';
+    api.el.innerHTML = `<div class="slboard">${nums.map(n => `<span class="slc ${(Math.floor((n - 1) / 10) + (n - 1) % 10) % 2 ? 'a' : 'b'}${n === 100 ? ' fin' : ''}"><i>${n}</i></span>`).join('')}${snakesSvg()}<span class="tok w" id="tokW"></span><span class="tok b" id="tokB"></span></div>
+      <div class="sldice"><button class="btn hi dicebtn" id="slRoll"><span class="die" id="slDie">🎲</span> <span id="slRollT">${esc(t('qgRoll'))}</span></button><span class="small muted" id="slInfo"></span></div>`;
+    $('#slRoll', api.el).onclick = () => { if (!api.canAct()) { api.blocked(); return; } api.attempt({ roll: 0 }); };
+    let shown = null;
+    // a token on 0 has not started yet and waits off the board
+    const place = (tok, n, other) => { tok.hidden = !n; if (!n) return; const p = ENGINES.SL.cell(n); const off = other ? 2.4 : 0; tok.style.left = (p.x + off - 4.5) + '%'; tok.style.top = (p.y + off - 4.5) + '%'; };
+    return {
+      ui,
+      paint(R, pend, anim) {
+        const st = R.st, tw = $('#tokW', api.el), tb = $('#tokB', api.el);
+        tw.textContent = pav(R.cfg.w); tb.textContent = pav(R.cfg.b);
+        const same = st.pos.w === st.pos.b;
+        const btn = $('#slRoll', api.el), info = $('#slInfo', api.el), die = $('#slDie', api.el);
+        btn.disabled = !(R.status === 'active' && api.canActQuiet());
+        btn.classList.toggle('pulse', !btn.disabled);
+        const li = R.lastInfo;
+        if (anim && li && li.roll) {
+          // dice roll, then walk to the square, then up the ladder / down the snake
+          const tok = li.c === 'w' ? tw : tb, otherPos = st.pos[CHESS.other(li.c)];
+          die.classList.add('spin'); die.textContent = DICE[1 + Math.floor(Math.random() * 6)];
+          setTimeout(() => { die.classList.remove('spin'); die.textContent = DICE[li.roll]; place(tok, li.mid, li.mid === otherPos); }, 450);
+          if (li.kind) setTimeout(() => { place(tok, li.to, li.to === otherPos); toast(li.kind === 'ladder' ? t('qgLadder') : t('qgSnake')); sfx(li.kind === 'ladder' ? 'combo' : 'bad'); }, 1250);
+          info.textContent = `${pname(R.cfg[li.c], R.cfg)}: ${li.roll}`;
+          shown = JSON.stringify(st.pos);
+          place(li.c === 'w' ? tb : tw, st.pos[CHESS.other(li.c)], same);
+          return;
+        }
+        const sig = JSON.stringify(st.pos);
+        if (shown !== sig) { place(tw, st.pos.w, false); place(tb, st.pos.b, same); shown = sig; }
+        if (li && li.roll) { die.textContent = DICE[li.roll]; info.textContent = `${pname(R.cfg[li.c], R.cfg)}: ${li.roll}`; }
+      },
+    };
+  },
+};
 
 /* ---------- storage of games ---------- */
 const locKey = (pid) => 'lh.chess.loc.' + pid;
 async function chessList(lim) { if (!online()) return []; const rows = await S.store.loadPrefix('chess/g/', lim || 12); return (rows || []).map(r => ({ id: r.key.slice(8), events: (r.value && r.value.events) || [] })); }
 async function chessFetch(id) { const v = await S.store.get('chess/g/' + id); return (v && v.events) || null; }
 async function chessAppend(id, ev) { await S.store.rpc('lh_log', { k: 'chess/g/' + id, ev }); }
-function chessSetup() { const d = { mode: 'app', lvl: 'easy', color: 'w', opp: null, popp: null, friend: '', subj: null, secs: 30 }; return Object.assign(d, lsGet('lh.chess.setup', {})); }
+function chessSetup() { const d = { game: 'chess', mode: 'app', lvl: 'easy', color: 'w', opp: null, popp: null, friend: '', subj: null, secs: 30 }; const v = Object.assign(d, lsGet('lh.chess.setup', {})); if (!QG[v.game]) v.game = 'chess'; return v; }
 function saveSetup(su) { lsSet('lh.chess.setup', su); }
-function myChessStats() { const k = S.kid; return (k && k.chess) || { app: {}, fam: {} }; }
+function gameStats(kid, game) { if (!kid) return { app: {}, fam: {} }; if (game === 'chess') return kid.chess || { app: {}, fam: {} }; return ((kid.qgames || {})[game]) || { app: {}, fam: {} }; }
+function gameStatsW(kid, game) { // writable bucket
+  if (game === 'chess') { kid.chess = kid.chess || { app: {}, fam: {}, seen: [] }; return kid.chess; }
+  kid.qgames = kid.qgames || {}; kid.qgames[game] = kid.qgames[game] || { app: {}, fam: {} }; return kid.qgames[game];
+}
 function wdl(o) { o = o || {}; return tf('chWDL', { w: o.w || 0, l: o.l || 0, d: o.d || 0 }); }
+/* targeted pushes (lh-notify v2: "to" = family ids; parents' devices match "pa"/"ma"/"parent") */
+function pushTo(ids, msg) { ids = (ids || []).filter(x => isFam(x)); if (!ids.length || !online()) return; pushSend(Object.assign({ url: './#skaak' }, msg, { to: ids })); }
 
 /* ---------- social screens: router ---------- */
 function renderSocial(main, r) {
@@ -2481,13 +3088,13 @@ function renderSocial(main, r) {
   if (!who) return renderWhoPick(main, r);
   if (who.kid && S.kid && who.id === S.kid.id) ensureSession();
   if (r.s === 'chat') return renderChat(main);
-  if (r.s === 'chessGame') return renderChessGame(main, r.id);
+  if (r.s === 'chessGame') return renderQGame(main, r.id);
   return renderChessLobby(main);
 }
 function renderWhoPick(main, r) {
   const target = r.s === 'chat' ? 'klets' : 'skaak', lk = deviceLock();
   const list = FAMILY.filter(f => lk === 'ouer' ? !f.kid : lk ? (f.id === lk || !f.kid) : true);
-  main.innerHTML = `<div class="gate"><div style="font-size:52px">${r.s === 'chat' ? '💬' : '♟️'}</div><h1>${esc(t('chWho'))}</h1><p class="sub">${esc(t('chWhoSub'))}</p>
+  main.innerHTML = `<div class="gate"><div style="font-size:52px">${r.s === 'chat' ? '💬' : '🎲'}</div><h1>${esc(t('chWho'))}</h1><p class="sub">${esc(t('chWhoSub'))}</p>
     <div class="profiles">${list.map(f => `<button class="profile" data-who="${f.id}"><span class="big">${f.avatar}</span><span class="nm">${esc(famName(f.id))}</span>${f.kid || lk === 'ouer' ? '' : '<span class="lv">🔐 PIN</span>'}</button>`).join('')}</div></div>`;
   main.querySelectorAll('[data-who]').forEach(b => b.onclick = async () => {
     const id = b.dataset.who;
@@ -2499,21 +3106,23 @@ function renderWhoPick(main, r) {
   });
 }
 
-/* ---------- lobby ---------- */
+/* ---------- hub card + home banner ---------- */
 function chessHubCard() {
-  const [nm, ds] = t('chCard'), b = S.badges || {};
+  const [nm, ds] = t('qgCard'), b = S.badges || {};
   const n = (b.myTurn || 0) + (b.invites || 0);
-  return `<button class="card chesscard" data-go="skaak"><span class="cc-ic">♟️</span><span class="cc-t"><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span>${n ? `<span class="chip hi">${b.invites ? '📨 ' + esc(tf('chChallenges', { n: b.inviteFrom || '' })) : '⏰ ' + esc(t('chYourTurn'))}</span>` : ''}</span><span class="cc-go">▶</span></button>`;
+  return `<button class="card chesscard" data-go="skaak"><span class="cc-ic">🎲</span><span class="cc-t"><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span><span class="cc-games">${GORDER.map(g => `<span title="${esc(gname(g))}">${GICON[g]}</span>`).join('')}</span>${n ? `<span class="chip hi">${b.invites ? '📨 ' + esc(tf('qgChallenges', { n: b.inviteFrom || '', g: gname(b.inviteGame) })) : '⏰ ' + esc(t('chYourTurn'))}</span>` : ''}</span><span class="cc-go">▶</span></button>`;
 }
 function chessHomeBanner() { return `<div id="socialBan">${socialBanInner()}</div>`; }
 function socialBanInner() {
   const b = S.badges || {}; if (!b.invites && !b.myTurn && !b.chat) return '';
   const bits = [];
-  if (b.invites) bits.push(`<button class="btn sm hi" data-go="skaak">📨 ${esc(tf('chChallenges', { n: b.inviteFrom || '' }))}</button>`);
-  else if (b.myTurn) bits.push(`<button class="btn sm hi" data-go="skaak">♟️ ${esc(t('chYourTurn'))}</button>`);
+  if (b.invites) bits.push(`<button class="btn sm hi" data-go="skaak">📨 ${esc(tf('qgChallenges', { n: b.inviteFrom || '', g: gname(b.inviteGame) }))}</button>`);
+  else if (b.myTurn) bits.push(`<button class="btn sm hi" data-go="skaak">🎲 ${esc(t('chYourTurn'))}</button>`);
   if (b.chat) bits.push(`<button class="btn sm" data-go="klets">💬 ${esc(t('chatT'))} <span class="bdg-in">${b.chat}</span></button>`);
   return `<div class="banner socialban" style="margin-top:14px">${bits.join('')}</div>`;
 }
+
+/* ---------- lobby ---------- */
 async function renderChessLobby(main) {
   const who = me(), su = chessSetup();
   const famOpp = FAMILY.filter(f => f.id !== who.id);
@@ -2521,20 +3130,22 @@ async function renderChessLobby(main) {
   if (!su.popp || su.popp === who.id) su.popp = famOpp[0].id;
   if (!su.subj) su.subj = who.kid ? gameSubj() : 'all';
   if (!online() && su.mode === 'fam') su.mode = 'app';
-  const loc = lsGet(locKey(who.id), null), locR = loc ? chessReplay(loc.events) : null;
-  const st = myChessStats();
+  const loc = lsGet(locKey(who.id), null), locR = loc ? qgReplay(loc.events) : null;
   const backTo = who.kid ? 'speel' : 'ouer';
   setSubjectColor(su.subj !== 'all' && S.content.subjects[su.subj] ? S.content.subjects[su.subj].color : null);
   const seg = (name, cur, opts) => `<div class="seg" role="radiogroup">${opts.map(([v, lb]) => `<button class="${cur === v ? 'on' : ''}" data-${name}="${v}" role="radio" aria-checked="${cur === v}">${lb}</button>`).join('')}</div>`;
   const modeBtn = (v, ic, arr, dis) => `<button class="cmode ${su.mode === v ? 'on' : ''}" data-mode="${v}" ${dis ? 'disabled' : ''}><span class="cm-ic">${ic}</span><b>${esc(arr[0])}</b><span class="small muted">${esc(arr[1])}</span></button>`;
   main.innerHTML = `<button class="back" data-go="${backTo}">← ${esc(who.kid ? t('playT') : t('dashboard'))}</button>
-  <div class="row" style="justify-content:space-between"><h1>♟️ ${esc(t('chessT'))}</h1>${online() ? `<button class="btn sm" data-go="klets">💬 ${esc(t('chatOpen'))}</button>` : ''}</div>
-  <p class="muted" style="margin:4px 0 12px;max-width:70ch">${esc(t('chessSub'))}</p>
-  <details class="card chow"><summary><b>❓ ${esc(t('chessHowT'))}</b></summary><ol>${t('chessHow').map(x => `<li>${esc(x)}</li>`).join('')}</ol></details>
+  <div class="row" style="justify-content:space-between"><h1>🎲 ${esc(t('qgT'))}</h1>${online() ? `<button class="btn sm" data-go="klets">💬 ${esc(t('chatOpen'))}</button>` : ''}</div>
+  <p class="muted" style="margin:4px 0 12px;max-width:70ch">${esc(t('qgSub'))}</p>
+  ${who.kid ? '<div id="kpSlot"></div>' : ''}
+  <details class="card chow"><summary><b>❓ ${esc(t('chessHowT'))}</b></summary><ol>${t('qgHow').map(x => `<li>${esc(x)}</li>`).join('')}</ol></details>
   <div id="chOnline"></div>
-  ${locR && locR.status === 'active' ? `<div class="card cresume"><div><b>⏸️ ${esc(t('chUnfinished'))}</b><div class="small muted">${pav(locR.cfg.w)} ${esc(pname(locR.cfg.w, locR.cfg))} vs ${pav(locR.cfg.b)} ${esc(pname(locR.cfg.b, locR.cfg))} · ${esc(locR.cfg.kind === 'app' ? t('chLvl')[locR.cfg.lvl] : t('chModePhone')[0])}</div></div><button class="btn subject" data-go="skaak-l">${esc(t('chResume'))}</button></div>` : ''}
+  ${locR && locR.status === 'active' ? `<div class="card cresume"><div><b>⏸️ ${esc(t('chUnfinished'))}: ${GICON[locR.game]} ${esc(gname(locR.game))}</b><div class="small muted">${pav(locR.cfg.w)} ${esc(pname(locR.cfg.w, locR.cfg))} vs ${pav(locR.cfg.b)} ${esc(pname(locR.cfg.b, locR.cfg))} · ${esc(locR.cfg.kind === 'app' ? t('chLvl')[locR.cfg.lvl] : t('chModePhone')[0])}</div></div><button class="btn subject" data-go="skaak-l">${esc(t('chResume'))}</button></div>` : ''}
   <div class="card csetup"><h2>${esc(t('chNew'))}</h2>
-    <div class="label" style="margin:12px 0 6px">${esc(t('chVsWho'))}</div>
+    <div class="label" style="margin:12px 0 6px">${esc(t('qgWhich'))}</div>
+    <div class="qgpick">${GORDER.map(g => `<button class="qgp ${su.game === g ? 'on' : ''}" data-game="${g}"><span class="qgi">${GICON[g]}</span><b>${esc(gname(g))}</b><span class="small muted">${esc(t('qgD')[g])}</span></button>`).join('')}</div>
+    <div class="label" style="margin:14px 0 6px">${esc(t('chVsWho'))}</div>
     <div class="cmodes">${modeBtn('app', '🤖', t('chModeApp'))}${modeBtn('fam', '👪', t('chModeFam'), !online())}${modeBtn('phone', '📱', t('chModePhone'))}</div>
     ${!online() ? `<p class="small muted" style="margin-top:6px">${esc(t('chOnlineOnly'))}</p>` : ''}
     <div id="chOpts"></div>
@@ -2542,46 +3153,51 @@ async function renderChessLobby(main) {
     <div class="label" style="margin:14px 0 6px">⏱️ ${esc(t('chSecs'))}</div>${seg('secs', String(su.secs), [['15', '15 s'], ['30', '30 s'], ['45', '45 s']])}
     <div class="row" style="margin-top:18px"><button class="btn subject block" id="chGo"></button></div>
   </div>
-  ${who.kid ? `<div class="card" style="margin-top:14px"><h3>📊 ${esc(t('chRecord'))}</h3><div class="crec small"><div>🤖 ${esc(t('chVsApp'))}</div>${['easy', 'med', 'hard'].map(l => `<div class="muted">${esc(t('chLvl')[l])}: ${esc(wdl((st.app || {})[l]))}</div>`).join('')}<div style="margin-top:6px">👪 ${esc(t('chVsFam'))}</div><div class="muted">${esc(wdl(st.fam))}</div></div></div>` : ''}`;
+  ${who.kid ? '<div class="card" style="margin-top:14px" id="chRec"></div>' : ''}`;
+  if (who.kid) kidPushCard($('#kpSlot'));
+  const recBox = $('#chRec');
+  const drawRec = () => { if (!recBox) return; const st = gameStats(S.kid, su.game); recBox.innerHTML = `<h3>📊 ${esc(t('chRecord'))}: ${GICON[su.game]} ${esc(gname(su.game))}</h3><div class="crec small"><div>🤖 ${esc(t('chVsApp'))}</div>${['easy', 'med', 'hard'].map(l => `<div class="muted">${esc(t('chLvl')[l])}: ${esc(wdl((st.app || {})[l]))}</div>`).join('')}<div style="margin-top:6px">👪 ${esc(t('chVsFam'))}</div><div class="muted">${esc(wdl(st.fam))}</div></div>`; };
   const opts = () => {
+    const G = QG[su.game];
+    const colorSeg = () => `<div class="label" style="margin:14px 0 6px">${esc(G.startsLabel ? t('qgWho1') : t('chColor'))}</div>${seg('color', su.color, [['w', (G.startsLabel ? '' : G.colors.w + ' ') + G.colorLabel('w')], ['b', (G.startsLabel ? '' : G.colors.b + ' ') + G.colorLabel('b')], ['r', '🎲 ' + t('chRand')]])}`;
     let h = '';
-    if (su.mode === 'app') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chLevel'))}</div>${seg('lvl', su.lvl, [['easy', '🙂 ' + t('chLvl').easy], ['med', '😎 ' + t('chLvl').med], ['hard', '🔥 ' + t('chLvl').hard]])}
-      <div class="label" style="margin:14px 0 6px">${esc(t('chColor'))}</div>${seg('color', su.color, [['w', '⚪ ' + t('chW')], ['b', '⚫ ' + t('chB')], ['r', '🎲 ' + t('chRand')]])}`;
-    else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}</div>
-      <div class="label" style="margin:14px 0 6px">${esc(t('chColor'))}</div>${seg('color', su.color, [['w', '⚪ ' + t('chW')], ['b', '⚫ ' + t('chB')], ['r', '🎲 ' + t('chRand')]])}`;
+    if (su.mode === 'app') h = `<div class="label" style="margin:14px 0 6px">${esc(G.luck ? t('qgAppSmart') : t('chLevel'))}</div>${seg('lvl', su.lvl, [['easy', '🙂 ' + t('chLvl').easy], ['med', '😎 ' + t('chLvl').med], ['hard', '🔥 ' + t('chLvl').hard]])}${G.luck ? `<p class="small muted" style="margin-top:6px">${esc(t('qgAppSmartHint'))}</p>` : ''}${colorSeg()}`;
+    else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}</div>${colorSeg()}`;
     else h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOppPhone'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.popp === f.id ? 'on' : ''}" data-popp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}<button class="${su.popp === 'friend' ? 'on' : ''}" data-popp="friend"><span>🙂</span>${esc(t('chFriend'))}</button></div>
-      ${su.popp === 'friend' ? `<input id="chFriendIn" maxlength="20" placeholder="${esc(t('chFriendName'))}" value="${esc(su.friend || '')}" style="margin-top:8px;width:100%">` : ''}
-      <div class="label" style="margin:14px 0 6px">${esc(t('chColor'))}</div>${seg('color', su.color, [['w', '⚪ ' + t('chW')], ['b', '⚫ ' + t('chB')], ['r', '🎲 ' + t('chRand')]])}`;
+      ${su.popp === 'friend' ? `<input id="chFriendIn" maxlength="20" placeholder="${esc(t('chFriendName'))}" value="${esc(su.friend || '')}" style="margin-top:8px;width:100%">` : ''}${colorSeg()}`;
     $('#chOpts').innerHTML = h;
-    $('#chGo').textContent = su.mode === 'fam' ? t('chInvite') : t('chStart');
+    $('#chGo').textContent = su.mode === 'fam' ? t('chInvite') : `${GICON[su.game]} ${t('chStart')}`;
     $('#chGo').disabled = !quickPool(su.subj).length;
     $('#chOpts').querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { su.lvl = b.dataset.lvl; saveSetup(su); opts(); });
     $('#chOpts').querySelectorAll('[data-color]').forEach(b => b.onclick = () => { su.color = b.dataset.color; saveSetup(su); opts(); });
     $('#chOpts').querySelectorAll('[data-opp]').forEach(b => b.onclick = () => { su.opp = b.dataset.opp; saveSetup(su); opts(); });
     $('#chOpts').querySelectorAll('[data-popp]').forEach(b => b.onclick = () => { su.popp = b.dataset.popp; saveSetup(su); opts(); });
     const fi = $('#chFriendIn'); if (fi) fi.oninput = () => { su.friend = fi.value.trim().slice(0, 20); saveSetup(su); };
+    drawRec();
   };
   opts();
   main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  main.querySelectorAll('[data-game]').forEach(b => b.onclick = () => { su.game = b.dataset.game; saveSetup(su); main.querySelectorAll('[data-game]').forEach(x => x.classList.toggle('on', x === b)); sfx('tap'); opts(); });
   main.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { su.mode = b.dataset.mode; saveSetup(su); main.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('on', x === b)); opts(); });
   main.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => { su.subj = b.dataset.cs; if (who.kid) setGameSubj(su.subj); saveSetup(su); main.querySelectorAll('[data-cs]').forEach(x => x.classList.toggle('on', x === b)); setSubjectColor(su.subj !== 'all' && S.content.subjects[su.subj] ? S.content.subjects[su.subj].color : null); opts(); if (!quickPool(su.subj).length) toast(t('chNoQs')); });
   main.querySelectorAll('[data-secs]').forEach(b => b.onclick = () => { su.secs = +b.dataset.secs; saveSetup(su); main.querySelectorAll('[data-secs]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); }); });
   $('#chGo').onclick = async () => {
     const color = su.color === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : su.color;
-    const base = { t: 'new', by: who.id, secs: su.secs, subj: su.subj, at: Date.now() };
+    const base = { t: 'new', game: su.game, by: who.id, secs: su.secs, subj: su.subj, at: Date.now() };
     if (su.mode === 'fam') {
       const id = rid(), opp = su.opp;
-      const ev = Object.assign(base, { id, kind: 'online', w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
+      const ev = Object.assign(base, { id, seed: id, kind: 'online', w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
       $('#chGo').disabled = true;
       try { await chessAppend(id, ev); } catch (e) { toast(t('chSendFail')); $('#chGo').disabled = false; return; }
-      chatSys({ sys: 'inv', a: who.id, b: opp });
-      if (!KIDS.some(k => k.id === opp)) pushSend({ title: `♟️ ${famName(who.id, 'af')} daag ${famName(opp, 'af')} uit vir Vraag-skaak`, body: 'Maak Leerhoek oop → Speel → Vraag-skaak om te aanvaar.', url: './#skaak' });
+      chatSys({ sys: 'inv', a: who.id, b: opp, g: su.game });
+      pushTo([opp], { title: `${GICON[su.game]} ${famName(who.id, 'af')} daag ${KIDS.some(k => k.id === opp) ? 'jou' : famName(opp, 'af')} uit vir ${gname(su.game, 'af')}!`, body: 'Tik om te aanvaar en te speel.', url: './#skaak' });
       toast(tf(KIDS.some(k => k.id === opp) ? 'chInvSent' : 'chInvSentP', { n: famName(opp) }));
       go('skaak-' + id);
       return;
     }
     const opp = su.mode === 'app' ? 'app' : su.popp;
-    const ev = Object.assign(base, { id: 'L' + rid(), kind: su.mode, lvl: su.lvl, w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
+    const id = 'L' + rid();
+    const ev = Object.assign(base, { id, seed: id, kind: su.mode, lvl: su.lvl, w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
     if (su.mode === 'phone' && opp === 'friend') ev.fn = su.friend || t('chFriend');
     lsSet(locKey(who.id), { events: [ev] });
     go('skaak-l');
@@ -2589,28 +3205,30 @@ async function renderChessLobby(main) {
   // family games (online)
   if (!online()) return;
   const box = $('#chOnline');
+  const su2 = (cfg) => `${GICON[cfg.game || 'chess']} ${esc(gname(cfg.game))} · ${cfg.secs} s · ${esc(subjLabel(cfg.subj))}`;
   const draw = (list) => {
-    const all = list.map(g => ({ g, R: chessReplay(g.events) })).filter(x => x.R);
+    const all = list.map(g => ({ g, R: qgReplay(g.events) })).filter(x => x.R);
     const mine = all.filter(x => x.R.cfg.w === who.id || x.R.cfg.b === who.id);
     const fresh = Date.now() - 3 * 86400000, stale = Date.now() - 14 * 86400000;
     const recent = (x) => (x.R.status === 'invite' || x.R.status === 'active') ? x.R.updated > stale : (x.R.status === 'over' && x.R.updated > fresh);
     const rows = mine.filter(recent);
     const others = who.kid ? [] : all.filter(x => !mine.includes(x) && recent(x) && x.R.status !== 'invite');
     if (!rows.length && !others.length) { box.innerHTML = ''; return; }
-    const spec = ({ g, R }) => { const w = R.result && R.result.winner ? R.cfg[R.result.winner] : null; return `<div class="cgame"><div class="cg-t">${pav(R.cfg.w)} ${esc(pname(R.cfg.w, R.cfg))} <span class="muted">vs</span> ${pav(R.cfg.b)} ${esc(pname(R.cfg.b, R.cfg))} <span class="small muted">· ${R.status === 'active' ? esc(tf('chTheirTurn', { n: pname(R.toMove, R.cfg) })) : (w ? '🏆 ' + esc(pname(w, R.cfg)) : '🤝') + ' · ' + esc(resultText(R))}</span></div><button class="btn sm ghost" data-go="skaak-${g.id}">${esc(t('chView'))}</button></div>`; };
+    const gi = (R) => `<span class="gi-s" title="${esc(gname(R.game))}">${GICON[R.game]}</span>`;
+    const spec = ({ g, R }) => { const w = R.result && R.result.winner ? R.cfg[R.result.winner] : null; return `<div class="cgame"><div class="cg-t">${gi(R)} ${pav(R.cfg.w)} ${esc(pname(R.cfg.w, R.cfg))} <span class="muted">vs</span> ${pav(R.cfg.b)} ${esc(pname(R.cfg.b, R.cfg))} <span class="small muted">· ${R.status === 'active' ? esc(tf('chTheirTurn', { n: pname(R.toMove, R.cfg) })) : (w ? '🏆 ' + esc(pname(w, R.cfg)) : '🤝') + ' · ' + esc(resultText(R))}</span></div><button class="btn sm ghost" data-go="skaak-${g.id}">${esc(t('chView'))}</button></div>`; };
     const row = ({ g, R }) => {
       const opp = R.cfg.w === who.id ? R.cfg.b : R.cfg.w, on = pname(opp, R.cfg);
       let txt = '', btns = '', cls = '';
       if (R.status === 'invite') {
-        if (R.invitee === who.id) { cls = 'hot'; txt = `📨 <b>${esc(tf('chChallenges', { n: on }))}</b> <span class="small muted">· ${su2(R.cfg)}</span>`; btns = `<button class="btn sm hi" data-acc="${g.id}">✅ ${esc(t('chAccept'))}</button><button class="btn sm ghost" data-dec="${g.id}">${esc(t('chDecline'))}</button>`; }
-        else { txt = `⏳ ${esc(tf('chWaitAcc', { n: on }))}`; btns = `<button class="btn sm ghost" data-can="${g.id}">${esc(t('chCancel'))}</button>`; }
+        if (R.invitee === who.id) { cls = 'hot'; txt = `📨 <b>${esc(tf('qgChallenges', { n: on, g: gname(R.game) }))}</b> <span class="small muted">· ${su2(R.cfg)}</span>`; btns = `<button class="btn sm hi" data-acc="${g.id}">✅ ${esc(t('chAccept'))}</button><button class="btn sm ghost" data-dec="${g.id}">${esc(t('chDecline'))}</button>`; }
+        else { txt = `${gi(R)} ⏳ ${esc(tf('chWaitAcc', { n: on }))}`; btns = `<button class="btn sm ghost" data-can="${g.id}">${esc(t('chCancel'))}</button>`; }
       } else if (R.status === 'active') {
         const mineTurn = R.toMove === who.id; cls = mineTurn ? 'hot' : '';
-        txt = `${pav(opp)} <b>${esc(on)}</b> · ${mineTurn ? `<b class="hiTxt">${esc(t('chYourTurn'))}</b>` : esc(tf('chTheirTurn', { n: on }))}`;
+        txt = `${gi(R)} ${pav(opp)} <b>${esc(on)}</b> · ${mineTurn ? `<b class="hiTxt">${esc(t('chYourTurn'))}</b>` : esc(tf('chTheirTurn', { n: on }))}`;
         btns = `<button class="btn sm ${mineTurn ? 'subject' : ''}" data-go="skaak-${g.id}">${esc(t('chOpen'))}</button>`;
       } else {
         const w = R.result && R.result.winner ? R.cfg[R.result.winner] : null;
-        txt = `${w === who.id ? '🏆' : w ? '😅' : '🤝'} ${esc(w === who.id ? t('chYouWin') : w ? tf('chTheyWin', { n: pname(w, R.cfg) }) : t('chDraw'))} <span class="small muted">· ${esc(resultText(R))}</span>`;
+        txt = `${gi(R)} ${w === who.id ? '🏆' : w ? '😅' : '🤝'} ${esc(w === who.id ? t('chYouWin') : w ? tf('chTheyWin', { n: pname(w, R.cfg) }) : t('chDraw'))} <span class="small muted">· ${esc(resultText(R))}</span>`;
         btns = `<button class="btn sm ghost" data-go="skaak-${g.id}">${esc(t('chView'))}</button>`;
       }
       return `<div class="cgame ${cls}"><div class="cg-t">${txt}</div><div class="row" style="gap:6px">${btns}</div></div>`;
@@ -2619,118 +3237,94 @@ async function renderChessLobby(main) {
       + (others.length ? `<div class="card" style="margin-bottom:14px"><h3>${esc(t('specT'))}</h3><div class="cgames">${others.map(spec).join('')}</div></div>` : '');
     box.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     const act = async (id, ev, after) => { try { await chessAppend(id, Object.assign({ by: who.id, at: Date.now() }, ev)); if (after) after(); else refresh(); } catch (e) { toast(t('chSendFail')); } };
-    box.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { const x = mine.find(y => y.g.id === b.dataset.acc); act(b.dataset.acc, { t: 'acc' }, () => { if (x) chatSys({ sys: 'acc', a: x.R.cfg.by, b: who.id }); go('skaak-' + b.dataset.acc); }); });
+    box.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { const x = mine.find(y => y.g.id === b.dataset.acc); act(b.dataset.acc, { t: 'acc' }, () => { if (x) { chatSys({ sys: 'acc', a: x.R.cfg.by, b: who.id, g: x.R.game }); pushTo([x.R.cfg.by], { title: `${GICON[x.R.game]} ${famName(who.id, 'af')} het aanvaar!`, body: `${gname(x.R.game, 'af')} het begin.`, url: './#skaak-' + b.dataset.acc }); } go('skaak-' + b.dataset.acc); }); });
     box.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => act(b.dataset.dec, { t: 'dec' }));
     box.querySelectorAll('[data-can]').forEach(b => b.onclick = () => act(b.dataset.can, { t: 'can' }));
   };
-  const su2 = (cfg) => `${cfg.secs} s · ${esc(subjLabel(cfg.subj))}`;
   const refresh = () => chessList(15).then(list => { if (S.route.s === 'chess') { draw(list); updateBadges(list); } }).catch(() => {});
   refresh();
   S._chessPoll = setInterval(() => { if (!document.hidden) refresh(); }, 8000);
 }
 
-/* ---------- the game screen ---------- */
+/* ---------- the game screen (every game) ---------- */
 function chessCleanup() {
   if (S._chessPoll) { clearInterval(S._chessPoll); S._chessPoll = null; }
   if (S._cqTimer) { clearInterval(S._cqTimer); S._cqTimer = null; }
   if (S._aiTimer) { clearTimeout(S._aiTimer); S._aiTimer = null; }
   if (S.chess) S.chess.dead = true;
 }
-async function renderChessGame(main, gid) {
+const renderChessGame = (main, gid) => renderQGame(main, gid);
+async function renderQGame(main, gid) {
   const who = me();
   let events;
   if (gid === 'l') { const loc = lsGet(locKey(who.id), null); events = loc && loc.events; }
   else {
     if (!online()) return go('skaak');
-    main.innerHTML = `<div class="splash"><div>♟️</div></div>`;
+    main.innerHTML = `<div class="splash"><div>🎲</div></div>`;
     try { events = await chessFetch(gid); } catch (e) { events = null; }
     if (S.route.s !== 'chessGame' || S.route.id !== gid) return;
   }
-  const R0 = chessReplay(events);
+  const R0 = qgReplay(events);
   if (!R0) return go('skaak');
-  const C = S.chess = { gid, local: gid === 'l', events: events.slice(), R: R0, sel: null, busy: false, pending: 0, flip: false, dead: false, qi: 0, combo: 0, life: lsGet('lh.chess.life.' + R0.cfg.id, {}), anim: null, handed: null };
-  const cfg = R0.cfg, kind = cfg.kind;
+  const G = R0.G, cfg = R0.cfg, kind = cfg.kind;
+  const C = S.chess = { gid, local: gid === 'l', events: events.slice(), R: R0, busy: false, pending: 0, flip: false, dead: false, qi: 0, combo: 0, life: lsGet('lh.chess.life.' + cfg.id, {}), anim: null, pend: null };
   C.pool = shuffle(quickPool(cfg.subj));
   const myColor = kind === 'phone' ? null : R0.colorOf(who.id);
-  const controls = (id) => kind === 'phone' ? id !== 'app' : kind === 'app' ? id === who.id : id === who.id;
-  const bottomColor = () => { if (kind === 'phone') { const c = C.R.status === 'active' ? C.R.pos.t : 'w'; return C.flip ? CHESS.other(c) : c; } const c = myColor || 'w'; return C.flip ? CHESS.other(c) : c; };
+  const spectator = kind === 'online' && !myColor;
+  const controls = (id) => kind === 'phone' ? id !== 'app' : id === who.id;
+  const bottomColor = () => { if (!G.flip) return 'w'; if (kind === 'phone') { const c = C.R.status === 'active' ? C.R.cur : 'w'; return C.flip ? CHESS.other(c) : c; } const c = myColor || 'w'; return C.flip ? CHESS.other(c) : c; };
   const subjOk = C.pool.length > 0;
-  main.innerHTML = `<div class="chead"><button class="back" data-go="skaak">← ♟️ ${esc(t('chessT'))}</button><span class="row" style="gap:6px">${kind === 'online' ? `<button class="btn sm" id="chChatB">💬<span class="bdg-in" id="chChatN" hidden></span></button>` : ''}${muteBtn()}</span></div>
+  main.innerHTML = `<div class="chead"><button class="back" data-go="skaak">← ${GICON[G.id]} ${esc(gname(G.id))}</button><span class="row" style="gap:6px">${kind === 'online' ? `<button class="btn sm" id="chChatB">💬<span class="bdg-in" id="chChatN" hidden></span></button>` : ''}${muteBtn()}</span></div>
   <div class="row small muted cchips"><span class="chip subject">${esc(subjLabel(cfg.subj))}</span><span class="chip">⏱️ ${cfg.secs} s</span>${kind === 'app' ? `<span class="chip">🤖 ${esc(t('chLvl')[cfg.lvl])}</span>` : ''}</div>
-  <div class="cwrap"><div class="cplay" id="pTop"></div><div class="cboard" id="cBoard"></div><div class="cplay" id="pBot"></div></div>
+  <div class="cwrap qg-${G.id}"><div class="cplay" id="pTop"></div><div id="cBoard"></div><div class="cplay" id="pBot"></div></div>
   <div class="cstatus" id="cStat" aria-live="polite"></div>
   <div class="row" style="justify-content:center;gap:8px;margin-top:10px" id="cActs"></div>
   <details class="card cmoves" style="margin-top:14px"><summary><b>📜 ${esc(t('chMoves'))}</b></summary><div id="cLog" class="small"></div></details>`;
   wireBack(main);
   setSubjectColor(cfg.subj !== 'all' && S.content.subjects[cfg.subj] ? S.content.subjects[cfg.subj].color : null);
-  const board = $('#cBoard');
-  board.innerHTML = Array.from({ length: 64 }, (_, i) => `<button class="csq" data-i="${i}"></button>`).join('');
-  const cells = [...board.children];
-  board.onclick = (e) => { const b = e.target.closest('.csq'); if (b) onSquare(+b.dataset.sq); };
-  const playerBar = (c) => {
-    const R = C.R, id = cfg[c], caps = capturedBy(R.pos, c), diff = matOf(caps) - matOf(capturedBy(R.pos, CHESS.other(c)));
-    const turn = R.status === 'active' && R.pos.t === c, s = R.stats[c];
-    const mine = kind !== 'phone' && id === who.id;
-    return `<span class="cp-av">${pav(id)}</span><span class="cp-nm"><b>${esc(mine ? t('chYou') : pname(id, cfg))}</b> <span class="small muted">${c === 'w' ? '⚪' : '⚫'}</span>${id !== 'app' ? `<span class="small muted"> · ✅ ${s.ok}/${s.n}</span>` : ''}<span class="cp-caps">${caps.map(pc => pieceSvg(pc)).join('')}${diff > 0 ? `<span class="small muted">+${diff}</span>` : ''}</span></span>${turn ? `<span class="cp-turn">${id === 'app' && C.busy ? '🤔' : '⏳'}</span>` : ''}`;
+  const canAct = () => !C.busy && !C.dead && C.R.status === 'active' && controls(C.R.toMove) && subjOk && !C.pending && !document.querySelector('.overlay');
+  const api = {
+    el: $('#cBoard'), R: () => C.R, canAct, canActQuiet: () => !C.busy && !C.dead && C.R.status === 'active' && controls(C.R.toMove) && !C.pending,
+    blocked: () => { if (C.R.status === 'active' && !subjOk) toast(t('chNoQs')); },
+    bottomColor, myColor: () => kind === 'phone' ? (C.R.cur || 'w') : myColor, spectator: () => spectator, kind: () => kind,
+    repaint: () => paint(), attempt: (m) => ask(m),
   };
-  const paint = () => {
+  const B = G.board(api);
+  const playerBar = (c) => {
+    const R = C.R, id = cfg[c], turn = R.status === 'active' && R.cur === c, s = R.stats[c];
+    const mine = kind !== 'phone' && id === who.id;
+    return `<span class="cp-av">${pav(id)}</span><span class="cp-nm"><b>${esc(mine ? t('chYou') : pname(id, cfg))}</b> <span class="small muted">${G.colors[c]}</span>${id !== 'app' || G.luck ? `<span class="small muted"> · ✅ ${s.ok}/${s.n}</span>` : ''}${G.barExtra ? G.barExtra(R, c) : ''}</span>${turn ? `<span class="cp-turn">${id === 'app' && C.busy ? '🤔' : '⏳'}</span>` : ''}`;
+  };
+  const overTitle = (R) => { const w = R.result && R.result.winner ? cfg[R.result.winner] : null; if (!w) return t('chDraw'); if (kind !== 'phone' && w === who.id) return t('chYouWin'); return kind === 'phone' || spectator ? tf('chWins', { n: pname(w, cfg) }) : tf('chTheyWin', { n: pname(w, cfg) }); };
+  function paint() {
     if (C.dead) return;
-    const R = C.R, bc = bottomColor(), st = R.st;
-    board.classList.toggle('flipped', bc === 'b');
-    // the king in danger: own king in check, or the other king that may be captured after a missed question
-    const kingInCheck = R.status !== 'active' || !st ? -1 : st.canTakeKing ? R.pos.b.indexOf(R.pos.t === 'w' ? 'k' : 'K') : st.check ? R.pos.b.indexOf(R.pos.t === 'w' ? 'K' : 'k') : -1;
-    const targets = C.sel !== null && st ? st.moves.filter(m => m.f === C.sel).map(m => m.t) : [];
-    cells.forEach((el, i) => {
-      // visual index i → board square
-      const sq = bc === 'w' ? i : 63 - i, r = sq >> 3, f = sq & 7, pc = R.pos.b[sq];
-      el.dataset.sq = sq;
-      el.className = 'csq ' + ((r + f) % 2 ? 'dk' : 'lt') + (R.last && (R.last.f === sq || R.last.t === sq) ? ' last' : '') + (C.sel === sq ? ' sel' : '') + (targets.includes(sq) ? (pc ? ' tgt cap' : ' tgt') : '') + (sq === kingInCheck ? ' chk' : '') + (C.pend && (C.pend.f === sq || C.pend.t === sq) ? ' pend' : '');
-      const coord = `${(bc === 'w' ? r === 7 : r === 0) ? `<span class="cf">${'abcdefgh'[f]}</span>` : ''}${(bc === 'w' ? f === 0 : f === 7) ? `<span class="cr">${8 - r}</span>` : ''}`;
-      el.innerHTML = coord + (pc ? pieceSvg(pc) : '');
-      el.setAttribute('aria-label', CHESS.sqName(sq) + (pc ? ' ' + PIECE_NAMES[L][pc.toLowerCase()] : ''));
-    });
-    if (C.anim) { // slide the piece that just moved
-      const a = C.anim; C.anim = null;
-      const toI = cells.findIndex(el => +el.dataset.sq === a.t), fromI = cells.findIndex(el => +el.dataset.sq === a.f);
-      const svg = cells[toI] && cells[toI].querySelector('.pc');
-      if (svg && fromI >= 0) {
-        const dx = (fromI % 8) - (toI % 8), dy = Math.floor(fromI / 8) - Math.floor(toI / 8);
-        svg.style.transform = `translate(${dx * 100}%, ${dy * 100}%)`; svg.style.zIndex = 3;
-        requestAnimationFrame(() => requestAnimationFrame(() => { svg.style.transition = 'transform .28s cubic-bezier(.2,.8,.2,1)'; svg.style.transform = ''; }));
-      }
-    }
-    const top = CHESS.other(bc);
+    const R = C.R, anim = C.anim; C.anim = null;
+    B.paint(R, C.pend, anim);
+    const bc = bottomColor(), top = CHESS.other(bc);
     $('#pTop').innerHTML = playerBar(top); $('#pBot').innerHTML = playerBar(bc);
-    $('#pTop').classList.toggle('on', R.status === 'active' && R.pos.t === top); $('#pBot').classList.toggle('on', R.status === 'active' && R.pos.t === bc);
-    // status line
+    $('#pTop').classList.toggle('on', R.status === 'active' && R.cur === top); $('#pBot').classList.toggle('on', R.status === 'active' && R.cur === bc);
     let s = '';
-    if (R.status === 'invite') s = R.invitee === who.id ? `📨 ${esc(tf('chChallenges', { n: pname(cfg.by, cfg) }))}` : `⏳ ${esc(tf('chWaitAcc', { n: pname(R.invitee, cfg) }))}`;
+    if (R.status === 'invite') s = R.invitee === who.id ? `📨 ${esc(tf('qgChallenges', { n: pname(cfg.by, cfg), g: gname(G.id) }))}` : `⏳ ${esc(tf('chWaitAcc', { n: pname(R.invitee, cfg) }))}`;
     else if (R.status === 'declined') s = esc(tf('chDeclined', { n: pname(R.invitee, cfg) }));
     else if (R.status === 'cancelled') s = esc(t('chCancelled'));
     else if (R.status === 'over') s = `<b>${esc(overTitle(R))}</b> · ${esc(resultText(R))}`;
     else {
-      const mover = R.toMove, mine = controls(mover), opp = pname(cfg[CHESS.other(R.pos.t)], cfg);
-      if (st.canTakeKing) s = `👑 ${esc(tf('chTakeKing', { n: opp }))}`;
-      else if (st.check && mine) s = `⚠️ <b>${esc(t('chCheck'))}</b> ${esc(t('chInCheck'))}`;
-      else if (!mine) s = mover === 'app' ? esc(t('chAppThinks')) : esc(tf('chWaitMove', { n: pname(mover, cfg) }));
-      else s = (kind === 'phone' ? `${pav(mover)} <b>${esc(pname(mover, cfg))}</b>: ` : '') + esc(C.sel === null ? t('chTapPiece') : t('chTapTarget'));
-      if (st.check && !mine && !st.canTakeKing) s = `⚠️ <b>${esc(t('chCheck'))}</b> · ` + s;
+      const mover = R.toMove, mine = controls(mover);
+      if (!mine) s = (G.waitNote ? G.waitNote(R) : '') + (mover === 'app' ? esc(t('chAppThinks')) : esc(tf('chWaitMove', { n: pname(mover, cfg) })));
+      else s = (kind === 'phone' ? `${pav(mover)} <b>${esc(pname(mover, cfg))}</b>: ` : '') + G.prompt(R, B.ui);
     }
     $('#cStat').innerHTML = s;
-    // actions
     let a = '';
     if (R.status === 'invite' && R.invitee === who.id) a = `<button class="btn hi" id="cAcc">✅ ${esc(t('chAccept'))}</button><button class="btn ghost" id="cDec">${esc(t('chDecline'))}</button>`;
-    else if (R.status === 'invite') a = `<button class="btn ghost" id="cCan">${esc(t('chCancel'))}</button>`;
-    else if (R.status === 'active') a = `<button class="btn sm ghost" id="cFlip">🔄 ${esc(t('chFlip'))}</button><button class="btn sm ghost" id="cRes">🏳️ ${esc(t('chResign'))}</button>`;
-    else a = `<button class="btn subject" id="cAgain">🔁 ${esc(t('playAgain'))}</button><button class="btn" data-go="skaak">${esc(t('back'))}</button>`;
+    else if (R.status === 'invite' && cfg.by === who.id) a = `<button class="btn ghost" id="cCan">${esc(t('chCancel'))}</button>`;
+    else if (R.status === 'active' && !spectator) a = `${G.flip ? `<button class="btn sm ghost" id="cFlip">🔄 ${esc(t('chFlip'))}</button>` : ''}<button class="btn sm ghost" id="cRes">🏳️ ${esc(t('chResign'))}</button>`;
+    else if (R.status !== 'active') a = `${spectator ? '' : `<button class="btn subject" id="cAgain">🔁 ${esc(t('playAgain'))}</button>`}<button class="btn" data-go="skaak">${esc(t('back'))}</button>`;
     $('#cActs').innerHTML = a; wireActs();
-    // move log
-    $('#cLog').innerHTML = R.hist.length ? `<ol class="clog">${R.hist.map(h => h.miss ? `<li class="miss">${pav(h.by)} ${esc(pname(h.by, cfg))}: ❌ ${esc(t('chMissed'))}${h.p ? ` <span class="muted">(${esc(PIECE_NAMES[L][h.p.toLowerCase()])} ${CHESS.sqName(h.f)}→${CHESS.sqName(h.to)})</span>` : ''}</li>` : `<li>${pav(h.by)} ${esc(PIECE_NAMES[L][h.m.p.toLowerCase()])} ${CHESS.sqName(h.m.f)}→${CHESS.sqName(h.m.t)}${h.m.x ? ' ✖ ' + esc(PIECE_NAMES[L][h.m.x.toLowerCase()]) : ''}${h.m.pr ? ' = ' + esc(PIECE_NAMES[L][h.m.pr]) : ''}${h.m.cs ? ' (0-0' + (h.m.cs.toLowerCase() === 'q' ? '-0' : '') + ')' : ''}</li>`).join('')}</ol>` : `<p class="muted">–</p>`;
-  };
-  const overTitle = (R) => { const w = R.result && R.result.winner ? cfg[R.result.winner] : null; if (!w) return t('chDraw'); if (kind !== 'phone' && w === who.id) return t('chYouWin'); return kind === 'phone' ? tf('chWins', { n: pname(w, cfg) }) : tf('chTheyWin', { n: pname(w, cfg) }); };
+    $('#cLog').innerHTML = R.hist.length ? `<ol class="clog">${R.hist.map(h => h.miss ? `<li class="miss">${pav(h.by)} ${esc(pname(h.by, cfg))}: ❌ ${esc(t('chMissed'))} <span class="muted">${G.logText(h)}</span></li>` : `<li>${pav(h.by)} ${G.logText(h)}</li>`).join('')}</ol>` : `<p class="muted">–</p>`;
+  }
   const wireActs = () => {
     const q = (id) => $('#' + id);
-    if (q('cAcc')) q('cAcc').onclick = () => commit({ t: 'acc', by: who.id }, () => chatSys({ sys: 'acc', a: cfg.by, b: who.id }));
+    if (q('cAcc')) q('cAcc').onclick = () => commit({ t: 'acc', by: who.id }, () => { chatSys({ sys: 'acc', a: cfg.by, b: who.id, g: G.id }); pushTo([cfg.by], { title: `${GICON[G.id]} ${famName(who.id, 'af')} het aanvaar!`, body: `${gname(G.id, 'af')} het begin.`, url: './#skaak-' + cfg.id }); });
     if (q('cDec')) q('cDec').onclick = () => commit({ t: 'dec', by: who.id }, () => go('skaak'));
     if (q('cCan')) q('cCan').onclick = () => commit({ t: 'can', by: who.id }, () => go('skaak'));
     if (q('cFlip')) q('cFlip').onclick = () => { C.flip = !C.flip; paint(); };
@@ -2744,42 +3338,21 @@ async function renderChessGame(main, gid) {
     };
     if (q('cAgain')) q('cAgain').onclick = () => {
       if (kind === 'online') { go('skaak'); return; }
-      const ev = Object.assign({}, cfg, { id: 'L' + rid(), at: Date.now(), w: cfg.b, b: cfg.w });
+      const id = 'L' + rid();
+      const ev = Object.assign({}, cfg, { id, seed: id, at: Date.now(), w: cfg.b, b: cfg.w });
       lsSet(locKey(who.id), { events: [ev] }); render();
     };
     $('#cActs').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   };
-  const canAct = () => !C.busy && !C.dead && C.R.status === 'active' && controls(C.R.toMove) && subjOk && !C.pending && !document.querySelector('.overlay');
-  function onSquare(sq) {
-    if (!canAct()) { if (C.R.status === 'active' && !subjOk) toast(t('chNoQs')); return; }
-    const R = C.R, st = R.st, pc = R.pos.b[sq];
-    if (C.sel !== null) {
-      const mv = st.moves.filter(m => m.f === C.sel && m.t === sq);
-      if (mv.length) { attempt(mv); return; }
-    }
-    if (pc && CHESS.colorOf(pc) === R.pos.t && st.moves.some(m => m.f === sq)) { C.sel = C.sel === sq ? null : sq; sfx('tap'); }
-    else C.sel = null;
-    paint();
-  }
-  function attempt(mvs) {
-    if (mvs.length > 1 && mvs[0].pr) {
-      const ov = document.createElement('div'); ov.className = 'overlay';
-      const c = C.R.pos.t;
-      ov.innerHTML = `<div class="modal"><h2 style="margin-bottom:12px">${esc(t('chPromo'))}</h2><div class="cpromo">${['q', 'r', 'b', 'n'].map(p => `<button data-pr="${p}" aria-label="${esc(PIECE_NAMES[L][p])}">${pieceSvg(c === 'w' ? p.toUpperCase() : p)}</button>`).join('')}</div></div>`;
-      document.body.appendChild(ov);
-      ov.querySelectorAll('[data-pr]').forEach(b => b.onclick = () => { ov.remove(); ask(mvs.find(m => m.pr === b.dataset.pr)); });
-      return;
-    }
-    ask(mvs[0]);
-  }
   function nextQ() { if (C.qi >= C.pool.length) { C.pool = shuffle(C.pool); C.qi = 0; } return C.pool[C.qi++]; }
   function ask(m) {
-    const mover = C.R.toMove, it = nextQ(), q = it.q, opts = quickOpts(q);
-    C.busy = true; C.pend = { f: m.f, t: m.t }; C.sel = null; paint();
+    if (!canAct()) return;
+    const mover = C.R.toMove, it = nextQ(), q = it.q, opts = quickOpts(q), lab = G.label(m, C.R.st);
+    C.busy = true; C.pend = m; paint();
     const lifeLeft = () => (C.life[mover] === undefined ? 2 : C.life[mover]);
     const ov = document.createElement('div'); ov.className = 'overlay sheetwrap cqwrap'; ov.id = 'cqSheet';
     ov.innerHTML = `<div class="sheet cq" role="dialog" aria-modal="true" aria-label="${esc(t('chQHead'))}"><div class="sh-grab"></div>
-      <div class="cq-head"><span class="cq-mv">${pieceSvg(m.p)}<span><b>${esc(t('chQHead'))}</b><br><span class="small muted">${kind === 'phone' ? esc(pname(mover, cfg)) + ' · ' : ''}${CHESS.sqName(m.f)} → ${CHESS.sqName(m.t)}${m.x ? ' ✖ ' + esc(PIECE_NAMES[L][m.x.toLowerCase()]) : ''}</span></span></span><span class="cq-t num" id="cqT">${cfg.secs}</span></div>
+      <div class="cq-head"><span class="cq-mv">${lab.icon}<span><b>${esc(t('chQHead'))}</b><br><span class="small muted">${kind === 'phone' ? esc(pname(mover, cfg)) + ' · ' : ''}${esc(lab.text)}</span></span></span><span class="cq-t num" id="cqT">${cfg.secs}</span></div>
       <div class="cq-bar"><i id="cqBar"></i></div>
       <div class="small muted" style="margin:8px 0 4px">${it.subj.icon} ${esc(tx(it.subj.short))} · ${esc(tx(it.topic.title))}</div>
       <div class="sh-q">${inline(tx(q.q))}</div>
@@ -2788,8 +3361,7 @@ async function renderChessGame(main, gid) {
       <div id="cqRes"></div></div>`;
     document.body.appendChild(ov);
     const btns = [...ov.querySelectorAll('.opt')], deadline = Date.now() + cfg.secs * 1000;
-    let done = false;
-    const st50 = { gone: [], used: false };
+    let done = false; const st50 = { used: false };
     $('#cqLL', ov).onclick = (e) => {
       if (lifeLeft() <= 0 || st50.used) return;
       const wrong = opts.map((o, i) => o.ok ? -1 : i).filter(i => i >= 0); if (wrong.length < 2) return;
@@ -2803,17 +3375,16 @@ async function renderChessGame(main, gid) {
       const ok = i >= 0 && opts[i].ok, ri = opts.findIndex(o => o.ok);
       btns.forEach(b => b.disabled = true); $('#cqLL', ov).disabled = true;
       if (i >= 0) btns[i].classList.add(ok ? 'right' : 'wrong'); if (btns[ri]) btns[ri].classList.add('right');
-      // learning record: only for a boy answering on his own profile
       const kidRec = S.kid && who.kid && (kind !== 'phone' || mover === who.id) && mover === S.kid.id ? S.kid : null;
       if (kidRec) { noteMistake(kidRec, it.topic, q, ok); C.combo = ok ? C.combo + 1 : 0; funAnswer(ok, { quiet: true, streak: C.combo }); C.answered = (C.answered || 0) + 1; if (C.answered % 5 === 0) S.store.saveKid(kidRec).catch(() => {}); }
       else sfx(ok ? 'ok' : 'bad');
-      const ev = ok ? { t: 'mv', n: C.R.ply, by: mover, f: m.f, to: m.t, q: 1 } : { t: 'miss', n: C.R.ply, by: mover, f: m.f, to: m.t, p: m.p };
-      if (ok && m.pr) ev.pr = m.pr;
+      const mv = G.finalize ? G.finalize(m, C.R.st) : m;
+      const ev = ok ? Object.assign({ t: 'mv', n: C.R.ply, by: mover, q: 1 }, mv) : Object.assign({ t: 'miss', n: C.R.ply, by: mover }, m, { p: lab.piece || m.p });
       if (ok) {
         $('#cqRes', ov).innerHTML = `<div class="cq-ok">${esc(t('chRight'))}</div>`;
-        setTimeout(() => { ov.remove(); C.pend = null; C.busy = false; C.anim = { f: m.f, t: m.t }; commit(ev); }, 650);
+        setTimeout(() => { ov.remove(); C.pend = null; C.busy = false; C.anim = mv; commit(ev); }, 650);
       } else {
-        const nextName = pname(cfg[CHESS.other(C.R.pos.t)], cfg);
+        const nextName = pname(cfg[CHESS.other(C.R.cur)], cfg);
         $('#cqRes', ov).innerHTML = `<div class="cq-bad"><b>${esc(i < 0 ? t('chTooSlow') : t('chWrong'))}</b> ${esc(tf('chTurnOver', { n: nextName }))}<div class="small" style="margin-top:6px">${esc(t('chRightAns'))} <b>${inline(opts[ri].txt)}</b>${q.explain ? ` – ${inline(tx(q.explain))}` : ''}</div></div><button class="btn subject block" id="cqOk" style="margin-top:10px">${esc(t('chGoOn'))}</button>`;
         let closed = false;
         const close = () => { if (closed) return; closed = true; ov.remove(); C.pend = null; C.busy = false; commit(ev); };
@@ -2837,7 +3408,7 @@ async function renderChessGame(main, gid) {
     if (C.dead && C.local) return;
     ev.at = Date.now();
     const before = C.R;
-    C.events.push(ev); C.R = chessReplay(C.events);
+    C.events.push(ev); C.R = qgReplay(C.events);
     if (C.local) lsSet(locKey(who.id), { events: C.events });
     paint();
     if (!C.local) {
@@ -2845,7 +3416,7 @@ async function renderChessGame(main, gid) {
       let okSend = false;
       for (let i = 0; i < 3 && !okSend; i++) { try { await chessAppend(gid, ev); okSend = true; } catch (e) { await new Promise(r => setTimeout(r, 1200)); } }
       C.pending--;
-      if (!okSend) { C.events.splice(C.events.indexOf(ev), 1); C.R = chessReplay(C.events); paint(); toast(t('chSendFail')); return; }
+      if (!okSend) { C.events.splice(C.events.indexOf(ev), 1); C.R = qgReplay(C.events); paint(); toast(t('chSendFail')); return; }
     }
     if (after) after();
     afterChange(before);
@@ -2859,25 +3430,26 @@ async function renderChessGame(main, gid) {
       C.busy = true; paint();
       S._aiTimer = setTimeout(() => {
         if (C.dead) return;
-        const m = CHESS.bestMove(C.R.pos, cfg.lvl);
         C.busy = false;
+        if (G.aiMiss && Math.random() < G.aiMiss(cfg.lvl)) { toast(t('qgAppMissed')); sfx('bad'); commit({ t: 'miss', n: C.R.ply, by: 'app' }); return; }
+        const m = G.ai(C.R.st, cfg.lvl);
         if (!m) return;
-        C.anim = { f: m.f, t: m.t }; sfx('tap');
-        commit({ t: 'mv', n: C.R.ply, by: 'app', f: m.f, to: m.t, pr: m.pr || undefined });
-      }, 450 + Math.random() * 500);
+        C.anim = m; sfx('tap');
+        commit(Object.assign({ t: 'mv', n: C.R.ply, by: 'app' }, m));
+      }, 500 + Math.random() * 500);
       return;
     }
     if (kind === 'phone' && (R.toMove !== before.toMove || before.force)) {
       const nm = pname(R.toMove, cfg);
-      const ov = document.createElement('div'); ov.className = 'overlay';
+      const ov = document.createElement('div'); ov.className = 'overlay' + (G.id === 'ships' ? ' solid' : '');
       ov.innerHTML = `<div class="modal"><div class="big">${pav(R.toMove)}</div><h2>${esc(tf('chPass', { n: nm }))}</h2><button class="btn hi block" id="hOk" style="margin-top:16px">${esc(tf('chIAm', { n: nm }))}</button></div>`;
       document.body.appendChild(ov);
       $('#hOk', ov).onclick = () => { ov.remove(); paint(); };
     }
-    // a boy's move in a game against Pa or Ma: let the parent know it is his turn (max once per 10 min per game)
-    if (kind === 'online' && who.kid && (R.toMove === 'pa' || R.toMove === 'ma') && before.toMove === who.id) {
+    // online: tell the other player it is their turn (max once per 5 min per game)
+    if (kind === 'online' && before.toMove === who.id && R.toMove && R.toMove !== who.id && isFam(R.toMove)) {
       const key = 'lh.chess.ping.' + cfg.id; const lastPing = lsGet(key, 0);
-      if (Date.now() - lastPing > 600000) { lsSet(key, Date.now()); pushSend({ title: `♟️ ${famName(who.id, 'af')} het geskuif`, body: `Dit is ${famName(R.toMove, 'af')} se beurt in Vraag-skaak.`, url: './#skaak-' + cfg.id }); }
+      if (Date.now() - lastPing > 300000) { lsSet(key, Date.now()); pushTo([R.toMove], { title: `${GICON[G.id]} Jou beurt in ${gname(G.id, 'af')}!`, body: `${famName(who.id, 'af')} het geskuif – dis nou jou beurt.`, url: './#skaak-' + cfg.id }); }
     }
   }
   async function gameEnd(byMe) {
@@ -2885,7 +3457,7 @@ async function renderChessGame(main, gid) {
     const winC = R.result && R.result.winner, winner = winC ? cfg[winC] : null;
     const myC = kind === 'phone' ? R.colorOf(who.id) : myColor;
     const outcome = !winner ? 'd' : (myC && winC === myC) ? 'w' : 'l';
-    const big = kind === 'phone' ? (winner ? '🏆' : '🤝') : (outcome === 'w' ? '🏆' : outcome === 'd' ? '🤝' : '😅');
+    const big = kind === 'phone' || spectator ? (winner ? '🏆' : '🤝') : (outcome === 'w' ? '🏆' : outcome === 'd' ? '🤝' : '😅');
     let xp = 0;
     const kidRec = S.kid && who.kid && S.kid.id === who.id && myC ? S.kid : null;
     const s = myC ? R.stats[myC] : { ok: 0, n: 0 };
@@ -2894,34 +3466,36 @@ async function renderChessGame(main, gid) {
       kidRec.chess.seen = kidRec.chess.seen || [];
       if (!kidRec.chess.seen.includes(cfg.id)) {
         kidRec.chess.seen.push(cfg.id); if (kidRec.chess.seen.length > 40) kidRec.chess.seen.splice(0, kidRec.chess.seen.length - 40);
-        kidRec.chess.app = kidRec.chess.app || {};
-        const bucket = kind === 'app' ? (kidRec.chess.app[cfg.lvl] = kidRec.chess.app[cfg.lvl] || {}) : (kidRec.chess.fam = kidRec.chess.fam || {});
+        const gs = gameStatsW(kidRec, G.id); gs.app = gs.app || {};
+        const bucket = kind === 'app' ? (gs.app[cfg.lvl] = gs.app[cfg.lvl] || {}) : (gs.fam = gs.fam || {});
         ['w', 'l', 'd'].forEach(k => { bucket[k] = bucket[k] || 0; });
         bucket[outcome]++;
-        const baseXp = kind === 'app' ? ({ easy: { w: 15, d: 8, l: 5 }, med: { w: 25, d: 12, l: 6 }, hard: { w: 40, d: 20, l: 8 } }[cfg.lvl] || { w: 15, d: 8, l: 5 })[outcome] : { w: 30, d: 15, l: 10 }[outcome];
+        const APPXP = { chess: [15, 25, 40], checkers: [15, 25, 40], four: [10, 20, 35], ships: [15, 20, 30], snakes: [10, 12, 15] }[G.id] || [15, 25, 40];
+        const li = { easy: 0, med: 1, hard: 2 }[cfg.lvl] || 0;
+        const baseXp = kind === 'app' ? { w: APPXP[li], d: Math.round(APPXP[li] / 2), l: 5 }[outcome] : { w: 30, d: 15, l: 10 }[outcome];
         xp = baseXp + Math.min(20, s.ok);
         kidRec.totals.games = (kidRec.totals.games || 0) + 1;
         const oppId = cfg[CHESS.other(myC)];
         const vs = kind === 'app' ? `${UI.af.chApp.toLowerCase()} (${UI.af.chLvl[cfg.lvl]})` : pname(oppId, cfg, 'af');
         const resAf = outcome === 'w' ? 'gewen 🏆' : outcome === 'd' ? 'gelykop 🤝' : 'verloor';
-        const label = `Vraag-skaak teen ${vs}: ${resAf} · vrae reg ${s.ok}/${s.n}`;
-        award(kidRec, xp, { type: 'game', game: 'chess', label }).catch(() => {});
-        if ((S.settings || {}).push) pushSend({ title: `♟️ ${kidRec.name}: Vraag-skaak ${resAf}`, body: `Teen ${vs} · ${resultText(R, 'af')} · vrae reg ${s.ok}/${s.n} · +${xp} XP`, url: './#ouer', kid: kidRec.id });
+        const label = `${gname(G.id, 'af')} teen ${vs}: ${resAf} · vrae reg ${s.ok}/${s.n}`;
+        award(kidRec, xp, { type: 'game', game: G.id === 'chess' ? 'chess' : 'qg-' + G.id, label }).catch(() => {});
+        if ((S.settings || {}).push) pushSend({ title: `${GICON[G.id]} ${kidRec.name}: ${gname(G.id, 'af')} ${resAf}`, body: `Teen ${vs} · ${resultText(R, 'af')} · vrae reg ${s.ok}/${s.n} · +${xp} XP`, url: './#ouer', kid: kidRec.id });
       }
     }
     if (byMe && kind === 'online') {
       const a = winner || cfg.w, b = winner ? cfg[CHESS.other(winC)] : cfg.b;
-      chatSys({ sys: winner ? 'win' : 'draw', a, b, r: R.result.res, rb: R.result.by });
+      chatSys({ sys: winner ? 'win' : 'draw', a, b, r: R.result.res, rb: R.result.by, g: G.id });
     }
     if (C.dead) return;
     const ov = document.createElement('div'); ov.className = 'overlay';
     ov.innerHTML = `<div class="modal"><div class="big">${big}</div><h2>${esc(overTitle(R))}</h2><p class="muted" style="margin:6px 0 10px">${esc(resultText(R))}</p>
       <div class="row" style="justify-content:center;gap:6px">${['w', 'b'].filter(c => cfg[c] !== 'app').map(c => `<span class="chip num">${pav(cfg[c])} ${esc(t('chQRight'))}: ${R.stats[c].ok}/${R.stats[c].n}</span>`).join('')}${xp ? `<span class="chip hi num">+${xp} XP</span>` : ''}</div>
-      <div class="row" style="justify-content:center;margin-top:16px"><button class="btn subject" id="eAgain">🔁 ${esc(t('playAgain'))}</button><button class="btn" id="eClose">${esc(t('close'))}</button></div></div>`;
+      <div class="row" style="justify-content:center;margin-top:16px">${spectator ? '' : `<button class="btn subject" id="eAgain">🔁 ${esc(t('playAgain'))}</button>`}<button class="btn" id="eClose">${esc(t('close'))}</button></div></div>`;
     document.body.appendChild(ov);
     if (outcome === 'w' || (kind === 'phone' && winner)) { sfx('win'); confetti(150); }
     $('#eClose', ov).onclick = () => ov.remove();
-    $('#eAgain', ov).onclick = () => { ov.remove(); const b = $('#cAgain'); if (b) b.click(); };
+    const ea = $('#eAgain', ov); if (ea) ea.onclick = () => { ov.remove(); const b = $('#cAgain'); if (b) b.click(); };
   }
   // online: follow the other phone
   if (!C.local) {
@@ -2929,12 +3503,11 @@ async function renderChessGame(main, gid) {
       if (C.dead || C.pending || C.busy) return;
       let evs; try { evs = await chessFetch(gid); } catch (e) { return; }
       if (C.dead || C.pending || C.busy || !evs || evs.length < C.events.length || JSON.stringify(evs) === JSON.stringify(C.events)) return;
-      const before = C.R; C.events = evs; C.R = chessReplay(evs);
-      if (C.R.ply > before.ply) { const h = C.R.hist[C.R.hist.length - 1]; if (h && !h.miss) { C.anim = { f: h.m.f, t: h.m.t }; sfx('tap'); } else if (h && h.miss) { toast(`${pname(h.by, cfg)}: ❌ ${t('chMissed')}`); } }
+      const before = C.R; C.events = evs; C.R = qgReplay(evs);
+      if (C.R.ply > before.ply) { const h = C.R.hist[C.R.hist.length - 1]; if (h && !h.miss) { C.anim = h.e; sfx('tap'); } else if (h && h.miss) { toast(`${pname(h.by, cfg)}: ❌ ${t('chMissed')}`); } }
       paint();
       if (C.R.status === 'over' && before.status !== 'over') gameEnd(false);
     };
-    // quick while waiting for the other phone, slower on my own turn (still catches a resign); keeps mobile data low
     let tick = 0;
     S._chessPoll = setInterval(() => { tick++; if (document.hidden) return; const waiting = C.R.status === 'invite' || (C.R.status === 'active' && !controls(C.R.toMove)); if (waiting || tick % 4 === 0) poll(); }, 2000);
     const cb = $('#chChatB'); if (cb) cb.onclick = () => chatSheet();
@@ -2943,8 +3516,7 @@ async function renderChessGame(main, gid) {
   if (R0.status === 'over') { /* just viewing */ }
   else if (kind === 'app' && R0.status === 'active' && R0.toMove === 'app') afterChange({ status: 'active', toMove: who.id });
   else if (kind === 'phone' && R0.status === 'active' && (R0.ply > 0 || R0.toMove !== who.id)) afterChange({ status: 'active', toMove: R0.toMove, force: true });
-  // a finished online game I have not seen yet (the other phone ended it)
-  if (R0.status === 'over' && kind === 'online' && S.kid && who.kid && !((S.kid.chess || {}).seen || []).includes(cfg.id)) gameEnd(false);
+  if (R0.status === 'over' && kind === 'online' && S.kid && who.kid && myColor && !((S.kid.chess || {}).seen || []).includes(cfg.id)) gameEnd(false);
 }
 
 /* ---------- family chat ---------- */
@@ -2957,7 +3529,7 @@ function chatMsgHtml(m, myId, prev) {
   let h = day !== pday ? `<div class="cday">${esc(fmtDay(day))}</div>` : '';
   if (m.sys) {
     const r = m.r ? (m.r === 'res' ? tfa(t('chRes').res, { n: famName(m.rb) }) : (t('chRes')[m.r] || '')) : '';
-    h += `<div class="csys">${esc(tfa(t('chatSys')[m.sys] || '', { a: famName(m.a), b: famName(m.b), r }))} <span class="ct">${fmtTime(m.at)}</span></div>`;
+    h += `<div class="csys">${esc(tfa(t('chatSys')[m.sys] || '', { a: famName(m.a), b: famName(m.b), r, g: gname(m.g || 'chess') }))} <span class="ct">${fmtTime(m.at)}</span></div>`;
     return h;
   }
   const mine = m.by === myId, cont = prev && !prev.sys && prev.by === m.by && day === pday && m.at - prev.at < 180000;
@@ -2987,7 +3559,8 @@ function chatUI(root, compact) {
     const ev = { id: rid(), by: who.id, txt, at: Date.now() };
     msgs.push(Object.assign({ pending: true }, ev)); draw(); sfx('tap');
     try { await chatPost(ev); } catch (e) { msgs = msgs.filter(x => x.id !== ev.id); lastSig = ''; draw(); toast(t('chSendFail')); return; }
-    if (who.kid && (S.settings || {}).push) pushSend({ title: `💬 ${who.name} in die familie-klets`, body: txt, url: './#klets' });
+    // everyone else in the family gets it on their phone (the boys too, if their notifications are on)
+    pushTo(FAMILY.map(f => f.id).filter(id => id !== who.id), { title: `💬 ${who.name} in die familie-klets`, body: txt, url: './#klets' });
   };
   $('#cForm', root).onsubmit = (e) => { e.preventDefault(); const inp = $('#cIn', root); const v = inp.value; inp.value = ''; send(v); };
   root.querySelectorAll('[data-q]').forEach(b => b.onclick = () => send(b.dataset.q));
@@ -3022,10 +3595,10 @@ function updateBadges(games, chat) {
   const b = S.badges = S.badges || {};
   if (games) {
     let inv = 0, turn = 0, from = '', newest = 0;
-    games.forEach(g => { const R = chessReplay(g.events); if (!R) return; if (R.status === 'invite' && R.invitee === who.id && R.updated > Date.now() - 14 * 86400000) { inv++; from = pname(R.cfg.by, R.cfg); newest = Math.max(newest, R.cfg.at || 0); } if (R.status === 'active' && R.toMove === who.id) turn++; });
+    games.forEach(g => { const R = chessReplay(g.events); if (!R) return; if (R.status === 'invite' && R.invitee === who.id && R.updated > Date.now() - 14 * 86400000) { inv++; from = pname(R.cfg.by, R.cfg); b.inviteGame = R.game; newest = Math.max(newest, R.cfg.at || 0); } if (R.status === 'active' && R.toMove === who.id) turn++; });
     b.invites = inv; b.myTurn = turn; b.inviteFrom = from;
     const seenInv = lsGet('lh.chess.invSeen.' + who.id, 0);
-    if (newest > seenInv) { lsSet('lh.chess.invSeen.' + who.id, newest); if (S.route.s !== 'chess') ping(`♟️ ${tf('chChallenges', { n: from })}`, 'skaak'); }
+    if (newest > seenInv) { lsSet('lh.chess.invSeen.' + who.id, newest); if (S.route.s !== 'chess') ping(`${GICON[b.inviteGame] || '🎲'} ${tf('qgChallenges', { n: from, g: gname(b.inviteGame) })}`, 'skaak'); }
   }
   if (chat) {
     const seen = lsGet(seenKey(), 0);
@@ -3082,6 +3655,118 @@ function wireSocialParent(root) {
   const pc = $('#pChess', root), pt = $('#pChat', root);
   if (pc) pc.onclick = () => { setAsParent(true); go('skaak'); };
   if (pt) pt.onclick = () => { setAsParent(true); go('klets'); };
+}
+
+/* ---------- notifications for the boys (lh-notify v2: each device says who it belongs to) ---------- */
+async function kidPushState() {
+  const st = pushSupport(); if (st !== 'ok') return st;
+  try { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); if (sub && Notification.permission === 'granted' && S.kid && lsGet('lh.kidPush', null) === S.kid.id) return 'on'; } catch (e) {}
+  return 'off';
+}
+/* slot: element to fill; opts.always: also show when it is already on (schedule page) */
+function kidPushCard(slot, opts) {
+  opts = opts || {};
+  if (!slot || !online() || !S.kid || adminViewing() || !pushUrl()) return;
+  if (!opts.always && lsGet('lh.kpLater', '') === today()) return;
+  kidPushState().then(state => {
+    if (!slot.isConnected) return;
+    if (state === 'on') {
+      if (!opts.always) { slot.innerHTML = ''; return; }
+      slot.innerHTML = `<div class="card kpcard on"><div class="row" style="justify-content:space-between;gap:8px"><span class="chip good">✅ ${esc(t('kpIsOn'))}</span><span class="row" style="gap:6px"><button class="btn sm" id="kpTest">🔔 ${esc(t('kpTest'))}</button><button class="btn sm ghost" id="kpOffB">${esc(t('kpOff'))}</button></span></div></div>`;
+      $('#kpTest', slot).onclick = () => { pushCall('send', { to: [S.kid.id], title: 'Leerhoek ✅', body: t('kpTestMsg'), url: './#rooster' }).then(r => toast(t('pushSent').replace('{n}', r.sent))).catch(e => toast(t('pushFail') + ': ' + e.message)); };
+      $('#kpOffB', slot).onclick = async () => { try { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); if (sub) { await pushCall('unsubscribe', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); } } catch (e) {} lsSet('lh.kidPush', null); kidPushCard(slot, opts); };
+      return;
+    }
+    const note = state === 'ios-home' ? t('kpIos') : state === 'denied' ? t('kpDenied') : state === 'ios-old' ? t('kpIos') : state === 'none' ? t('kpNo') : '';
+    slot.innerHTML = `<div class="card kpcard"><div class="kp-ic">🔔</div><div class="kp-t"><b>${esc(t('kpT'))}</b><span class="small muted">${esc(t('kpSub'))}</span>${note ? `<span class="small kp-note">${esc(note)}</span>` : ''}
+      <span class="row" style="gap:6px;margin-top:8px">${state === 'off' ? `<button class="btn hi sm" id="kpOnB">🔔 ${esc(t('kpOn'))}</button>` : ''}${opts.always ? '' : `<button class="btn ghost sm" id="kpLater">${esc(t('kpLater'))}</button>`}</span></div></div>`;
+    const lt = $('#kpLater', slot); if (lt) lt.onclick = () => { lsSet('lh.kpLater', today()); slot.innerHTML = ''; };
+    const on = $('#kpOnB', slot);
+    if (on) on.onclick = async () => {
+      on.disabled = true;
+      try {
+        const perm = await Notification.requestPermission(); // straight away, while the tap still counts (iPhone)
+        if (perm !== 'granted') { kidPushCard(slot, opts); return; }
+        const info = await pushCall('key');
+        const reg = await swReg();
+        let s = await reg.pushManager.getSubscription();
+        if (s && keyB64u(s.options && s.options.applicationServerKey) !== info.publicKey) { await s.unsubscribe().catch(() => {}); s = null; }
+        if (!s) s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8key(info.publicKey) });
+        await pushCall('subscribe', { sub: s.toJSON(), key: info.publicKey, label: `${S.kid.name} · ${devLabel()}`, who: S.kid.id });
+        lsSet('lh.kidPush', S.kid.id);
+        if (!(S.settings || {}).push) { S.settings.push = true; S.store.saveSettings(S.settings).catch(() => {}); }
+        pushCall('send', { to: [S.kid.id], title: 'Leerhoek ✅', body: t('kpTestMsg'), url: './#rooster' }).catch(() => {});
+        toast(t('saved'));
+      } catch (err) { toast(t('pushFail') + ': ' + (err.message || err)); }
+      kidPushCard(slot, opts);
+    };
+  });
+}
+
+/* ---------- study schedule: tests (settings.tests) + the exam timetable (settings.exams) ---------- */
+const REMIND_DEFAULT = { on: true, study: '15:30', weekend: '10:00', evening: '18:30', morning: '06:45', testDays: 3, examDays: 7, parents: false };
+const remindCfg = () => Object.assign({}, REMIND_DEFAULT, (S.settings || {}).remind || {});
+function schedItems(kidId) {
+  const st = S.settings || {}, td = today(), rc = remindCfg(), out = [];
+  (st.tests || []).forEach(x => { if (!x || !x.date || !(x.kid === 'both' || x.kid === kidId)) return; const s = S.content.subjects[x.subj]; out.push({ kind: 'test', s, subj: x.subj, date: x.date, title: x.title || '', topics: x.topics || [], id: x.id }); });
+  subjectsOfGrade(7).forEach(s => { const e = (st.exams || {})[s.id]; if (e && e.date) out.push({ kind: 'exam', s, subj: s.id, date: e.date, title: e.note || '', topics: e.topics || null }); });
+  return out.map(x => Object.assign(x, { days: daysBetween(td, x.date), lead: x.kind === 'test' ? rc.testDays : rc.examDays }))
+    .filter(x => x.days >= 0).sort((a, b) => a.days - b.days || (a.kind === 'test' ? -1 : 1));
+}
+const inStudyWindow = (x) => x.days >= 0 && x.days <= x.lead;
+function itemTitle(x) { return `${x.s ? x.s.icon + ' ' + tx(x.s.short) : x.subj} · ${x.kind === 'test' ? t('roTest') : t('roExam')}${x.title ? ' – ' + x.title : ''}`; }
+function whenText(x) { return x.days === 0 ? t('roToday2') : x.days === 1 ? t('roTomorrow') : tf('roIn', { n: x.days }); }
+function roosterHomeCard(kid) {
+  const items = schedItems(kid.id); if (!items.length) return '';
+  const x = items[0], hot = inStudyWindow(x);
+  return `<button class="card rohome ${hot ? 'hot' : ''}" data-go="rooster" style="--subject:${x.s ? x.s.color : 'var(--brand)'}"><span class="ro-ic">📅</span><span class="ro-t"><span class="label">${esc(t('roHome'))}</span><b>${esc(itemTitle(x))}</b><span class="small muted">${esc(fmtDate(x.date))} · ${esc(whenText(x))}${hot ? ' · ' + esc(x.days === 1 ? t('roLast') : t('roStarted')) : ''}</span></span><span class="cc-go">▶</span></button>`;
+}
+function renderRooster(main) {
+  const kid = S.kid, items = schedItems(kid.id), now = items.filter(inStudyWindow), plan = dailyPlan(kid);
+  const go2 = (x) => x.kind === 'exam' ? `afbakening-${x.subj}` : `vak-${x.subj}`;
+  main.innerHTML = `<button class="back" data-go="home">← ${esc(t('home'))}</button><h1>📅 ${esc(t('roT'))}</h1><p class="muted" style="margin:4px 0 14px">${esc(t('roSub'))}</p>
+  <div id="kpSlot2"></div>
+  <div class="card" style="margin-top:14px"><h2>📚 ${esc(t('roToday'))}</h2>${now.length ? `<div class="stack" style="gap:8px;margin-top:10px">${now.map(x => `<div class="roitem hot" style="--subject:${x.s ? x.s.color : 'var(--brand)'}"><div><b>${esc(itemTitle(x))}</b><div class="small muted">${esc(fmtDate(x.date))} · ${esc(whenText(x))}${x.days === 1 ? ' · ' + esc(t('roLast')) : ''}</div></div><button class="btn sm subject" data-go="${go2(x)}">${esc(t('roOpen'))}</button></div>`).join('')}</div>` : `<p class="small muted" style="margin-top:8px">${esc(t('roNothing'))}</p>`}
+    ${plan.length ? `<h3 style="margin-top:14px">🎯 ${esc(t('roPlan'))}</h3><ul class="roplan">${plan.map(m => `<li><button data-go="${topicStatus(kid, m.tp.id) === 'new' ? 'onderwerp-' : 'toets-'}${m.tp.id}" style="--subject:${m.s.color}">${isDoneToday(kid, m.tp.id) ? '✅' : '⬜'} ${m.s.icon} ${esc(tx(m.tp.title))}${m.why ? ` <span class="small muted">· ${esc(m.why)}</span>` : ''}</button></li>`).join('')}</ul>` : ''}</div>
+  <div class="card" style="margin-top:14px"><h2>🗓️ ${esc(t('roNext'))}</h2>${items.length ? `<div class="rotl">${items.map(x => `<div class="rorow ${inStudyWindow(x) ? 'hot' : ''}" style="--subject:${x.s ? x.s.color : 'var(--brand)'}"><div class="rodate"><b class="num">${esc(fmtDate(x.date))}</b><span class="small muted">${esc(whenText(x))}</span></div><div class="romain"><b>${esc(itemTitle(x))}</b><div class="small muted">${inStudyWindow(x) ? '📚 ' + esc(t('roStarted')) : `📚 ${esc(t('roStart'))}: ${esc(fmtDate(ymd(new Date(new Date(x.date + 'T12:00:00').getTime() - x.lead * 86400000))))}`}</div></div><span class="chip ${x.kind === 'exam' ? 'hi' : ''}">${esc(x.kind === 'exam' ? t('roExam') : t('roTest'))}</span></div>`).join('')}</div>` : `<p class="small muted" style="margin-top:8px">${esc(t('roNone'))}</p>`}</div>`;
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  kidPushCard($('#kpSlot2'), { always: true });
+}
+/* parent panel: tests + reminder settings */
+function testsEditor(subjects) {
+  const st = S.settings || {}, rc = remindCfg(), td = today();
+  const list = (st.tests || []).filter(x => x && x.date >= ymd(new Date(Date.now() - 2 * 86400000))).sort((a, b) => a.date < b.date ? -1 : 1);
+  const kidOpt = (v, l) => `<option value="${v}">${esc(l)}</option>`;
+  return `<div class="card" style="margin-top:14px" id="teCard"><h3>${esc(t('teT'))}</h3><p class="small muted" style="margin:4px 0 10px;max-width:75ch">${esc(t('teSub'))}</p>
+    <form id="teForm" class="teform"><label><span class="small">${esc(t('teFor'))}</span><select id="teKid">${kidOpt('both', t('teBoth'))}${KIDS.map(k => kidOpt(k.id, k.name)).join('')}</select></label>
+      <label><span class="small">${esc(t('teSubj'))}</span><select id="teSubj">${subjects.map(s => `<option value="${s.id}">${s.icon} ${esc(tx(s.short))}</option>`).join('')}</select></label>
+      <label><span class="small">${esc(t('teDate'))}</span><input type="date" id="teDate" min="${td}" required></label>
+      <label class="wide"><span class="small">${esc(t('teWhat'))}</span><input id="teWhat" maxlength="60"></label>
+      <button class="btn primary" type="submit">${esc(t('teAdd'))}</button></form>
+    <div class="telist">${list.length ? list.map(x => { const s = S.content.subjects[x.subj]; const d = daysBetween(td, x.date); return `<div class="terow"><span><b>${esc(fmtDate(x.date))}</b> · ${s ? s.icon + ' ' + esc(tx(s.short)) : esc(x.subj)}${x.title ? ' – ' + esc(x.title) : ''} <span class="small muted">· ${x.kid === 'both' ? esc(t('teBoth')) : esc(famName(x.kid))}${d >= 0 ? ' · ' + esc(tf('roIn', { n: d })) : ''}</span></span><button class="btn sm ghost" data-tdel="${esc(x.id)}" aria-label="${esc(t('teDel'))}">✕</button></div>`; }).join('') : `<p class="small muted">${esc(t('teNone'))}</p>`}</div>
+    <h3 style="margin-top:16px">${esc(t('reT'))}</h3>
+    <form id="reForm" class="reform"><label class="ck"><input type="checkbox" id="reOn" ${rc.on ? 'checked' : ''}> <span>${esc(t('reOn'))}</span></label>
+      <div class="regrid"><label><span class="small">${esc(t('reStudy'))}</span><input type="time" id="reStudy" value="${esc(rc.study)}"></label><label><span class="small">${esc(t('reWeekend'))}</span><input type="time" id="reWeekend" value="${esc(rc.weekend)}"></label><label><span class="small">${esc(t('reEvening'))}</span><input type="time" id="reEvening" value="${esc(rc.evening)}"></label><label><span class="small">${esc(t('reMorning'))}</span><input type="time" id="reMorning" value="${esc(rc.morning)}"></label>
+      <label><span class="small">${esc(t('reTestDays'))}</span><input type="number" min="1" max="14" id="reTD" value="${rc.testDays}"></label><label><span class="small">${esc(t('reExamDays'))}</span><input type="number" min="1" max="30" id="reED" value="${rc.examDays}"></label></div>
+      <label class="ck"><input type="checkbox" id="reParents" ${rc.parents ? 'checked' : ''}> <span>${esc(t('reParents'))}</span></label>
+      <button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>`;
+}
+function wireTestsEditor(root, subjects) {
+  const card = $('#teCard', root); if (!card) return;
+  const redraw = () => { card.outerHTML = testsEditor(subjects); wireTestsEditor(root, subjects); };
+  $('#teForm', card).onsubmit = async (e) => {
+    e.preventDefault(); const date = $('#teDate', card).value; if (!date) return;
+    S.settings.tests = (S.settings.tests || []).filter(x => x && x.date >= ymd(new Date(Date.now() - 30 * 86400000)));
+    S.settings.tests.push({ id: rid(), kid: $('#teKid', card).value, subj: $('#teSubj', card).value, date, title: $('#teWhat', card).value.trim().slice(0, 60) });
+    await S.store.saveSettings(S.settings); toast(t('saved')); redraw();
+  };
+  card.querySelectorAll('[data-tdel]').forEach(b => b.onclick = async () => { S.settings.tests = (S.settings.tests || []).filter(x => x.id !== b.dataset.tdel); await S.store.saveSettings(S.settings); redraw(); });
+  $('#reForm', card).onsubmit = async (e) => {
+    e.preventDefault();
+    const tm = (id, d) => /^\d\d:\d\d$/.test($(id, card).value) ? $(id, card).value : d;
+    S.settings.remind = { on: $('#reOn', card).checked, study: tm('#reStudy', '15:30'), weekend: tm('#reWeekend', '10:00'), evening: tm('#reEvening', '18:30'), morning: tm('#reMorning', '06:45'), testDays: clamp(+$('#reTD', card).value || 3, 1, 14), examDays: clamp(+$('#reED', card).value || 7, 1, 30), parents: $('#reParents', card).checked };
+    await S.store.saveSettings(S.settings); toast(t('reSaved'));
+  };
 }
 
 /* ------------------------------------------------------------------ boot */
