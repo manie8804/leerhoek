@@ -268,6 +268,7 @@ function readFamilyKey() {
   let q = null; try { q = new URLSearchParams(location.search).get('k'); } catch (e) {}
   const key = (m && m[1]) || (q && /^[A-Za-z0-9]+$/.test(q) ? q : null);
   if (key) { try { localStorage.setItem('lh.fk', key); } catch (e) {} }
+  if (m && m[2] && (m[2] === 'ouer' || KIDS.some(k => k.id === m[2]))) { try { localStorage.setItem('lh.lock', m[2]); if (m[2] !== 'ouer') localStorage.setItem('lh.kid', m[2]); else localStorage.removeItem('lh.kid'); } catch (e) {} }
   if (m) { try { history.replaceState(null, '', location.pathname + '?k=' + m[1] + '#' + (m[2] || 'profiel')); } catch (e) { location.hash = m[2] || 'profiel'; } }
   if (key) return key;
   try { return localStorage.getItem('lh.fk'); } catch (e) { return null; }
@@ -317,7 +318,7 @@ async function pushCall(action, extra) {
 /* study sessions: a push each time a boy opens Leerhoek, and one with a summary each time he closes it or switches away */
 const isParentDevice = () => { try { return localStorage.getItem('lh.parentDevice') === '1'; } catch (e) { return false; } };
 function ensureSession() {
-  if (!S.kid || S.storeKind !== 'supa' || ['parent', 'gate'].includes(S.route.s) || document.hidden || isParentDevice()) return;
+  if (!S.kid || S.storeKind !== 'supa' || ['parent', 'gate'].includes(S.route.s) || document.hidden || isParentDevice() || adminViewing()) return;
   if (S.sess && S.sess.kid === S.kid.id) return;
   if (S.sess) endSession(); // switched to the other boy on the same device
   S.sess = { kid: S.kid.id, name: S.kid.name, start: Date.now(), tests: 0, xp: 0 };
@@ -487,7 +488,10 @@ function parseRoute() {
   if (h === 'uitdaging') return { s: 'week' };
   if (h === 'woordeboek') return { s: 'dict' };
   if (h === 'afrigter') return { s: 'coach' };
+  if (h === 'skaak') return { s: 'chess' };
+  if (h === 'klets') return { s: 'chat' };
   let m;
+  if ((m = h.match(/^skaak-([A-Za-z0-9]+)$/))) return { s: 'chessGame', id: m[1] };
   if ((m = h.match(/^afbakening-(.+)$/))) return { s: 'scope', id: m[1] };
   if ((m = h.match(/^herdoen(?:-(.+))?$/))) return { s: 'redo', id: m[1] || 'all' };
   if ((m = h.match(/^spel-(.+)$/))) return { s: 'game', id: m[1] };
@@ -500,16 +504,19 @@ function parseRoute() {
 }
 function nav() {
   const r = parseRoute();
-  const items = [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
-  const hashes = { home: 'home', subjects: 'vakke', exams: 'eksamens', games: 'speel', dict: 'woordeboek', parent: 'ouer', badges: 'kentekens', resources: 'hulpbronne' };
-  const groups = { subjects: ['subject', 'topic', 'quiz', 'exam', 'paper', 'resources'], exams: ['scope', 'mistakes', 'redo'], games: ['game', 'week', 'badges'] };
+  const parentDev = deviceLock() === 'ouer';
+  const items = parentDev && !S.kid ? [['parent', '👪', t('parent')], ['chess', '♟️', t('navChess')], ['chat', '💬', t('navChat')]] : [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
+  const hashes = { home: 'home', subjects: 'vakke', exams: 'eksamens', games: 'speel', dict: 'woordeboek', parent: 'ouer', badges: 'kentekens', resources: 'hulpbronne', chess: 'skaak', chat: 'klets' };
+  const groups = { subjects: ['subject', 'topic', 'quiz', 'exam', 'paper', 'resources'], exams: ['scope', 'mistakes', 'redo'], games: ['game', 'week', 'badges', 'chess', 'chessGame'], chess: ['chessGame'] };
   const on = (k) => (r.s === k || (groups[k] || []).includes(r.s)) ? 'on' : '';
   $('#bottomnav').innerHTML = items.map(([k, ic, lb]) => `<button class="${on(k)}" data-go="${hashes[k]}"><span class="ic">${ic}</span>${esc(lb)}</button>`).join('');
   $('#desknav').innerHTML = items.map(([k, ic, lb]) => `<button class="${on(k)}" data-go="${hashes[k]}">${esc(lb)}</button>`).join('');
   document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  updateSocialUi();
 }
 function renderWho() {
   const w = $('#whoBtn');
+  const asP = me(); if (asP && !asP.kid) { w.hidden = false; $('#whoAv').textContent = asP.avatar; $('#whoNm').textContent = asP.name; return; }
   if (!S.kid) { w.hidden = true; return; }
   w.hidden = false; $('#whoAv').textContent = S.kid.avatar; $('#whoNm').innerHTML = `${esc(S.kid.name)}<span class="num"> · ${S.kid.xp} XP</span>`;
 }
@@ -526,12 +533,15 @@ async function render() {
   document.querySelectorAll('.overlay').forEach(o => o.remove());
   if (S.paperTimer) { clearInterval(S.paperTimer); S.paperTimer = null; }
   clearGame();
+  if (S.asParent && !SOCIAL.includes(r.s) && r.s !== 'parent') setAsParent(false);
   if (r.kid && r.kid !== S.kidId && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(r.kid);
-  nav();
+  if (lockedKid() && (!S.kid || !kidAllowed(S.kid.id)) && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(lockedKid());
+  nav(); renderWho();
   if (!S.content) { main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`; return; }
   if (r.s === 'parent') return renderParent(main);
   if (r.s === 'resources') return renderResources(main);
   if (window.LH_CONFIG && (S.keyProblem === 'missing' || S.keyProblem === 'bad')) return renderGate(main);
+  if (SOCIAL.includes(r.s)) return renderSocial(main, r);
   if (!S.kid || r.s === 'gate') return renderGate(main);
   ensureSession();
   setSubjectColor(null);
@@ -557,7 +567,7 @@ async function render() {
   }
 }
 async function selectKid(id) {
-  const k = KIDS.find(x => x.id === id); if (!k) return;
+  const k = KIDS.find(x => x.id === id); if (!k || !kidAllowed(id)) return;
   S.kidId = id; S.kid = await S.store.loadKid(id);
   try { localStorage.setItem('lh.kid', id); } catch (e) {}
   if (S._unsubKid) S._unsubKid();
@@ -581,11 +591,13 @@ function renderGate(main) {
   ${blocked ? '' : '<div class="profiles" id="profiles"></div>'}${linkPanel()}<div style="margin-top:20px;text-align:left">${instSlot()}</div></div>`;
   wireLinkPanel(); wireInstall();
   if (blocked) return;
-  const box = $('#profiles');
-  Promise.all(KIDS.map(k => S.store.loadKid(k.id))).then(kids => {
+  const box = $('#profiles'), lk = deviceLock();
+  // one device = one person: a boy's device only shows his own profile, a parent device none
+  Promise.all(KIDS.filter(k => lk === 'ouer' || kidAllowed(k.id)).map(k => S.store.loadKid(k.id))).then(kids => {
     box.innerHTML = kids.map(k => `<button class="profile" data-kid="${k.id}"><span class="big">${k.avatar}</span><span class="nm">${esc(k.name)}</span><span class="lv">${esc(t('level'))} ${levelOf(k.xp)} · ${k.xp} XP</span></button>`).join('')
-      + `<button class="profile" data-parent="1"><span class="big">👪</span><span class="nm">${esc(t('parent'))}</span><span class="lv">${esc(t('parentSub'))}</span></button>`;
-    box.querySelectorAll('[data-kid]').forEach(b => b.onclick = async () => { await selectKid(b.dataset.kid); go('home'); });
+      + `<button class="profile" data-parent="1"><span class="big">👪</span><span class="nm">${esc(t('parent'))}</span><span class="lv">${esc(t('parentSub'))}</span></button>`
+      + (lk ? `<p class="small muted locknote" style="grid-column:1/-1">${esc(lk === 'ouer' ? t('lockParent') : tf('lockNote', { n: famName(lk) }))}</p>` : '');
+    box.querySelectorAll('[data-kid]').forEach(b => b.onclick = async () => { const id = b.dataset.kid; if (!kidAllowed(id)) { S.afterUnlock = id; go('ouer'); return; } if (!deviceLock()) setLock(id); await selectKid(id); go('home'); });
     $('[data-parent]', box).onclick = () => go('ouer');
   });
 }
@@ -599,7 +611,7 @@ function renderHome(main) {
   const exam = nx ? nx.days : (S.settings.examDate ? daysBetween(today(), S.settings.examDate) : null);
   const examLabel = nx ? `${nx.s.icon} ${tx(nx.s.name)} · ${fmtDate(nx.sc.date)}` : (S.settings.examTitle || '');
   const term = curTerm(), chest = chestState(kid), mc = mistakeCount(kid), wd = wordOfDay();
-  main.innerHTML = `${instSlot()}
+  main.innerHTML = `${adminBanner()}${instSlot()}
   <div class="hero">
     <div class="greet"><h1>${esc(t('hello'))}, <span style="--subject:var(--brand)">${esc(kid.name)}</span>! 👋</h1>
       <p class="muted" style="margin-top:6px">${esc(t('tagline'))}</p>
@@ -615,7 +627,7 @@ function renderHome(main) {
       <div class="stats"><div class="stat"><div class="v num"><span class="flame">🔥</span> ${kid.streak.count}</div><div class="k">${esc(t('streak'))}</div></div><div class="stat"><div class="v num">${kid.totals.quizzes}</div><div class="k">${esc(t('quizzes'))}</div></div><div class="stat"><div class="v num">🏅 ${kid.badges.length}</div><div class="k">${esc(t('badges'))}</div></div></div>
     </div>
   </div>
-  ${missionCard(kid)}
+  ${missionCard(kid)}${chessHomeBanner()}
   <div class="tiles">
     <button class="card tile ${chest.ready ? 'ready' : ''}" id="chestT"><span class="ti">${chest.opened ? '💰' : '🎁'}</span><b>${esc(t('chestT'))}</b><span class="small muted">${chest.opened ? esc(t('chestDone')) : chest.ready ? esc(t('chestReady')) : `<span class="num">${Math.min(3, chest.tests)}/3</span> ${esc(t('testsToday'))}`}</span>${!chest.opened && !chest.ready ? `<div class="bar-h" style="margin-top:auto"><i style="width:${Math.round(100 * Math.min(3, chest.tests) / 3)}%;background:var(--hi)"></i></div>` : ''}</button>
     <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
@@ -958,7 +970,7 @@ async function renderParent(main) {
     main.innerHTML = `<div class="pinpad card pad-lg"><div style="font-size:44px">🔐</div><h2 style="margin:8px 0">${esc(t('parentPin'))}</h2><p class="muted small" style="margin-bottom:14px">${esc(first ? t('setPin') : t('enterPin'))}</p><form id="pinf"><input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off"><div id="pinerr" class="small" style="color:var(--bad);min-height:20px;margin:6px 0"></div><button class="btn primary block" type="submit">${esc(first ? t('savePin') : t('unlock'))}</button></form><button class="back" style="margin-top:14px" data-go="profiel">← ${esc(t('switchUser'))}</button></div><div style="max-width:420px;margin:18px auto 0">${instSlot()}</div>`;
     $('[data-go]', main).onclick = () => go('profiel'); wireInstall();
     const inp = $('#pin'); inp.focus();
-    $('#pinf').onsubmit = async (e) => { e.preventDefault(); const v = inp.value.trim(); if (!/^\d{4,6}$/.test(v)) { $('#pinerr').textContent = t('setPin'); return; } const h = await sha(v); if (first) { S.settings.pinHash = h; await S.store.saveSettings(S.settings); S.parentUnlocked = true; render(); } else if (h === S.settings.pinHash) { S.parentUnlocked = true; render(); } else { $('#pinerr').textContent = t('pinWrong'); inp.value = ''; inp.classList.add('wrong'); setTimeout(() => inp.classList.remove('wrong'), 500); } };
+    $('#pinf').onsubmit = async (e) => { e.preventDefault(); const v = inp.value.trim(); if (!/^\d{4,6}$/.test(v)) { $('#pinerr').textContent = t('setPin'); return; } const h = await sha(v); if (first) { S.settings.pinHash = h; await S.store.saveSettings(S.settings); S.parentUnlocked = true; if (!lhAfterUnlock()) render(); } else if (h === S.settings.pinHash) { S.parentUnlocked = true; if (!lhAfterUnlock()) render(); } else { $('#pinerr').textContent = t('pinWrong'); inp.value = ''; inp.classList.add('wrong'); setTimeout(() => inp.classList.remove('wrong'), 500); } };
     return;
   }
   const subjects = subjectsOfGrade(7);
@@ -970,8 +982,8 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${notifyCard()}${coachParentCard()}${scopeEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main);
+  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${coachParentCard()}${scopeEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
@@ -1335,7 +1347,7 @@ function missionComplete(kid) {
 }
 /* ☀️ daily welcome (first visit of the day per boy): streak, mission, exam countdown and a fun fact */
 function maybeWelcome() {
-  const kid = S.kid; if (!kid) return;
+  const kid = S.kid; if (!kid || adminViewing()) return;
   const key = 'lh.welcome.' + kid.id; let last = null; try { last = localStorage.getItem(key); } catch (e) {}
   if (last === today()) return;
   setTimeout(() => {
@@ -1506,6 +1518,7 @@ function renderGames(main) {
     <div class="card"><h3>🏆 ${esc(t('weekT'))}</h3><div id="twinBox" class="small muted" style="margin-top:8px">…</div></div>
     <div class="card"><h3>⚔️ ${esc(t('chalT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chalSub'))}</p><div class="row" style="justify-content:space-between"><span class="chip ${ch ? 'good' : ''}">${ch ? `✓ ${esc(t('chalDone'))}: <span class="num">${ch.score}/${ch.total}</span>` : esc(t('chalNot'))}</span><button class="btn subject" data-go="uitdaging">${esc(ch ? t('chalReplay') : t('chalPlay'))} →</button></div></div>
   </div>
+  ${chessHubCard()}
   <h2 style="margin:22px 0 4px">🧠 ${esc(t('gamesFor'))}: <span style="color:var(--subject)">${esc(subjLabel(cur))}</span></h2><p class="small muted" style="margin-bottom:8px">${esc(t('pickSubj'))}</p>${subjChips(cur, 'gs')}
   <div class="games" style="margin-top:12px">${GAMES.map(([slug, key, ic], i) => { const [nm, ds] = t('g.' + key); const st = g[key] || {}; const n = gameCount(key, cur); return `<button class="game" data-go="spel-${slug}" style="animation-delay:${i * 60}ms"><span class="gi">${ic}</span><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span><span class="row" style="gap:4px">${key === 'sprint' ? `<span class="chip">📐 ${esc(t('alwaysMaths'))}</span>` : `<span class="chip subject num">${esc(subjLabel(cur).split(' ')[0])} ${n} ${esc(key === 'blitz' ? t('nStatements') : key === 'quick' ? t('nQuestions') : t('nWords'))}</span>`}${st.plays ? `<span class="chip hi num">${esc(t('best'))}: ${esc(bestText(key, st.best))}</span>` : ''}</span></button>`; }).join('')}</div>
   <div class="row" style="margin-top:18px"><button class="btn" data-go="kentekens">🏅 ${esc(t('badges'))}</button><button class="btn" data-go="foute">❌ ${esc(t('mistakesT'))}</button></div>`;
@@ -1534,7 +1547,7 @@ async function gameOver(main, key, score, xp, big, line, lowerBetter, extra) {
   if (rec && st.plays > 1) confetti(160); else if (xp >= 20) confetti(70);
   await award(kid, xp, { type: 'game', game: key, label: `${nm}: ${line}` });
 }
-function clearGame() { if (S._gameTimer) { clearInterval(S._gameTimer); S._gameTimer = null; } if (S._keyH) { document.removeEventListener('keydown', S._keyH); S._keyH = null; } }
+function clearGame() { chessCleanup(); if (S._gameTimer) { clearInterval(S._gameTimer); S._gameTimer = null; } if (S._keyH) { document.removeEventListener('keydown', S._keyH); S._keyH = null; } }
 function setKeys(fn) { if (S._keyH) document.removeEventListener('keydown', S._keyH); S._keyH = fn; document.addEventListener('keydown', fn); }
 
 /* memory pairs: Afrikaans word ↔ English word */
@@ -2052,13 +2065,1025 @@ function checkForUpdate() {
     let done = null; try { done = sessionStorage.getItem('lh.upd'); } catch (e) {}
     if (done === j.v) return; // already tried once for this version
     const reload = () => { try { sessionStorage.setItem('lh.upd', j.v); } catch (e) {} const p = new URLSearchParams(location.search); p.set('u', j.v); location.replace(location.pathname + '?' + p.toString() + location.hash); };
-    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'game', 'coach'].includes(S.route.s)) {
+    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'game', 'coach', 'chess', 'chessGame', 'chat'].includes(S.route.s)) {
       if (document.getElementById('updBar')) return;
       const bar = document.createElement('button'); bar.id = 'updBar'; bar.className = 'toast show'; bar.style.pointerEvents = 'auto'; bar.style.cursor = 'pointer';
       bar.textContent = L === 'af' ? '✨ Nuwe weergawe – tik om op te dateer' : '✨ New version – tap to update'; bar.onclick = reload; document.body.appendChild(bar);
     } else reload();
   }).catch(() => {});
 }
+/* ---------- Vraag-skaak: chess rules + a small engine for "against the app" ----------
+   Board: b[64], sq = r*8 + f, r = 0 is rank 8 (black's back rank), f = 0 is the a-file.
+   Pieces: 'PNBRQK' white, 'pnbrqk' black, null = empty.
+   Special rule for question chess: a player who answers wrong loses his turn (pass). If he was in check,
+   his king stays attacked and the other side may capture it, which wins the game. */
+const CHESS = (() => {
+  const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  const colorOf = (pc) => !pc ? null : (pc === pc.toUpperCase() ? 'w' : 'b');
+  const other = (c) => c === 'w' ? 'b' : 'w';
+  const sqName = (s) => 'abcdefgh'[s & 7] + (8 - (s >> 3));
+  const KN = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+  const KG = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+  const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]], ORTH = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+  const isKing = (pc) => pc === 'K' || pc === 'k';
+  function parseFEN(fen) {
+    const [bd, t, c, ep, h, n] = fen.split(' ');
+    const b = Array(64).fill(null); let s = 0;
+    for (const ch of bd) { if (ch === '/') continue; if (/\d/.test(ch)) s += +ch; else b[s++] = ch; }
+    return { b, t: t || 'w', c: !c || c === '-' ? '' : c, ep: !ep || ep === '-' ? -1 : ('abcdefgh'.indexOf(ep[0]) + (8 - +ep[1]) * 8), h: +h || 0, n: +n || 1 };
+  }
+  function toFEN(p) {
+    let s = '';
+    for (let r = 0; r < 8; r++) { let e = 0; for (let f = 0; f < 8; f++) { const pc = p.b[r * 8 + f]; if (!pc) e++; else { if (e) { s += e; e = 0; } s += pc; } } if (e) s += e; if (r < 7) s += '/'; }
+    return `${s} ${p.t} ${p.c || '-'} ${p.ep >= 0 ? sqName(p.ep) : '-'} ${p.h} ${p.n}`;
+  }
+  const start = () => parseFEN(START);
+  /* is square sq attacked by colour `by`? */
+  function attacked(b, sq, by) {
+    const r = sq >> 3, f = sq & 7;
+    const w = by === 'w', P = w ? 'P' : 'p', N = w ? 'N' : 'n', K = w ? 'K' : 'k', B = w ? 'B' : 'b', R = w ? 'R' : 'r', Q = w ? 'Q' : 'q';
+    const pr = w ? r + 1 : r - 1; // a white pawn attacks upwards, so it sits one rank below
+    if (pr >= 0 && pr < 8) { if (f > 0 && b[pr * 8 + f - 1] === P) return true; if (f < 7 && b[pr * 8 + f + 1] === P) return true; }
+    for (const [dr, df] of KN) { const rr = r + dr, ff = f + df; if (rr >= 0 && rr < 8 && ff >= 0 && ff < 8 && b[rr * 8 + ff] === N) return true; }
+    for (const [dr, df] of KG) { const rr = r + dr, ff = f + df; if (rr >= 0 && rr < 8 && ff >= 0 && ff < 8 && b[rr * 8 + ff] === K) return true; }
+    for (const [dr, df] of DIAG) { let rr = r + dr, ff = f + df; while (rr >= 0 && rr < 8 && ff >= 0 && ff < 8) { const pc = b[rr * 8 + ff]; if (pc) { if (pc === B || pc === Q) return true; break; } rr += dr; ff += df; } }
+    for (const [dr, df] of ORTH) { let rr = r + dr, ff = f + df; while (rr >= 0 && rr < 8 && ff >= 0 && ff < 8) { const pc = b[rr * 8 + ff]; if (pc) { if (pc === R || pc === Q) return true; break; } rr += dr; ff += df; } }
+    return false;
+  }
+  const kingSq = (b, c) => b.indexOf(c === 'w' ? 'K' : 'k');
+  function inCheck(p, c) { c = c || p.t; const k = kingSq(p.b, c); return k >= 0 && attacked(p.b, k, other(c)); }
+  /* pseudo-legal moves: { f, t, p (piece), x (captured piece), pr (promotion 'qrbn'), dbl, ep, cs (castle 'K','Q','k','q') } */
+  function pseudo(p, capsOnly) {
+    const out = [], b = p.b, c = p.t, opp = other(c);
+    for (let s = 0; s < 64; s++) {
+      const pc = b[s]; if (!pc || colorOf(pc) !== c) continue;
+      const r = s >> 3, f = s & 7, T = pc.toUpperCase();
+      const add = (to, extra) => { const m = { f: s, t: to, p: pc, x: b[to] || null }; if (extra) Object.assign(m, extra); out.push(m); };
+      if (T === 'P') {
+        const dr = c === 'w' ? -1 : 1, home = c === 'w' ? 6 : 1, last = c === 'w' ? 0 : 7, r1 = r + dr;
+        if (r1 < 0 || r1 > 7) continue;
+        const one = r1 * 8 + f;
+        if (!b[one]) {
+          if (r1 === last) { for (const pr of 'qrbn') add(one, { pr }); }
+          else if (!capsOnly) { add(one); const two = (r + 2 * dr) * 8 + f; if (r === home && !b[two]) add(two, { dbl: 1 }); }
+        }
+        for (const df of [-1, 1]) {
+          const ff = f + df; if (ff < 0 || ff > 7) continue; const to = r1 * 8 + ff;
+          if (b[to] && colorOf(b[to]) === opp) { if (r1 === last) { for (const pr of 'qrbn') add(to, { pr }); } else add(to); }
+          else if (to === p.ep && !b[to]) add(to, { ep: 1, x: c === 'w' ? 'p' : 'P' });
+        }
+      } else if (T === 'N' || T === 'K') {
+        for (const [dr, df] of (T === 'N' ? KN : KG)) { const rr = r + dr, ff = f + df; if (rr < 0 || rr > 7 || ff < 0 || ff > 7) continue; const to = rr * 8 + ff; if (b[to] ? colorOf(b[to]) === opp : !capsOnly) add(to); }
+        if (T === 'K' && !capsOnly) {
+          const hs = c === 'w' ? 60 : 4, R = c === 'w' ? 'R' : 'r', ks = c === 'w' ? 'K' : 'k', qs = c === 'w' ? 'Q' : 'q';
+          if (s === hs && !attacked(b, hs, opp)) {
+            if (p.c.includes(ks) && b[hs + 3] === R && !b[hs + 1] && !b[hs + 2] && !attacked(b, hs + 1, opp) && !attacked(b, hs + 2, opp)) add(hs + 2, { cs: ks });
+            if (p.c.includes(qs) && b[hs - 4] === R && !b[hs - 1] && !b[hs - 2] && !b[hs - 3] && !attacked(b, hs - 1, opp) && !attacked(b, hs - 2, opp)) add(hs - 2, { cs: qs });
+          }
+        }
+      } else {
+        const dirs = T === 'B' ? DIAG : T === 'R' ? ORTH : DIAG.concat(ORTH);
+        for (const [dr, df] of dirs) {
+          let rr = r + dr, ff = f + df;
+          while (rr >= 0 && rr < 8 && ff >= 0 && ff < 8) { const to = rr * 8 + ff; if (b[to]) { if (colorOf(b[to]) === opp) add(to); break; } if (!capsOnly) add(to); rr += dr; ff += df; }
+        }
+      }
+    }
+    return out;
+  }
+  const ROOK_FROM_TO = { K: [63, 61], Q: [56, 59], k: [7, 5], q: [0, 3] };
+  const RIGHTS_SQ = { 63: 'K', 56: 'Q', 7: 'k', 0: 'q' };
+  function apply(p, m) {
+    const b = p.b.slice(), c = p.t;
+    b[m.t] = m.pr ? (c === 'w' ? m.pr.toUpperCase() : m.pr.toLowerCase()) : b[m.f]; b[m.f] = null;
+    if (m.ep) b[m.t + (c === 'w' ? 8 : -8)] = null;
+    if (m.cs) { const [a, z] = ROOK_FROM_TO[m.cs]; b[z] = b[a]; b[a] = null; }
+    let cr = p.c;
+    if (m.p === 'K') cr = cr.replace('K', '').replace('Q', '');
+    if (m.p === 'k') cr = cr.replace('k', '').replace('q', '');
+    if (RIGHTS_SQ[m.f]) cr = cr.replace(RIGHTS_SQ[m.f], '');
+    if (RIGHTS_SQ[m.t]) cr = cr.replace(RIGHTS_SQ[m.t], '');
+    return { b, t: other(c), c: cr, ep: m.dbl ? (m.f + m.t) / 2 : -1, h: (m.p === 'P' || m.p === 'p' || m.x) ? 0 : p.h + 1, n: p.n + (c === 'b' ? 1 : 0) };
+  }
+  /* a wrong answer: the turn goes to the other player, nothing moves */
+  const pass = (p) => ({ b: p.b.slice(), t: other(p.t), c: p.c, ep: -1, h: p.h + 1, n: p.n + (p.t === 'b' ? 1 : 0) });
+  function legal(p, capsOnly) {
+    const c = p.t;
+    return pseudo(p, capsOnly).filter(m => { if (isKing(m.x)) return true; const q = apply(p, m); const k = kingSq(q.b, c); return k < 0 || !attacked(q.b, k, q.t); });
+  }
+  function insufficient(b) {
+    const rest = b.filter(pc => pc && !isKing(pc));
+    if (!rest.length) return true;
+    return rest.length === 1 && 'NnBb'.includes(rest[0]);
+  }
+  /* state of the position for the side to move */
+  function status(p) {
+    const moves = legal(p);
+    const canTakeKing = moves.some(m => isKing(m.x));
+    if (canTakeKing) return { over: false, moves, canTakeKing, check: inCheck(p) };
+    if (!moves.length) return inCheck(p) ? { over: true, res: 'mate', winner: other(p.t), moves } : { over: true, res: 'stale', moves };
+    if (insufficient(p.b)) return { over: true, res: 'insuf', moves };
+    if (p.h >= 100) return { over: true, res: 'fifty', moves };
+    return { over: false, moves, check: inCheck(p) };
+  }
+  function perft(p, d) { if (d === 0) return 1; let n = 0; for (const m of legal(p)) n += perft(apply(p, m), d - 1); return n; }
+
+  /* ---------- engine (negamax + alpha-beta + quiescence, material + piece-square tables) ---------- */
+  const VAL = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 0 };
+  const PST = {
+    P: [0, 0, 0, 0, 0, 0, 0, 0, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 20, 30, 30, 20, 10, 10, 5, 5, 10, 25, 25, 10, 5, 5, 0, 0, 0, 20, 20, 0, 0, 0, 5, -5, -10, 0, 0, -10, -5, 5, 5, 10, 10, -20, -20, 10, 10, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+    N: [-50, -40, -30, -30, -30, -30, -40, -50, -40, -20, 0, 0, 0, 0, -20, -40, -30, 0, 10, 15, 15, 10, 0, -30, -30, 5, 15, 20, 20, 15, 5, -30, -30, 0, 15, 20, 20, 15, 0, -30, -30, 5, 10, 15, 15, 10, 5, -30, -40, -20, 0, 5, 5, 0, -20, -40, -50, -40, -30, -30, -30, -30, -40, -50],
+    B: [-20, -10, -10, -10, -10, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 10, 10, 5, 0, -10, -10, 5, 5, 10, 10, 5, 5, -10, -10, 0, 10, 10, 10, 10, 0, -10, -10, 10, 10, 10, 10, 10, 10, -10, -10, 5, 0, 0, 0, 0, 5, -10, -20, -10, -10, -10, -10, -10, -10, -20],
+    R: [0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 10, 10, 10, 10, 10, 5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, 0, 0, 0, 5, 5, 0, 0, 0],
+    Q: [-20, -10, -10, -5, -5, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 5, 5, 5, 0, -10, -5, 0, 5, 5, 5, 5, 0, -5, 0, 0, 5, 5, 5, 5, 0, -5, -10, 5, 5, 5, 5, 5, 0, -10, -10, 0, 5, 0, 0, 0, 0, -10, -20, -10, -10, -5, -5, -10, -10, -20],
+    K: [-30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -20, -30, -30, -40, -40, -30, -30, -20, -10, -20, -20, -20, -20, -20, -20, -10, 20, 20, 0, 0, 0, 0, 20, 20, 20, 30, 10, 0, 0, 10, 30, 20],
+    KE: [-50, -40, -30, -20, -20, -30, -40, -50, -30, -20, -10, 0, 0, -10, -20, -30, -30, -10, 20, 30, 30, 20, -10, -30, -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 20, 30, 30, 20, -10, -30, -30, -30, 0, 0, 0, 0, -30, -30, -50, -30, -30, -30, -30, -30, -30, -50],
+  };
+  function evaluate(p) {
+    const b = p.b; let s = 0, heavy = 0;
+    for (let i = 0; i < 64; i++) { const pc = b[i]; if (pc && 'QqRr'.includes(pc)) heavy += pc === 'Q' || pc === 'q' ? 2 : 1; }
+    const endgame = heavy <= 2;
+    for (let i = 0; i < 64; i++) {
+      const pc = b[i]; if (!pc) continue; const T = pc.toUpperCase(), w = pc === T;
+      const idx = w ? i : ((7 - (i >> 3)) * 8 + (i & 7));
+      const v = VAL[T] + (T === 'K' && endgame ? PST.KE : PST[T])[idx];
+      s += w ? v : -v;
+    }
+    return p.t === 'w' ? s : -s;
+  }
+  const MATE = 100000;
+  const score = (m) => (m.x ? 10 * (isKing(m.x) ? 2000 : VAL[m.x.toUpperCase()]) - VAL[m.p.toUpperCase()] / 10 : 0) + (m.pr === 'q' ? 800 : 0);
+  const order = (ms) => ms.sort((a, z) => score(z) - score(a));
+  function quiesce(p, alpha, beta, ply, qd, ctx) {
+    ctx.nodes++;
+    const stand = evaluate(p);
+    if (stand >= beta) return stand;
+    if (stand > alpha) alpha = stand;
+    if (qd <= 0 || ctx.nodes > ctx.max) return stand;
+    for (const m of order(legal(p, true))) {
+      if (isKing(m.x)) return MATE - ply;
+      const sc = -quiesce(apply(p, m), -beta, -alpha, ply + 1, qd - 1, ctx);
+      if (sc >= beta) return sc;
+      if (sc > alpha) alpha = sc;
+    }
+    return alpha;
+  }
+  function negamax(p, depth, alpha, beta, ply, ctx) {
+    ctx.nodes++;
+    const ms = legal(p);
+    for (const m of ms) if (isKing(m.x)) return MATE - ply;
+    if (!ms.length) return inCheck(p) ? -(MATE - ply) : 0;
+    if (p.h >= 100 || insufficient(p.b)) return 0;
+    if (depth <= 0) return quiesce(p, alpha, beta, ply, 4, ctx);
+    let best = -Infinity;
+    for (const m of order(ms)) {
+      const sc = -negamax(apply(p, m), depth - 1, -beta, -alpha, ply + 1, ctx);
+      if (sc > best) best = sc;
+      if (sc > alpha) alpha = sc;
+      if (alpha >= beta) break;
+    }
+    return best;
+  }
+  const LEVELS = { easy: { d: 1, noise: 120, rand: 0.25, max: 20000 }, med: { d: 2, noise: 30, rand: 0.04, max: 30000 }, hard: { d: 3, noise: 4, rand: 0, max: 45000 } };
+  function bestMove(p, level, rnd) {
+    rnd = rnd || Math.random;
+    const cfg = LEVELS[level] || LEVELS.med, ms = legal(p);
+    if (!ms.length) return null;
+    const kx = ms.find(m => isKing(m.x)); if (kx) return kx;
+    const ctx = { nodes: 0, max: cfg.max };
+    // shuffle first so equal moves are not always picked in the same order
+    for (let i = ms.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [ms[i], ms[j]] = [ms[j], ms[i]]; }
+    if (rnd() < cfg.rand) { const quiet = ms.filter(m => !m.pr || m.pr === 'q'); return quiet[Math.floor(rnd() * quiet.length)] || ms[0]; }
+    order(ms);
+    let best = null, bs = -Infinity;
+    for (const m of ms) {
+      const q = apply(p, m);
+      // easy/medium: exact score per root move plus noise; hard: alpha-beta at the root as well
+      const alpha = cfg.d >= 3 && best ? bs - cfg.noise : -Infinity;
+      let sc = -negamax(q, cfg.d - 1, -Infinity, -alpha, 1, ctx);
+      sc += (rnd() * 2 - 1) * cfg.noise;
+      if (sc > bs) { bs = sc; best = m; }
+    }
+    return best;
+  }
+  return { START, start, parseFEN, toFEN, sqName, colorOf, other, isKing, attacked, inCheck, legal, apply, pass, status, perft, bestMove, evaluate, insufficient };
+})();
+
+/* ================================================================== v7: Vraag-skaak (question chess) + Familie-klets (family chat)
+   Chess: tap a piece, tap a square → a question pops up with a countdown. Right = the move is made; wrong or too slow = the turn passes.
+   Modes: against the app (3 levels), family online (each on own phone, synced through Supabase kv), or two players on one phone.
+   Games are append-only event logs: kv "chess/g/<id>" (online, written with lh_log so two phones never overwrite each other),
+   localStorage "lh.chess.loc.<player>" (app / same phone). Chat: kv "chat/fam/d/<yyyy-mm-dd>", also appended with lh_log. */
+Object.assign(UI.af, {
+  chessT: 'Vraag-skaak', chessSub: 'Skaak met ’n draai: elke skuif kos ’n vraag! Antwoord reg en binne die tyd, anders is jou beurt verby.',
+  chessHowT: 'Hoe werk dit?',
+  chessHow: ['Tik op ’n stuk wat jy wil skuif, en dan op die blokkie waarheen dit moet gaan.', '’n Vraag spring op – jy moet antwoord voordat die tyd op is.', 'Reg ✅ – jou skuif word gemaak. Verkeerd of te stadig ❌ – jou skuif tel nie en dit is die ander speler se beurt.', 'Pasop: staan jy skaak en jy antwoord verkeerd, mag die ander speler jou koning vang – dan wen hy!', 'Skaakmat wen ook, net soos in gewone skaak. Elke spel verdien XP.'],
+  chNew: 'Nuwe spel', chVsWho: 'Teen wie?', chModeApp: ['Die app', 'Speel teen Leerhoek se rekenaar'], chModeFam: ['Familie aanlyn', 'Elkeen op sy eie foon'], chModePhone: ['Dieselfde foon', 'Gee die foon aan na elke skuif'],
+  chLevel: 'Vlak', chLvl: { easy: 'Maklik', med: 'Medium', hard: 'Moeilik' }, chColor: 'Jou kleur', chW: 'Wit', chB: 'Swart', chRand: 'Lukraak', chOpp: 'Wie daag jy uit?', chOppPhone: 'Wie speel saam?',
+  chFriend: 'Vriend', chFriendName: 'Vriend se naam', chQFrom: 'Vrae uit', chSecs: 'Tyd per vraag', chStart: 'Begin ▶', chInvite: 'Stuur uitnodiging 📨', chInvSent: 'Uitnodiging gestuur! {n} sien dit sodra hy Leerhoek oopmaak.', chInvSentP: 'Uitnodiging gestuur! {n} kry ’n kennisgewing.',
+  chChallenges: '{n} daag jou uit vir Vraag-skaak!', chAccept: 'Aanvaar', chDecline: 'Nee dankie', chCancel: 'Kanselleer', chWaitAcc: 'Wag vir {n} om te aanvaar…', chYourTurn: 'Jou beurt!', chTheirTurn: '{n} se beurt',
+  chMyGames: 'Jou speletjies', chResume: 'Speel verder ▶', chUnfinished: 'Onvoltooide spel', chOpen: 'Speel ▶', chView: 'Kyk', chRecent: 'Onlangs klaar', chDeclined: '{n} het nee gesê', chCancelled: 'Gekanselleer',
+  chTapPiece: 'Tik op ’n stuk wat jy wil skuif', chTapTarget: 'Tik nou waarheen dit moet gaan', chAppThinks: 'Die app dink… 🤖', chWaitMove: 'Wag vir {n} om te skuif…', chCheck: 'Skaak!',
+  chTakeKing: '{n} het die vraag gemis terwyl hy skaak staan – vang sy koning en wen! 👑', chInCheck: 'Jy staan skaak! Red jou koning – en antwoord reg, anders kan hy gevang word.',
+  chQHead: 'Antwoord om te skuif', chTooSlow: '⏰ Te stadig!', chWrong: '❌ Verkeerd!', chTurnOver: 'Jou skuif tel nie – nou is dit {n} se beurt.', chRightAns: 'Die regte antwoord:', chRight: '✅ Reg! Jou skuif staan.', chGoOn: 'Gaan voort ▶',
+  chPass: '📱 Gee die foon vir {n}', chIAm: 'Ek is {n} – gaan! ▶', chResign: 'Gee oor', chResignQ: 'Wil jy regtig oorgee? Die ander speler wen dan.', chYes: 'Ja, ek gee oor', chNo: 'Nee, speel verder', chFlip: 'Draai bord',
+  chMoves: 'Skuiwe', chMissed: 'vraag gemis', chQRight: 'Vrae reg', chRes: { mate: 'Skaakmat', kingx: 'Koning gevang', stale: 'Pat – gelykop', insuf: 'Te min stukke – gelykop', fifty: '50 skuiwe sonder dat iets gevang is – gelykop', res: '{n} het oorgegee' },
+  chYouWin: 'Jy het gewen! 🏆', chTheyWin: '{n} het gewen', chDraw: 'Gelykop! 🤝', chWins: '{n} wen! 🏆', chRecord: 'Jou rekord', chVsApp: 'Teen die app', chVsFam: 'Teen familie', chWDL: '{w} gewen · {l} verloor · {d} gelykop',
+  chCard: ['Vraag-skaak', 'Skaak waar elke skuif ’n vraag kos – teen die app of die familie!'], chPromo: 'Waarin moet jou pion verander?', chNoQs: 'Daar is nie vrae vir hierdie vak nie – kies ’n ander vak.',
+  chSendFail: 'Kon nie stuur nie – kyk of die internet werk en probeer weer.', chOnlineOnly: 'Familie-speletjies en die klets werk net op die gesin se Leerhoek-webwerf (met jou skakel).', chWho: 'Wie is jy?', chWhoSub: 'Kies jou naam om te speel of te gesels.',
+  chParentT: '♟️ Skaak & 💬 Familie-klets', chParentSub: 'Speel Vraag-skaak teen die seuns (of teen die app), en gesels saam in die familie-klets.', chIAmL: 'Ek is:', chPlay: '♟️ Speel skaak', chChat: '💬 Familie-klets',
+  chApp: 'Die app', chLife: 'Haal twee verkeerde antwoorde weg', chYou: 'Jy', chLast: 'Laaste skuif', chExpired: 'Verval', chNewGameBtn: '➕ Nuwe spel', chPickWhite: 'Wit begin',
+  chatT: 'Familie-klets', chatSub: 'Net vir Diaan, Stefan, Pa en Ma – niemand anders kan dit sien nie.', chatPh: 'Tik ’n boodskap…', chatSend: 'Stuur', chatEmpty: 'Nog geen boodskappe nie. Sê hallo! 👋', chatOpen: 'Klets',
+  chatQuick: ['Hallo! 👋', 'Goeie skuif! 👏', 'Jou beurt! ⏰', 'Haha 😂', 'Kom speel skaak ♟️', 'Ek is besig met leer 📚', 'Lief vir julle ❤️'],
+  chatSys: { inv: '♟️ {a} het {b} uitgedaag vir Vraag-skaak', acc: '♟️ {b} het aanvaar – die spel het begin!', win: '🏆 {a} het die skaakspel teen {b} gewen ({r})', draw: '🤝 {a} en {b} het gelykop gespeel ({r})' },
+  fam: { pa: 'Pa', ma: 'Ma' }, navChess: 'Skaak', navChat: 'Klets',
+  lockNote: '🔒 Hierdie toestel is net vir {n}. Pa en Ma kan met die PIN alles sien.', lockParent: '👪 Ouer-toestel: tik op ’n seun om sy profiel te sien (met die ouer-PIN).', adminView: '👪 Ouer-aansig – jy kyk na {n} se profiel.', adminBack: '← Ouerpaneel', adminOpen: 'Maak ’n profiel oop:', specT: '👀 Ander speletjies in die familie',
+  devT: '📱 Hierdie toestel', devSub: 'Elke toestel hoort aan een persoon. ’n Seun sien net sy eie profiel – hy kan nie na sy broer s’n oorskakel nie. Pa en Ma (met die PIN) kan alles sien. Die gesinskakel (~diaan / ~stefan / ~ouer) koppel ’n toestel outomaties.', devNow: 'Nou gekoppel aan:', devNone: 'nog niemand nie – die eerste profiel wat gekies word, sluit dit', devParent: 'Pa/Ma (ouer-toestel)', devUnlock: 'Ontkoppel', devSet: 'Toestel gekoppel ✔',
+});
+Object.assign(UI.en, {
+  chessT: 'Question chess', chessSub: 'Chess with a twist: every move costs a question! Answer correctly and in time, or your turn is over.',
+  chessHowT: 'How does it work?',
+  chessHow: ['Tap a piece you want to move, then the square it should go to.', 'A question pops up – you must answer before the time runs out.', 'Right ✅ – your move is made. Wrong or too slow ❌ – your move doesn’t count and it’s the other player’s turn.', 'Careful: if you are in check and answer wrong, the other player may capture your king – and wins!', 'Checkmate also wins, just like normal chess. Every game earns XP.'],
+  chNew: 'New game', chVsWho: 'Against who?', chModeApp: ['The app', 'Play against Leerhoek’s computer'], chModeFam: ['Family online', 'Each on their own phone'], chModePhone: ['Same phone', 'Pass the phone after every move'],
+  chLevel: 'Level', chLvl: { easy: 'Easy', med: 'Medium', hard: 'Hard' }, chColor: 'Your colour', chW: 'White', chB: 'Black', chRand: 'Random', chOpp: 'Who do you challenge?', chOppPhone: 'Who is playing with you?',
+  chFriend: 'Friend', chFriendName: 'Friend’s name', chQFrom: 'Questions from', chSecs: 'Time per question', chStart: 'Start ▶', chInvite: 'Send invite 📨', chInvSent: 'Invite sent! {n} will see it when they open Leerhoek.', chInvSentP: 'Invite sent! {n} gets a notification.',
+  chChallenges: '{n} challenges you to question chess!', chAccept: 'Accept', chDecline: 'No thanks', chCancel: 'Cancel', chWaitAcc: 'Waiting for {n} to accept…', chYourTurn: 'Your turn!', chTheirTurn: '{n}’s turn',
+  chMyGames: 'Your games', chResume: 'Continue ▶', chUnfinished: 'Unfinished game', chOpen: 'Play ▶', chView: 'View', chRecent: 'Recently finished', chDeclined: '{n} said no', chCancelled: 'Cancelled',
+  chTapPiece: 'Tap a piece you want to move', chTapTarget: 'Now tap where it should go', chAppThinks: 'The app is thinking… 🤖', chWaitMove: 'Waiting for {n} to move…', chCheck: 'Check!',
+  chTakeKing: '{n} missed the question while in check – capture the king to win! 👑', chInCheck: 'You are in check! Save your king – and answer correctly, or it can be captured.',
+  chQHead: 'Answer to make your move', chTooSlow: '⏰ Too slow!', chWrong: '❌ Wrong!', chTurnOver: 'Your move doesn’t count – now it’s {n}’s turn.', chRightAns: 'The right answer:', chRight: '✅ Correct! Your move stands.', chGoOn: 'Continue ▶',
+  chPass: '📱 Pass the phone to {n}', chIAm: 'I’m {n} – go! ▶', chResign: 'Resign', chResignQ: 'Do you really want to resign? The other player then wins.', chYes: 'Yes, I resign', chNo: 'No, keep playing', chFlip: 'Flip board',
+  chMoves: 'Moves', chMissed: 'missed question', chQRight: 'Questions right', chRes: { mate: 'Checkmate', kingx: 'King captured', stale: 'Stalemate – draw', insuf: 'Not enough pieces – draw', fifty: '50 moves without a capture – draw', res: '{n} resigned' },
+  chYouWin: 'You won! 🏆', chTheyWin: '{n} won', chDraw: 'Draw! 🤝', chWins: '{n} wins! 🏆', chRecord: 'Your record', chVsApp: 'Against the app', chVsFam: 'Against family', chWDL: '{w} won · {l} lost · {d} drawn',
+  chCard: ['Question chess', 'Chess where every move costs a question – against the app or the family!'], chPromo: 'What should your pawn become?', chNoQs: 'There are no questions for this subject – choose another subject.',
+  chSendFail: 'Could not send – check the internet and try again.', chOnlineOnly: 'Family games and the chat only work on the family’s Leerhoek website (with your link).', chWho: 'Who are you?', chWhoSub: 'Choose your name to play or chat.',
+  chParentT: '♟️ Chess & 💬 Family chat', chParentSub: 'Play question chess against the boys (or the app), and chat together in the family chat.', chIAmL: 'I am:', chPlay: '♟️ Play chess', chChat: '💬 Family chat',
+  chApp: 'The app', chLife: 'Removes two wrong answers', chYou: 'You', chLast: 'Last move', chExpired: 'Expired', chNewGameBtn: '➕ New game', chPickWhite: 'White starts',
+  chatT: 'Family chat', chatSub: 'Only for Diaan, Stefan, Mom and Dad – nobody else can see it.', chatPh: 'Type a message…', chatSend: 'Send', chatEmpty: 'No messages yet. Say hello! 👋', chatOpen: 'Chat',
+  chatQuick: ['Hello! 👋', 'Good move! 👏', 'Your turn! ⏰', 'Haha 😂', 'Come play chess ♟️', 'Busy studying 📚', 'Love you all ❤️'],
+  chatSys: { inv: '♟️ {a} challenged {b} to question chess', acc: '♟️ {b} accepted – the game has started!', win: '🏆 {a} won the chess game against {b} ({r})', draw: '🤝 {a} and {b} drew ({r})' },
+  fam: { pa: 'Dad', ma: 'Mom' }, navChess: 'Chess', navChat: 'Chat',
+  lockNote: '🔒 This device is only for {n}. Mom and Dad can see everything with the PIN.', lockParent: '👪 Parent device: tap a boy to see his profile (with the parent PIN).', adminView: '👪 Parent view – you are looking at {n}’s profile.', adminBack: '← Parent panel', adminOpen: 'Open a profile:', specT: '👀 Other games in the family',
+  devT: '📱 This device', devSub: 'Every device belongs to one person. A boy only sees his own profile – he can’t switch to his brother’s. Mom and Dad (with the PIN) can see everything. The family link (~diaan / ~stefan / ~ouer) links a device automatically.', devNow: 'Now linked to:', devNone: 'nobody yet – the first profile chosen locks it', devParent: 'Mom/Dad (parent device)', devUnlock: 'Unlink', devSet: 'Device linked ✔',
+});
+const tf = (k, o) => String(t(k)).replace(/\{(\w+)\}/g, (m, x) => (o && o[x] !== undefined ? o[x] : m));
+const tfa = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, x) => (o && o[x] !== undefined ? o[x] : m));
+const FAMILY = KIDS.map(k => ({ id: k.id, avatar: k.avatar, kid: true })).concat([{ id: 'pa', avatar: '👨' }, { id: 'ma', avatar: '👩' }]);
+const isFam = (id) => FAMILY.some(f => f.id === id);
+function famName(id, lang) { const k = KIDS.find(x => x.id === id); if (k) return k.name; const f = UI[lang || L].fam; return (f && f[id]) || id; }
+const famAv = (id) => (FAMILY.find(f => f.id === id) || {}).avatar || '🙂';
+function parentMe() { try { const v = localStorage.getItem('lh.parentMe'); return v === 'pa' || v === 'ma' ? v : null; } catch (e) { return null; } }
+function setParentMe(v) { try { localStorage.setItem('lh.parentMe', v); } catch (e) {} }
+function setAsParent(on) { S.asParent = !!on; try { if (on) sessionStorage.setItem('lh.asParent', '1'); else sessionStorage.removeItem('lh.asParent'); } catch (e) {} }
+try { if (sessionStorage.getItem('lh.asParent') === '1') S.asParent = true; } catch (e) {}
+const SOCIAL = ['chess', 'chessGame', 'chat'];
+/* ---------- one device = one person: a boy's device only opens his own profile, a parent device only the parent side ----------
+   localStorage lh.lock = 'diaan' | 'stefan' | 'ouer'. Set by the family link (~diaan / ~stefan / ~ouer), by the first profile picked
+   on a new device, or by Pa/Ma in the parent panel (PIN). */
+function deviceLock() { try { const v = localStorage.getItem('lh.lock'); return v === 'ouer' || KIDS.some(k => k.id === v) ? v : null; } catch (e) { return null; } }
+function setLock(v) { try { if (v) localStorage.setItem('lh.lock', v); else localStorage.removeItem('lh.lock'); } catch (e) {} }
+const lockedKid = () => { const l = deviceLock(); return l && l !== 'ouer' ? l : null; };
+/* boys only ever open their own profile; Pa and Ma (parent PIN entered) can open any profile – admin view */
+const kidAllowed = (id) => { const l = deviceLock(); return !l || l === id || !!S.parentUnlocked; };
+const adminViewing = () => !!S.kid && (deviceLock() === 'ouer' || (!!lockedKid() && S.kid.id !== lockedKid()));
+function adminBanner() { return adminViewing() ? `<div class="banner adminban" style="margin-bottom:14px"><span>${esc(tf('adminView', { n: S.kid.name }))}</span><button class="btn sm" data-go="ouer">${esc(t('adminBack'))}</button></div>` : ''; }
+/* on a boy's own phone, admin view ends as soon as the app is closed or put away */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden || !lockedKid()) return;
+  S.parentUnlocked = false; if (S.asParent) setAsParent(false);
+  if (S.kid && S.kid.id !== lockedKid()) selectKid(lockedKid()).then(() => { if (S.route && S.route.s !== 'gate') render(); });
+});
+/* existing installs (before the lock existed): work out who the device belongs to */
+function migrateLock(bootRoute) {
+  if (deviceLock()) return;
+  let remembered = null; try { remembered = localStorage.getItem('lh.kid'); } catch (e) {}
+  if (isParentDevice()) setLock('ouer');
+  else if (bootRoute.kid) setLock(bootRoute.kid);
+  else if (bootRoute.s === 'parent') setLock('ouer');
+  else if (remembered && KIDS.some(k => k.id === remembered)) setLock(remembered);
+}
+/* who is playing / chatting on this device right now */
+function me() {
+  const lk = deviceLock(), p = parentMe(), par = (x) => ({ id: x, kid: false, name: famName(x), avatar: famAv(x) });
+  if (lk === 'ouer') return p ? par(p) : null;
+  if (p && S.asParent) return par(p); // Pa or Ma on a boy's device, after the PIN
+  if (S.kid) return { id: S.kid.id, kid: true, name: S.kid.name, avatar: S.kid.avatar };
+  if (!lk && p && isParentDevice()) return par(p);
+  return null;
+}
+function deviceCard() {
+  const l = deviceLock(), nm = l === 'ouer' ? t('devParent') : l ? famName(l) : t('devNone');
+  return `<div class="card" style="margin-top:14px" id="devCard"><h3>${esc(t('devT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('devSub'))}</p>
+    <p class="small"><b>${esc(t('devNow'))}</b> ${l && l !== 'ouer' ? famAv(l) + ' ' : l ? '👪 ' : ''}${esc(nm)}</p>
+    <div class="row" style="gap:6px;margin-top:10px">${KIDS.map(k => `<button class="btn sm ${l === k.id ? 'subject' : ''}" data-lock="${k.id}">${k.avatar} ${esc(k.name)}</button>`).join('')}<button class="btn sm ${l === 'ouer' ? 'subject' : ''}" data-lock="ouer">👪 ${esc(t('devParent'))}</button>${l ? `<button class="btn sm ghost" data-lock="">${esc(t('devUnlock'))}</button>` : ''}</div>
+    <p class="small" style="margin-top:14px"><b>👀 ${esc(t('adminOpen'))}</b></p><div class="row" style="gap:6px;margin-top:6px">${KIDS.map(k => `<button class="btn sm" data-view="${k.id}">${k.avatar} ${esc(k.name)}</button>`).join('')}</div></div>`;
+}
+function wireDeviceCard(root) {
+  const card = $('#devCard', root); if (!card) return;
+  card.querySelectorAll('[data-lock]').forEach(b => b.onclick = async () => {
+    const v = b.dataset.lock || null; setLock(v);
+    if (v && v !== 'ouer') { await selectKid(v); } else if (v === 'ouer') { S.kid = null; S.kidId = null; try { localStorage.removeItem('lh.kid'); } catch (e) {} renderWho(); }
+    toast(t('devSet')); card.outerHTML = deviceCard(); wireDeviceCard(root); nav(); updateSocialUi();
+  });
+  card.querySelectorAll('[data-view]').forEach(b => b.onclick = async () => { await selectKid(b.dataset.view); go('home'); });
+}
+const online = () => S.storeKind === 'supa';
+const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function lhAfterUnlock() {
+  const to = S.afterUnlock; S.afterUnlock = null; if (!to) return false;
+  if (KIDS.some(k => k.id === to)) { selectKid(to).then(() => go('home')); return true; }
+  if (parentMe()) { setAsParent(true); go(to); return true; }
+  return false;
+}
+
+/* ---------- game state from the event log ---------- */
+function pname(id, cfg, lang) { if (id === 'app') return (UI[lang || L].chApp); if (id === 'friend') return (cfg && cfg.fn) || UI[lang || L].chFriend; return famName(id, lang); }
+const pav = (id) => id === 'app' ? '🤖' : id === 'friend' ? '🙂' : famAv(id);
+function chessReplay(evs) {
+  const nw = (evs || []).find(e => e && e.t === 'new'); if (!nw) return null;
+  const R = { cfg: nw, pos: CHESS.start(), ply: 0, status: nw.kind === 'online' ? 'invite' : 'active', hist: [], stats: { w: { ok: 0, n: 0 }, b: { ok: 0, n: 0 } }, last: null, result: null, updated: nw.at || 0, n: 0 };
+  const who = (c) => c === 'w' ? nw.w : nw.b;
+  const colorOf = (id) => id === nw.w ? 'w' : id === nw.b ? 'b' : null;
+  const invitee = nw.by === nw.w ? nw.b : nw.w;
+  for (const e of evs) {
+    if (!e || e === nw) continue; R.n++;
+    if (e.at) R.updated = Math.max(R.updated, e.at);
+    if (R.status === 'invite') {
+      if (e.t === 'acc' && e.by === invitee) R.status = 'active';
+      else if (e.t === 'dec' && e.by === invitee) R.status = 'declined';
+      else if (e.t === 'can' && e.by === nw.by) R.status = 'cancelled';
+      continue;
+    }
+    if (R.status !== 'active') continue;
+    if (e.t === 'res') { const c = colorOf(e.by); if (!c) continue; R.status = 'over'; R.result = { res: 'res', winner: CHESS.other(c), by: e.by }; continue; }
+    if ((e.t !== 'mv' && e.t !== 'miss') || e.n !== R.ply || e.by !== who(R.pos.t)) continue;
+    const c = R.pos.t;
+    if (e.t === 'mv') {
+      const m = CHESS.legal(R.pos).find(x => x.f === e.f && x.t === e.to && (x.pr || '') === (e.pr || ''));
+      if (!m) continue;
+      R.pos = CHESS.apply(R.pos, m); R.last = { f: m.f, t: m.t }; R.hist.push({ c, by: e.by, m, at: e.at });
+      if (e.q) { R.stats[c].n++; R.stats[c].ok++; }
+      R.ply++;
+      if (CHESS.isKing(m.x)) { R.status = 'over'; R.result = { res: 'kingx', winner: c }; continue; }
+    } else {
+      R.pos = CHESS.pass(R.pos); R.hist.push({ c, by: e.by, miss: true, f: e.f, to: e.to, p: e.p, at: e.at }); R.stats[c].n++; R.ply++;
+    }
+    const st = CHESS.status(R.pos);
+    if (st.over) { R.status = 'over'; R.result = { res: st.res, winner: st.winner || null }; }
+  }
+  R.st = R.status === 'active' ? CHESS.status(R.pos) : null;
+  R.toMove = R.status === 'active' ? who(R.pos.t) : null;
+  R.colorOf = colorOf; R.who = who; R.invitee = invitee;
+  return R;
+}
+function resultText(R, lang) {
+  const U = UI[lang || L], r = R.result; if (!r) return '';
+  if (r.res === 'res') return tfa(U.chRes.res, { n: pname(r.by, R.cfg, lang) });
+  return U.chRes[r.res] || r.res;
+}
+
+/* ---------- pieces + board ---------- */
+const PIECE_SHAPES = {
+  p: '<path d="M22.5 9.5a4.6 4.6 0 0 0-3.4 7.7 6.3 6.3 0 0 0-2.6 5.1 6.2 6.2 0 0 0 2.4 4.9c-3.6 1.5-6.4 5.2-6.9 9.8h21c-.5-4.6-3.3-8.3-6.9-9.8a6.2 6.2 0 0 0 2.4-4.9 6.3 6.3 0 0 0-2.6-5.1 4.6 4.6 0 0 0-3.4-7.7z"/><rect x="10.5" y="36.5" width="24" height="3.5" rx="1.6"/>',
+  r: '<path d="M11 9.5h4.2v3h4.4v-3h5.8v3h4.4v-3H34v6.2l-3.2 2.8v11l2.2 3.6H12l2.2-3.6v-11L11 15.7z"/><rect x="9.5" y="33.5" width="26" height="6.5" rx="1.8"/><path class="d" d="M14.2 18.5h16.6M14.2 29.5h16.6"/>',
+  n: '<path d="M14 36.5c.3-4.6 2.6-7.6 5.6-10.3 1.5-1.4 2-3.1 1.6-4.6-1.6 1.6-3.8 2.4-6.1 3.4-1.8.8-3.1 2.4-4.6 2.1-1.8-.4-2.6-2.4-1.9-4.2 1.4-3.6 4.4-6.4 6.9-9.4 1-1.2 1.5-2.6 1.6-4.1l1.3-2.9 2.2 2.5c1.7-.6 3.4-.7 5-.2 6 1.9 9 8.4 9 15.6v12.1z"/><rect x="11" y="36" width="23.5" height="4" rx="1.8"/><circle class="e" cx="18.6" cy="15.6" r="1.5"/><path class="d" d="M24.6 12.2c3.5 1.6 5.7 5.6 6.2 10.6"/>',
+  b: '<circle cx="22.5" cy="8.3" r="2.7"/><path d="M22.5 11.3c-5.5 3.8-8.3 8.6-7.5 13.4.4 2.3 1.6 3.9 3 4.8h9c1.4-.9 2.6-2.5 3-4.8.8-4.8-2-9.6-7.5-13.4z"/><path d="M16.5 29h12l1.8 4.5H14.7z"/><rect x="10.5" y="34" width="24" height="5.8" rx="2.4"/><path class="d" d="M25.4 15.6l-4.6 6.2M19.3 25.3h6.4"/>',
+  q: '<circle cx="8.6" cy="12.6" r="2.4"/><circle cx="15.7" cy="9.4" r="2.4"/><circle cx="22.5" cy="7.8" r="2.4"/><circle cx="29.3" cy="9.4" r="2.4"/><circle cx="36.4" cy="12.6" r="2.4"/><path d="M12.6 31.2L9 14.2l6.8 10.3.2-13.6 4.6 12.6 1.9-13.7 1.9 13.7 4.6-12.6.2 13.6L36 14.2l-3.6 17z"/><rect x="11.5" y="31" width="22" height="3.6" rx="1.4"/><rect x="9.5" y="35.6" width="26" height="4.4" rx="2"/>',
+  k: '<path d="M21 4.5h3v3h3v3h-3v3.4h-3v-3.4h-3v-3h3z"/><path d="M12.6 32.4c-3.1-5.2-4.6-10.3-1.6-13.3 3.1-3.1 7.9-2 11.5 2.6 3.6-4.6 8.4-5.7 11.5-2.6 3 3 1.5 8.1-1.6 13.3z"/><rect x="11.5" y="32" width="22" height="3.4" rx="1.4"/><rect x="9.5" y="36" width="26" height="4" rx="2"/><path class="d" d="M22.5 21.7v10.4"/>',
+};
+function pieceSvg(pc) { const w = pc === pc.toUpperCase(); return `<svg class="pc ${w ? 'w' : 'b'}" viewBox="0 0 45 45" aria-hidden="true">${PIECE_SHAPES[pc.toLowerCase()]}</svg>`; }
+const PIECE_NAMES = { af: { p: 'pion', n: 'perd', b: 'loper', r: 'toring', q: 'koningin', k: 'koning' }, en: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
+const START_COUNT = { p: 8, n: 2, b: 2, r: 2, q: 1 };
+function capturedBy(pos, c) { // pieces of the other colour that colour c has captured
+  const opp = c === 'w' ? 'b' : 'w', have = { p: 0, n: 0, b: 0, r: 0, q: 0 };
+  pos.b.forEach(pc => { if (pc && CHESS.colorOf(pc) === opp && have[pc.toLowerCase()] !== undefined) have[pc.toLowerCase()]++; });
+  const out = []; ['q', 'r', 'b', 'n', 'p'].forEach(k => { for (let i = have[k]; i < START_COUNT[k]; i++) out.push(opp === 'w' ? k.toUpperCase() : k); });
+  return out;
+}
+const MAT = { p: 1, n: 3, b: 3, r: 5, q: 9 };
+const matOf = (arr) => arr.reduce((a, pc) => a + MAT[pc.toLowerCase()], 0);
+
+/* ---------- storage of games ---------- */
+const locKey = (pid) => 'lh.chess.loc.' + pid;
+async function chessList(lim) { if (!online()) return []; const rows = await S.store.loadPrefix('chess/g/', lim || 12); return (rows || []).map(r => ({ id: r.key.slice(8), events: (r.value && r.value.events) || [] })); }
+async function chessFetch(id) { const v = await S.store.get('chess/g/' + id); return (v && v.events) || null; }
+async function chessAppend(id, ev) { await S.store.rpc('lh_log', { k: 'chess/g/' + id, ev }); }
+function chessSetup() { const d = { mode: 'app', lvl: 'easy', color: 'w', opp: null, popp: null, friend: '', subj: null, secs: 30 }; return Object.assign(d, lsGet('lh.chess.setup', {})); }
+function saveSetup(su) { lsSet('lh.chess.setup', su); }
+function myChessStats() { const k = S.kid; return (k && k.chess) || { app: {}, fam: {} }; }
+function wdl(o) { o = o || {}; return tf('chWDL', { w: o.w || 0, l: o.l || 0, d: o.d || 0 }); }
+
+/* ---------- social screens: router ---------- */
+function renderSocial(main, r) {
+  const who = me();
+  if (!who) return renderWhoPick(main, r);
+  if (who.kid && S.kid && who.id === S.kid.id) ensureSession();
+  if (r.s === 'chat') return renderChat(main);
+  if (r.s === 'chessGame') return renderChessGame(main, r.id);
+  return renderChessLobby(main);
+}
+function renderWhoPick(main, r) {
+  const target = r.s === 'chat' ? 'klets' : 'skaak', lk = deviceLock();
+  const list = FAMILY.filter(f => lk === 'ouer' ? !f.kid : lk ? (f.id === lk || !f.kid) : true);
+  main.innerHTML = `<div class="gate"><div style="font-size:52px">${r.s === 'chat' ? '💬' : '♟️'}</div><h1>${esc(t('chWho'))}</h1><p class="sub">${esc(t('chWhoSub'))}</p>
+    <div class="profiles">${list.map(f => `<button class="profile" data-who="${f.id}"><span class="big">${f.avatar}</span><span class="nm">${esc(famName(f.id))}</span>${f.kid || lk === 'ouer' ? '' : '<span class="lv">🔐 PIN</span>'}</button>`).join('')}</div></div>`;
+  main.querySelectorAll('[data-who]').forEach(b => b.onclick = async () => {
+    const id = b.dataset.who;
+    if (KIDS.some(k => k.id === id)) { if (!kidAllowed(id)) return; if (!deviceLock()) setLock(id); setAsParent(false); await selectKid(id); render(); return; }
+    setParentMe(id);
+    if (lk === 'ouer') { render(); return; }
+    if (S.parentUnlocked) { setAsParent(true); render(); return; }
+    S.afterUnlock = target; go('ouer');
+  });
+}
+
+/* ---------- lobby ---------- */
+function chessHubCard() {
+  const [nm, ds] = t('chCard'), b = S.badges || {};
+  const n = (b.myTurn || 0) + (b.invites || 0);
+  return `<button class="card chesscard" data-go="skaak"><span class="cc-ic">♟️</span><span class="cc-t"><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span>${n ? `<span class="chip hi">${b.invites ? '📨 ' + esc(tf('chChallenges', { n: b.inviteFrom || '' })) : '⏰ ' + esc(t('chYourTurn'))}</span>` : ''}</span><span class="cc-go">▶</span></button>`;
+}
+function chessHomeBanner() { return `<div id="socialBan">${socialBanInner()}</div>`; }
+function socialBanInner() {
+  const b = S.badges || {}; if (!b.invites && !b.myTurn && !b.chat) return '';
+  const bits = [];
+  if (b.invites) bits.push(`<button class="btn sm hi" data-go="skaak">📨 ${esc(tf('chChallenges', { n: b.inviteFrom || '' }))}</button>`);
+  else if (b.myTurn) bits.push(`<button class="btn sm hi" data-go="skaak">♟️ ${esc(t('chYourTurn'))}</button>`);
+  if (b.chat) bits.push(`<button class="btn sm" data-go="klets">💬 ${esc(t('chatT'))} <span class="bdg-in">${b.chat}</span></button>`);
+  return `<div class="banner socialban" style="margin-top:14px">${bits.join('')}</div>`;
+}
+async function renderChessLobby(main) {
+  const who = me(), su = chessSetup();
+  const famOpp = FAMILY.filter(f => f.id !== who.id);
+  if (!su.opp || su.opp === who.id || !isFam(su.opp)) su.opp = famOpp[0].id;
+  if (!su.popp || su.popp === who.id) su.popp = famOpp[0].id;
+  if (!su.subj) su.subj = who.kid ? gameSubj() : 'all';
+  if (!online() && su.mode === 'fam') su.mode = 'app';
+  const loc = lsGet(locKey(who.id), null), locR = loc ? chessReplay(loc.events) : null;
+  const st = myChessStats();
+  const backTo = who.kid ? 'speel' : 'ouer';
+  setSubjectColor(su.subj !== 'all' && S.content.subjects[su.subj] ? S.content.subjects[su.subj].color : null);
+  const seg = (name, cur, opts) => `<div class="seg" role="radiogroup">${opts.map(([v, lb]) => `<button class="${cur === v ? 'on' : ''}" data-${name}="${v}" role="radio" aria-checked="${cur === v}">${lb}</button>`).join('')}</div>`;
+  const modeBtn = (v, ic, arr, dis) => `<button class="cmode ${su.mode === v ? 'on' : ''}" data-mode="${v}" ${dis ? 'disabled' : ''}><span class="cm-ic">${ic}</span><b>${esc(arr[0])}</b><span class="small muted">${esc(arr[1])}</span></button>`;
+  main.innerHTML = `<button class="back" data-go="${backTo}">← ${esc(who.kid ? t('playT') : t('dashboard'))}</button>
+  <div class="row" style="justify-content:space-between"><h1>♟️ ${esc(t('chessT'))}</h1>${online() ? `<button class="btn sm" data-go="klets">💬 ${esc(t('chatOpen'))}</button>` : ''}</div>
+  <p class="muted" style="margin:4px 0 12px;max-width:70ch">${esc(t('chessSub'))}</p>
+  <details class="card chow"><summary><b>❓ ${esc(t('chessHowT'))}</b></summary><ol>${t('chessHow').map(x => `<li>${esc(x)}</li>`).join('')}</ol></details>
+  <div id="chOnline"></div>
+  ${locR && locR.status === 'active' ? `<div class="card cresume"><div><b>⏸️ ${esc(t('chUnfinished'))}</b><div class="small muted">${pav(locR.cfg.w)} ${esc(pname(locR.cfg.w, locR.cfg))} vs ${pav(locR.cfg.b)} ${esc(pname(locR.cfg.b, locR.cfg))} · ${esc(locR.cfg.kind === 'app' ? t('chLvl')[locR.cfg.lvl] : t('chModePhone')[0])}</div></div><button class="btn subject" data-go="skaak-l">${esc(t('chResume'))}</button></div>` : ''}
+  <div class="card csetup"><h2>${esc(t('chNew'))}</h2>
+    <div class="label" style="margin:12px 0 6px">${esc(t('chVsWho'))}</div>
+    <div class="cmodes">${modeBtn('app', '🤖', t('chModeApp'))}${modeBtn('fam', '👪', t('chModeFam'), !online())}${modeBtn('phone', '📱', t('chModePhone'))}</div>
+    ${!online() ? `<p class="small muted" style="margin-top:6px">${esc(t('chOnlineOnly'))}</p>` : ''}
+    <div id="chOpts"></div>
+    <div class="label" style="margin:14px 0 6px">${esc(t('chQFrom'))}</div>${subjChips(su.subj, 'cs')}
+    <div class="label" style="margin:14px 0 6px">⏱️ ${esc(t('chSecs'))}</div>${seg('secs', String(su.secs), [['15', '15 s'], ['30', '30 s'], ['45', '45 s']])}
+    <div class="row" style="margin-top:18px"><button class="btn subject block" id="chGo"></button></div>
+  </div>
+  ${who.kid ? `<div class="card" style="margin-top:14px"><h3>📊 ${esc(t('chRecord'))}</h3><div class="crec small"><div>🤖 ${esc(t('chVsApp'))}</div>${['easy', 'med', 'hard'].map(l => `<div class="muted">${esc(t('chLvl')[l])}: ${esc(wdl((st.app || {})[l]))}</div>`).join('')}<div style="margin-top:6px">👪 ${esc(t('chVsFam'))}</div><div class="muted">${esc(wdl(st.fam))}</div></div></div>` : ''}`;
+  const opts = () => {
+    let h = '';
+    if (su.mode === 'app') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chLevel'))}</div>${seg('lvl', su.lvl, [['easy', '🙂 ' + t('chLvl').easy], ['med', '😎 ' + t('chLvl').med], ['hard', '🔥 ' + t('chLvl').hard]])}
+      <div class="label" style="margin:14px 0 6px">${esc(t('chColor'))}</div>${seg('color', su.color, [['w', '⚪ ' + t('chW')], ['b', '⚫ ' + t('chB')], ['r', '🎲 ' + t('chRand')]])}`;
+    else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}</div>
+      <div class="label" style="margin:14px 0 6px">${esc(t('chColor'))}</div>${seg('color', su.color, [['w', '⚪ ' + t('chW')], ['b', '⚫ ' + t('chB')], ['r', '🎲 ' + t('chRand')]])}`;
+    else h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOppPhone'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.popp === f.id ? 'on' : ''}" data-popp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}<button class="${su.popp === 'friend' ? 'on' : ''}" data-popp="friend"><span>🙂</span>${esc(t('chFriend'))}</button></div>
+      ${su.popp === 'friend' ? `<input id="chFriendIn" maxlength="20" placeholder="${esc(t('chFriendName'))}" value="${esc(su.friend || '')}" style="margin-top:8px;width:100%">` : ''}
+      <div class="label" style="margin:14px 0 6px">${esc(t('chColor'))}</div>${seg('color', su.color, [['w', '⚪ ' + t('chW')], ['b', '⚫ ' + t('chB')], ['r', '🎲 ' + t('chRand')]])}`;
+    $('#chOpts').innerHTML = h;
+    $('#chGo').textContent = su.mode === 'fam' ? t('chInvite') : t('chStart');
+    $('#chGo').disabled = !quickPool(su.subj).length;
+    $('#chOpts').querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { su.lvl = b.dataset.lvl; saveSetup(su); opts(); });
+    $('#chOpts').querySelectorAll('[data-color]').forEach(b => b.onclick = () => { su.color = b.dataset.color; saveSetup(su); opts(); });
+    $('#chOpts').querySelectorAll('[data-opp]').forEach(b => b.onclick = () => { su.opp = b.dataset.opp; saveSetup(su); opts(); });
+    $('#chOpts').querySelectorAll('[data-popp]').forEach(b => b.onclick = () => { su.popp = b.dataset.popp; saveSetup(su); opts(); });
+    const fi = $('#chFriendIn'); if (fi) fi.oninput = () => { su.friend = fi.value.trim().slice(0, 20); saveSetup(su); };
+  };
+  opts();
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  main.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { su.mode = b.dataset.mode; saveSetup(su); main.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('on', x === b)); opts(); });
+  main.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => { su.subj = b.dataset.cs; if (who.kid) setGameSubj(su.subj); saveSetup(su); main.querySelectorAll('[data-cs]').forEach(x => x.classList.toggle('on', x === b)); setSubjectColor(su.subj !== 'all' && S.content.subjects[su.subj] ? S.content.subjects[su.subj].color : null); opts(); if (!quickPool(su.subj).length) toast(t('chNoQs')); });
+  main.querySelectorAll('[data-secs]').forEach(b => b.onclick = () => { su.secs = +b.dataset.secs; saveSetup(su); main.querySelectorAll('[data-secs]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); }); });
+  $('#chGo').onclick = async () => {
+    const color = su.color === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : su.color;
+    const base = { t: 'new', by: who.id, secs: su.secs, subj: su.subj, at: Date.now() };
+    if (su.mode === 'fam') {
+      const id = rid(), opp = su.opp;
+      const ev = Object.assign(base, { id, kind: 'online', w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
+      $('#chGo').disabled = true;
+      try { await chessAppend(id, ev); } catch (e) { toast(t('chSendFail')); $('#chGo').disabled = false; return; }
+      chatSys({ sys: 'inv', a: who.id, b: opp });
+      if (!KIDS.some(k => k.id === opp)) pushSend({ title: `♟️ ${famName(who.id, 'af')} daag ${famName(opp, 'af')} uit vir Vraag-skaak`, body: 'Maak Leerhoek oop → Speel → Vraag-skaak om te aanvaar.', url: './#skaak' });
+      toast(tf(KIDS.some(k => k.id === opp) ? 'chInvSent' : 'chInvSentP', { n: famName(opp) }));
+      go('skaak-' + id);
+      return;
+    }
+    const opp = su.mode === 'app' ? 'app' : su.popp;
+    const ev = Object.assign(base, { id: 'L' + rid(), kind: su.mode, lvl: su.lvl, w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
+    if (su.mode === 'phone' && opp === 'friend') ev.fn = su.friend || t('chFriend');
+    lsSet(locKey(who.id), { events: [ev] });
+    go('skaak-l');
+  };
+  // family games (online)
+  if (!online()) return;
+  const box = $('#chOnline');
+  const draw = (list) => {
+    const all = list.map(g => ({ g, R: chessReplay(g.events) })).filter(x => x.R);
+    const mine = all.filter(x => x.R.cfg.w === who.id || x.R.cfg.b === who.id);
+    const fresh = Date.now() - 3 * 86400000, stale = Date.now() - 14 * 86400000;
+    const recent = (x) => (x.R.status === 'invite' || x.R.status === 'active') ? x.R.updated > stale : (x.R.status === 'over' && x.R.updated > fresh);
+    const rows = mine.filter(recent);
+    const others = who.kid ? [] : all.filter(x => !mine.includes(x) && recent(x) && x.R.status !== 'invite');
+    if (!rows.length && !others.length) { box.innerHTML = ''; return; }
+    const spec = ({ g, R }) => { const w = R.result && R.result.winner ? R.cfg[R.result.winner] : null; return `<div class="cgame"><div class="cg-t">${pav(R.cfg.w)} ${esc(pname(R.cfg.w, R.cfg))} <span class="muted">vs</span> ${pav(R.cfg.b)} ${esc(pname(R.cfg.b, R.cfg))} <span class="small muted">· ${R.status === 'active' ? esc(tf('chTheirTurn', { n: pname(R.toMove, R.cfg) })) : (w ? '🏆 ' + esc(pname(w, R.cfg)) : '🤝') + ' · ' + esc(resultText(R))}</span></div><button class="btn sm ghost" data-go="skaak-${g.id}">${esc(t('chView'))}</button></div>`; };
+    const row = ({ g, R }) => {
+      const opp = R.cfg.w === who.id ? R.cfg.b : R.cfg.w, on = pname(opp, R.cfg);
+      let txt = '', btns = '', cls = '';
+      if (R.status === 'invite') {
+        if (R.invitee === who.id) { cls = 'hot'; txt = `📨 <b>${esc(tf('chChallenges', { n: on }))}</b> <span class="small muted">· ${su2(R.cfg)}</span>`; btns = `<button class="btn sm hi" data-acc="${g.id}">✅ ${esc(t('chAccept'))}</button><button class="btn sm ghost" data-dec="${g.id}">${esc(t('chDecline'))}</button>`; }
+        else { txt = `⏳ ${esc(tf('chWaitAcc', { n: on }))}`; btns = `<button class="btn sm ghost" data-can="${g.id}">${esc(t('chCancel'))}</button>`; }
+      } else if (R.status === 'active') {
+        const mineTurn = R.toMove === who.id; cls = mineTurn ? 'hot' : '';
+        txt = `${pav(opp)} <b>${esc(on)}</b> · ${mineTurn ? `<b class="hiTxt">${esc(t('chYourTurn'))}</b>` : esc(tf('chTheirTurn', { n: on }))}`;
+        btns = `<button class="btn sm ${mineTurn ? 'subject' : ''}" data-go="skaak-${g.id}">${esc(t('chOpen'))}</button>`;
+      } else {
+        const w = R.result && R.result.winner ? R.cfg[R.result.winner] : null;
+        txt = `${w === who.id ? '🏆' : w ? '😅' : '🤝'} ${esc(w === who.id ? t('chYouWin') : w ? tf('chTheyWin', { n: pname(w, R.cfg) }) : t('chDraw'))} <span class="small muted">· ${esc(resultText(R))}</span>`;
+        btns = `<button class="btn sm ghost" data-go="skaak-${g.id}">${esc(t('chView'))}</button>`;
+      }
+      return `<div class="cgame ${cls}"><div class="cg-t">${txt}</div><div class="row" style="gap:6px">${btns}</div></div>`;
+    };
+    box.innerHTML = (rows.length ? `<div class="card" style="margin-bottom:14px"><h3>👪 ${esc(t('chMyGames'))}</h3><div class="cgames">${rows.map(row).join('')}</div></div>` : '')
+      + (others.length ? `<div class="card" style="margin-bottom:14px"><h3>${esc(t('specT'))}</h3><div class="cgames">${others.map(spec).join('')}</div></div>` : '');
+    box.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+    const act = async (id, ev, after) => { try { await chessAppend(id, Object.assign({ by: who.id, at: Date.now() }, ev)); if (after) after(); else refresh(); } catch (e) { toast(t('chSendFail')); } };
+    box.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { const x = mine.find(y => y.g.id === b.dataset.acc); act(b.dataset.acc, { t: 'acc' }, () => { if (x) chatSys({ sys: 'acc', a: x.R.cfg.by, b: who.id }); go('skaak-' + b.dataset.acc); }); });
+    box.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => act(b.dataset.dec, { t: 'dec' }));
+    box.querySelectorAll('[data-can]').forEach(b => b.onclick = () => act(b.dataset.can, { t: 'can' }));
+  };
+  const su2 = (cfg) => `${cfg.secs} s · ${esc(subjLabel(cfg.subj))}`;
+  const refresh = () => chessList(15).then(list => { if (S.route.s === 'chess') { draw(list); updateBadges(list); } }).catch(() => {});
+  refresh();
+  S._chessPoll = setInterval(() => { if (!document.hidden) refresh(); }, 8000);
+}
+
+/* ---------- the game screen ---------- */
+function chessCleanup() {
+  if (S._chessPoll) { clearInterval(S._chessPoll); S._chessPoll = null; }
+  if (S._cqTimer) { clearInterval(S._cqTimer); S._cqTimer = null; }
+  if (S._aiTimer) { clearTimeout(S._aiTimer); S._aiTimer = null; }
+  if (S.chess) S.chess.dead = true;
+}
+async function renderChessGame(main, gid) {
+  const who = me();
+  let events;
+  if (gid === 'l') { const loc = lsGet(locKey(who.id), null); events = loc && loc.events; }
+  else {
+    if (!online()) return go('skaak');
+    main.innerHTML = `<div class="splash"><div>♟️</div></div>`;
+    try { events = await chessFetch(gid); } catch (e) { events = null; }
+    if (S.route.s !== 'chessGame' || S.route.id !== gid) return;
+  }
+  const R0 = chessReplay(events);
+  if (!R0) return go('skaak');
+  const C = S.chess = { gid, local: gid === 'l', events: events.slice(), R: R0, sel: null, busy: false, pending: 0, flip: false, dead: false, qi: 0, combo: 0, life: lsGet('lh.chess.life.' + R0.cfg.id, {}), anim: null, handed: null };
+  const cfg = R0.cfg, kind = cfg.kind;
+  C.pool = shuffle(quickPool(cfg.subj));
+  const myColor = kind === 'phone' ? null : R0.colorOf(who.id);
+  const controls = (id) => kind === 'phone' ? id !== 'app' : kind === 'app' ? id === who.id : id === who.id;
+  const bottomColor = () => { if (kind === 'phone') { const c = C.R.status === 'active' ? C.R.pos.t : 'w'; return C.flip ? CHESS.other(c) : c; } const c = myColor || 'w'; return C.flip ? CHESS.other(c) : c; };
+  const subjOk = C.pool.length > 0;
+  main.innerHTML = `<div class="chead"><button class="back" data-go="skaak">← ♟️ ${esc(t('chessT'))}</button><span class="row" style="gap:6px">${kind === 'online' ? `<button class="btn sm" id="chChatB">💬<span class="bdg-in" id="chChatN" hidden></span></button>` : ''}${muteBtn()}</span></div>
+  <div class="row small muted cchips"><span class="chip subject">${esc(subjLabel(cfg.subj))}</span><span class="chip">⏱️ ${cfg.secs} s</span>${kind === 'app' ? `<span class="chip">🤖 ${esc(t('chLvl')[cfg.lvl])}</span>` : ''}</div>
+  <div class="cwrap"><div class="cplay" id="pTop"></div><div class="cboard" id="cBoard"></div><div class="cplay" id="pBot"></div></div>
+  <div class="cstatus" id="cStat" aria-live="polite"></div>
+  <div class="row" style="justify-content:center;gap:8px;margin-top:10px" id="cActs"></div>
+  <details class="card cmoves" style="margin-top:14px"><summary><b>📜 ${esc(t('chMoves'))}</b></summary><div id="cLog" class="small"></div></details>`;
+  wireBack(main);
+  setSubjectColor(cfg.subj !== 'all' && S.content.subjects[cfg.subj] ? S.content.subjects[cfg.subj].color : null);
+  const board = $('#cBoard');
+  board.innerHTML = Array.from({ length: 64 }, (_, i) => `<button class="csq" data-i="${i}"></button>`).join('');
+  const cells = [...board.children];
+  board.onclick = (e) => { const b = e.target.closest('.csq'); if (b) onSquare(+b.dataset.sq); };
+  const playerBar = (c) => {
+    const R = C.R, id = cfg[c], caps = capturedBy(R.pos, c), diff = matOf(caps) - matOf(capturedBy(R.pos, CHESS.other(c)));
+    const turn = R.status === 'active' && R.pos.t === c, s = R.stats[c];
+    const mine = kind !== 'phone' && id === who.id;
+    return `<span class="cp-av">${pav(id)}</span><span class="cp-nm"><b>${esc(mine ? t('chYou') : pname(id, cfg))}</b> <span class="small muted">${c === 'w' ? '⚪' : '⚫'}</span>${id !== 'app' ? `<span class="small muted"> · ✅ ${s.ok}/${s.n}</span>` : ''}<span class="cp-caps">${caps.map(pc => pieceSvg(pc)).join('')}${diff > 0 ? `<span class="small muted">+${diff}</span>` : ''}</span></span>${turn ? `<span class="cp-turn">${id === 'app' && C.busy ? '🤔' : '⏳'}</span>` : ''}`;
+  };
+  const paint = () => {
+    if (C.dead) return;
+    const R = C.R, bc = bottomColor(), st = R.st;
+    board.classList.toggle('flipped', bc === 'b');
+    // the king in danger: own king in check, or the other king that may be captured after a missed question
+    const kingInCheck = R.status !== 'active' || !st ? -1 : st.canTakeKing ? R.pos.b.indexOf(R.pos.t === 'w' ? 'k' : 'K') : st.check ? R.pos.b.indexOf(R.pos.t === 'w' ? 'K' : 'k') : -1;
+    const targets = C.sel !== null && st ? st.moves.filter(m => m.f === C.sel).map(m => m.t) : [];
+    cells.forEach((el, i) => {
+      // visual index i → board square
+      const sq = bc === 'w' ? i : 63 - i, r = sq >> 3, f = sq & 7, pc = R.pos.b[sq];
+      el.dataset.sq = sq;
+      el.className = 'csq ' + ((r + f) % 2 ? 'dk' : 'lt') + (R.last && (R.last.f === sq || R.last.t === sq) ? ' last' : '') + (C.sel === sq ? ' sel' : '') + (targets.includes(sq) ? (pc ? ' tgt cap' : ' tgt') : '') + (sq === kingInCheck ? ' chk' : '') + (C.pend && (C.pend.f === sq || C.pend.t === sq) ? ' pend' : '');
+      const coord = `${(bc === 'w' ? r === 7 : r === 0) ? `<span class="cf">${'abcdefgh'[f]}</span>` : ''}${(bc === 'w' ? f === 0 : f === 7) ? `<span class="cr">${8 - r}</span>` : ''}`;
+      el.innerHTML = coord + (pc ? pieceSvg(pc) : '');
+      el.setAttribute('aria-label', CHESS.sqName(sq) + (pc ? ' ' + PIECE_NAMES[L][pc.toLowerCase()] : ''));
+    });
+    if (C.anim) { // slide the piece that just moved
+      const a = C.anim; C.anim = null;
+      const toI = cells.findIndex(el => +el.dataset.sq === a.t), fromI = cells.findIndex(el => +el.dataset.sq === a.f);
+      const svg = cells[toI] && cells[toI].querySelector('.pc');
+      if (svg && fromI >= 0) {
+        const dx = (fromI % 8) - (toI % 8), dy = Math.floor(fromI / 8) - Math.floor(toI / 8);
+        svg.style.transform = `translate(${dx * 100}%, ${dy * 100}%)`; svg.style.zIndex = 3;
+        requestAnimationFrame(() => requestAnimationFrame(() => { svg.style.transition = 'transform .28s cubic-bezier(.2,.8,.2,1)'; svg.style.transform = ''; }));
+      }
+    }
+    const top = CHESS.other(bc);
+    $('#pTop').innerHTML = playerBar(top); $('#pBot').innerHTML = playerBar(bc);
+    $('#pTop').classList.toggle('on', R.status === 'active' && R.pos.t === top); $('#pBot').classList.toggle('on', R.status === 'active' && R.pos.t === bc);
+    // status line
+    let s = '';
+    if (R.status === 'invite') s = R.invitee === who.id ? `📨 ${esc(tf('chChallenges', { n: pname(cfg.by, cfg) }))}` : `⏳ ${esc(tf('chWaitAcc', { n: pname(R.invitee, cfg) }))}`;
+    else if (R.status === 'declined') s = esc(tf('chDeclined', { n: pname(R.invitee, cfg) }));
+    else if (R.status === 'cancelled') s = esc(t('chCancelled'));
+    else if (R.status === 'over') s = `<b>${esc(overTitle(R))}</b> · ${esc(resultText(R))}`;
+    else {
+      const mover = R.toMove, mine = controls(mover), opp = pname(cfg[CHESS.other(R.pos.t)], cfg);
+      if (st.canTakeKing) s = `👑 ${esc(tf('chTakeKing', { n: opp }))}`;
+      else if (st.check && mine) s = `⚠️ <b>${esc(t('chCheck'))}</b> ${esc(t('chInCheck'))}`;
+      else if (!mine) s = mover === 'app' ? esc(t('chAppThinks')) : esc(tf('chWaitMove', { n: pname(mover, cfg) }));
+      else s = (kind === 'phone' ? `${pav(mover)} <b>${esc(pname(mover, cfg))}</b>: ` : '') + esc(C.sel === null ? t('chTapPiece') : t('chTapTarget'));
+      if (st.check && !mine && !st.canTakeKing) s = `⚠️ <b>${esc(t('chCheck'))}</b> · ` + s;
+    }
+    $('#cStat').innerHTML = s;
+    // actions
+    let a = '';
+    if (R.status === 'invite' && R.invitee === who.id) a = `<button class="btn hi" id="cAcc">✅ ${esc(t('chAccept'))}</button><button class="btn ghost" id="cDec">${esc(t('chDecline'))}</button>`;
+    else if (R.status === 'invite') a = `<button class="btn ghost" id="cCan">${esc(t('chCancel'))}</button>`;
+    else if (R.status === 'active') a = `<button class="btn sm ghost" id="cFlip">🔄 ${esc(t('chFlip'))}</button><button class="btn sm ghost" id="cRes">🏳️ ${esc(t('chResign'))}</button>`;
+    else a = `<button class="btn subject" id="cAgain">🔁 ${esc(t('playAgain'))}</button><button class="btn" data-go="skaak">${esc(t('back'))}</button>`;
+    $('#cActs').innerHTML = a; wireActs();
+    // move log
+    $('#cLog').innerHTML = R.hist.length ? `<ol class="clog">${R.hist.map(h => h.miss ? `<li class="miss">${pav(h.by)} ${esc(pname(h.by, cfg))}: ❌ ${esc(t('chMissed'))}${h.p ? ` <span class="muted">(${esc(PIECE_NAMES[L][h.p.toLowerCase()])} ${CHESS.sqName(h.f)}→${CHESS.sqName(h.to)})</span>` : ''}</li>` : `<li>${pav(h.by)} ${esc(PIECE_NAMES[L][h.m.p.toLowerCase()])} ${CHESS.sqName(h.m.f)}→${CHESS.sqName(h.m.t)}${h.m.x ? ' ✖ ' + esc(PIECE_NAMES[L][h.m.x.toLowerCase()]) : ''}${h.m.pr ? ' = ' + esc(PIECE_NAMES[L][h.m.pr]) : ''}${h.m.cs ? ' (0-0' + (h.m.cs.toLowerCase() === 'q' ? '-0' : '') + ')' : ''}</li>`).join('')}</ol>` : `<p class="muted">–</p>`;
+  };
+  const overTitle = (R) => { const w = R.result && R.result.winner ? cfg[R.result.winner] : null; if (!w) return t('chDraw'); if (kind !== 'phone' && w === who.id) return t('chYouWin'); return kind === 'phone' ? tf('chWins', { n: pname(w, cfg) }) : tf('chTheyWin', { n: pname(w, cfg) }); };
+  const wireActs = () => {
+    const q = (id) => $('#' + id);
+    if (q('cAcc')) q('cAcc').onclick = () => commit({ t: 'acc', by: who.id }, () => chatSys({ sys: 'acc', a: cfg.by, b: who.id }));
+    if (q('cDec')) q('cDec').onclick = () => commit({ t: 'dec', by: who.id }, () => go('skaak'));
+    if (q('cCan')) q('cCan').onclick = () => commit({ t: 'can', by: who.id }, () => go('skaak'));
+    if (q('cFlip')) q('cFlip').onclick = () => { C.flip = !C.flip; paint(); };
+    if (q('cRes')) q('cRes').onclick = () => {
+      const by = kind === 'phone' ? C.R.toMove : who.id;
+      const ov = document.createElement('div'); ov.className = 'overlay';
+      ov.innerHTML = `<div class="modal"><div class="big" style="animation:none">🏳️</div><p style="margin:8px 0 16px">${esc(t('chResignQ'))}</p><div class="row" style="justify-content:center"><button class="btn" id="rNo">${esc(t('chNo'))}</button><button class="btn hi" id="rYes">${esc(t('chYes'))}</button></div></div>`;
+      document.body.appendChild(ov);
+      $('#rNo', ov).onclick = () => ov.remove();
+      $('#rYes', ov).onclick = () => { ov.remove(); if (C.R.status === 'active') commit({ t: 'res', by }); };
+    };
+    if (q('cAgain')) q('cAgain').onclick = () => {
+      if (kind === 'online') { go('skaak'); return; }
+      const ev = Object.assign({}, cfg, { id: 'L' + rid(), at: Date.now(), w: cfg.b, b: cfg.w });
+      lsSet(locKey(who.id), { events: [ev] }); render();
+    };
+    $('#cActs').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  };
+  const canAct = () => !C.busy && !C.dead && C.R.status === 'active' && controls(C.R.toMove) && subjOk && !C.pending && !document.querySelector('.overlay');
+  function onSquare(sq) {
+    if (!canAct()) { if (C.R.status === 'active' && !subjOk) toast(t('chNoQs')); return; }
+    const R = C.R, st = R.st, pc = R.pos.b[sq];
+    if (C.sel !== null) {
+      const mv = st.moves.filter(m => m.f === C.sel && m.t === sq);
+      if (mv.length) { attempt(mv); return; }
+    }
+    if (pc && CHESS.colorOf(pc) === R.pos.t && st.moves.some(m => m.f === sq)) { C.sel = C.sel === sq ? null : sq; sfx('tap'); }
+    else C.sel = null;
+    paint();
+  }
+  function attempt(mvs) {
+    if (mvs.length > 1 && mvs[0].pr) {
+      const ov = document.createElement('div'); ov.className = 'overlay';
+      const c = C.R.pos.t;
+      ov.innerHTML = `<div class="modal"><h2 style="margin-bottom:12px">${esc(t('chPromo'))}</h2><div class="cpromo">${['q', 'r', 'b', 'n'].map(p => `<button data-pr="${p}" aria-label="${esc(PIECE_NAMES[L][p])}">${pieceSvg(c === 'w' ? p.toUpperCase() : p)}</button>`).join('')}</div></div>`;
+      document.body.appendChild(ov);
+      ov.querySelectorAll('[data-pr]').forEach(b => b.onclick = () => { ov.remove(); ask(mvs.find(m => m.pr === b.dataset.pr)); });
+      return;
+    }
+    ask(mvs[0]);
+  }
+  function nextQ() { if (C.qi >= C.pool.length) { C.pool = shuffle(C.pool); C.qi = 0; } return C.pool[C.qi++]; }
+  function ask(m) {
+    const mover = C.R.toMove, it = nextQ(), q = it.q, opts = quickOpts(q);
+    C.busy = true; C.pend = { f: m.f, t: m.t }; C.sel = null; paint();
+    const lifeLeft = () => (C.life[mover] === undefined ? 2 : C.life[mover]);
+    const ov = document.createElement('div'); ov.className = 'overlay sheetwrap cqwrap'; ov.id = 'cqSheet';
+    ov.innerHTML = `<div class="sheet cq" role="dialog" aria-modal="true" aria-label="${esc(t('chQHead'))}"><div class="sh-grab"></div>
+      <div class="cq-head"><span class="cq-mv">${pieceSvg(m.p)}<span><b>${esc(t('chQHead'))}</b><br><span class="small muted">${kind === 'phone' ? esc(pname(mover, cfg)) + ' · ' : ''}${CHESS.sqName(m.f)} → ${CHESS.sqName(m.t)}${m.x ? ' ✖ ' + esc(PIECE_NAMES[L][m.x.toLowerCase()]) : ''}</span></span></span><span class="cq-t num" id="cqT">${cfg.secs}</span></div>
+      <div class="cq-bar"><i id="cqBar"></i></div>
+      <div class="small muted" style="margin:8px 0 4px">${it.subj.icon} ${esc(tx(it.subj.short))} · ${esc(tx(it.topic.title))}</div>
+      <div class="sh-q">${inline(tx(q.q))}</div>
+      <div class="opts">${opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${inline(o.txt)}</span></button>`).join('')}</div>
+      <div class="sh-foot"><button class="btn sm ghost" id="cqLL" ${lifeLeft() > 0 ? '' : 'disabled'}>💡 50/50 <span class="num">×${lifeLeft()}</span></button><span class="small muted">${esc(t('chLife'))}</span></div>
+      <div id="cqRes"></div></div>`;
+    document.body.appendChild(ov);
+    const btns = [...ov.querySelectorAll('.opt')], deadline = Date.now() + cfg.secs * 1000;
+    let done = false;
+    const st50 = { gone: [], used: false };
+    $('#cqLL', ov).onclick = (e) => {
+      if (lifeLeft() <= 0 || st50.used) return;
+      const wrong = opts.map((o, i) => o.ok ? -1 : i).filter(i => i >= 0); if (wrong.length < 2) return;
+      st50.used = true; C.life[mover] = lifeLeft() - 1; lsSet('lh.chess.life.' + cfg.id, C.life);
+      shuffle(wrong).slice(0, 2).forEach(i => { btns[i].classList.add('gone'); btns[i].disabled = true; });
+      e.currentTarget.disabled = true; e.currentTarget.querySelector('.num').textContent = '×' + C.life[mover]; sfx('tap');
+    };
+    const finish = (i) => {
+      if (done) return; done = true;
+      if (S._cqTimer) { clearInterval(S._cqTimer); S._cqTimer = null; }
+      const ok = i >= 0 && opts[i].ok, ri = opts.findIndex(o => o.ok);
+      btns.forEach(b => b.disabled = true); $('#cqLL', ov).disabled = true;
+      if (i >= 0) btns[i].classList.add(ok ? 'right' : 'wrong'); if (btns[ri]) btns[ri].classList.add('right');
+      // learning record: only for a boy answering on his own profile
+      const kidRec = S.kid && who.kid && (kind !== 'phone' || mover === who.id) && mover === S.kid.id ? S.kid : null;
+      if (kidRec) { noteMistake(kidRec, it.topic, q, ok); C.combo = ok ? C.combo + 1 : 0; funAnswer(ok, { quiet: true, streak: C.combo }); C.answered = (C.answered || 0) + 1; if (C.answered % 5 === 0) S.store.saveKid(kidRec).catch(() => {}); }
+      else sfx(ok ? 'ok' : 'bad');
+      const ev = ok ? { t: 'mv', n: C.R.ply, by: mover, f: m.f, to: m.t, q: 1 } : { t: 'miss', n: C.R.ply, by: mover, f: m.f, to: m.t, p: m.p };
+      if (ok && m.pr) ev.pr = m.pr;
+      if (ok) {
+        $('#cqRes', ov).innerHTML = `<div class="cq-ok">${esc(t('chRight'))}</div>`;
+        setTimeout(() => { ov.remove(); C.pend = null; C.busy = false; C.anim = { f: m.f, t: m.t }; commit(ev); }, 650);
+      } else {
+        const nextName = pname(cfg[CHESS.other(C.R.pos.t)], cfg);
+        $('#cqRes', ov).innerHTML = `<div class="cq-bad"><b>${esc(i < 0 ? t('chTooSlow') : t('chWrong'))}</b> ${esc(tf('chTurnOver', { n: nextName }))}<div class="small" style="margin-top:6px">${esc(t('chRightAns'))} <b>${inline(opts[ri].txt)}</b>${q.explain ? ` – ${inline(tx(q.explain))}` : ''}</div></div><button class="btn subject block" id="cqOk" style="margin-top:10px">${esc(t('chGoOn'))}</button>`;
+        let closed = false;
+        const close = () => { if (closed) return; closed = true; ov.remove(); C.pend = null; C.busy = false; commit(ev); };
+        $('#cqOk', ov).onclick = close;
+        setTimeout(close, 9000);
+        $('#cqOk', ov).scrollIntoView({ block: 'nearest' });
+      }
+    };
+    btns.forEach(b => b.onclick = () => finish(+b.dataset.i));
+    const tick = () => {
+      const left = Math.max(0, deadline - Date.now()), secs = Math.ceil(left / 1000);
+      const bar = $('#cqBar', ov), tt = $('#cqT', ov);
+      if (bar) { bar.style.width = (100 * left / (cfg.secs * 1000)) + '%'; bar.classList.toggle('low', secs <= 5); }
+      if (tt) { tt.textContent = secs; tt.classList.toggle('low', secs <= 5); }
+      if (left <= 0) finish(-1);
+    };
+    S._cqTimer = setInterval(tick, 100); tick();
+  }
+  /* append an event: local games straight to localStorage, online games through lh_log (append-only) */
+  async function commit(ev, after) {
+    if (C.dead && C.local) return;
+    ev.at = Date.now();
+    const before = C.R;
+    C.events.push(ev); C.R = chessReplay(C.events);
+    if (C.local) lsSet(locKey(who.id), { events: C.events });
+    paint();
+    if (!C.local) {
+      C.pending++;
+      let okSend = false;
+      for (let i = 0; i < 3 && !okSend; i++) { try { await chessAppend(gid, ev); okSend = true; } catch (e) { await new Promise(r => setTimeout(r, 1200)); } }
+      C.pending--;
+      if (!okSend) { C.events.splice(C.events.indexOf(ev), 1); C.R = chessReplay(C.events); paint(); toast(t('chSendFail')); return; }
+    }
+    if (after) after();
+    afterChange(before);
+  }
+  function afterChange(before) {
+    if (C.dead) return;
+    const R = C.R;
+    if (R.status === 'over' && before.status !== 'over') { gameEnd(true); return; }
+    if (R.status !== 'active') return;
+    if (kind === 'app' && R.toMove === 'app') {
+      C.busy = true; paint();
+      S._aiTimer = setTimeout(() => {
+        if (C.dead) return;
+        const m = CHESS.bestMove(C.R.pos, cfg.lvl);
+        C.busy = false;
+        if (!m) return;
+        C.anim = { f: m.f, t: m.t }; sfx('tap');
+        commit({ t: 'mv', n: C.R.ply, by: 'app', f: m.f, to: m.t, pr: m.pr || undefined });
+      }, 450 + Math.random() * 500);
+      return;
+    }
+    if (kind === 'phone' && (R.toMove !== before.toMove || before.force)) {
+      const nm = pname(R.toMove, cfg);
+      const ov = document.createElement('div'); ov.className = 'overlay';
+      ov.innerHTML = `<div class="modal"><div class="big">${pav(R.toMove)}</div><h2>${esc(tf('chPass', { n: nm }))}</h2><button class="btn hi block" id="hOk" style="margin-top:16px">${esc(tf('chIAm', { n: nm }))}</button></div>`;
+      document.body.appendChild(ov);
+      $('#hOk', ov).onclick = () => { ov.remove(); paint(); };
+    }
+    // a boy's move in a game against Pa or Ma: let the parent know it is his turn (max once per 10 min per game)
+    if (kind === 'online' && who.kid && (R.toMove === 'pa' || R.toMove === 'ma') && before.toMove === who.id) {
+      const key = 'lh.chess.ping.' + cfg.id; const lastPing = lsGet(key, 0);
+      if (Date.now() - lastPing > 600000) { lsSet(key, Date.now()); pushSend({ title: `♟️ ${famName(who.id, 'af')} het geskuif`, body: `Dit is ${famName(R.toMove, 'af')} se beurt in Vraag-skaak.`, url: './#skaak-' + cfg.id }); }
+    }
+  }
+  async function gameEnd(byMe) {
+    const R = C.R; paint();
+    const winC = R.result && R.result.winner, winner = winC ? cfg[winC] : null;
+    const myC = kind === 'phone' ? R.colorOf(who.id) : myColor;
+    const outcome = !winner ? 'd' : (myC && winC === myC) ? 'w' : 'l';
+    const big = kind === 'phone' ? (winner ? '🏆' : '🤝') : (outcome === 'w' ? '🏆' : outcome === 'd' ? '🤝' : '😅');
+    let xp = 0;
+    const kidRec = S.kid && who.kid && S.kid.id === who.id && myC ? S.kid : null;
+    const s = myC ? R.stats[myC] : { ok: 0, n: 0 };
+    if (kidRec) {
+      kidRec.chess = kidRec.chess || { app: {}, fam: {}, seen: [] };
+      kidRec.chess.seen = kidRec.chess.seen || [];
+      if (!kidRec.chess.seen.includes(cfg.id)) {
+        kidRec.chess.seen.push(cfg.id); if (kidRec.chess.seen.length > 40) kidRec.chess.seen.splice(0, kidRec.chess.seen.length - 40);
+        kidRec.chess.app = kidRec.chess.app || {};
+        const bucket = kind === 'app' ? (kidRec.chess.app[cfg.lvl] = kidRec.chess.app[cfg.lvl] || {}) : (kidRec.chess.fam = kidRec.chess.fam || {});
+        ['w', 'l', 'd'].forEach(k => { bucket[k] = bucket[k] || 0; });
+        bucket[outcome]++;
+        const baseXp = kind === 'app' ? ({ easy: { w: 15, d: 8, l: 5 }, med: { w: 25, d: 12, l: 6 }, hard: { w: 40, d: 20, l: 8 } }[cfg.lvl] || { w: 15, d: 8, l: 5 })[outcome] : { w: 30, d: 15, l: 10 }[outcome];
+        xp = baseXp + Math.min(20, s.ok);
+        kidRec.totals.games = (kidRec.totals.games || 0) + 1;
+        const oppId = cfg[CHESS.other(myC)];
+        const vs = kind === 'app' ? `${UI.af.chApp.toLowerCase()} (${UI.af.chLvl[cfg.lvl]})` : pname(oppId, cfg, 'af');
+        const resAf = outcome === 'w' ? 'gewen 🏆' : outcome === 'd' ? 'gelykop 🤝' : 'verloor';
+        const label = `Vraag-skaak teen ${vs}: ${resAf} · vrae reg ${s.ok}/${s.n}`;
+        award(kidRec, xp, { type: 'game', game: 'chess', label }).catch(() => {});
+        if ((S.settings || {}).push) pushSend({ title: `♟️ ${kidRec.name}: Vraag-skaak ${resAf}`, body: `Teen ${vs} · ${resultText(R, 'af')} · vrae reg ${s.ok}/${s.n} · +${xp} XP`, url: './#ouer', kid: kidRec.id });
+      }
+    }
+    if (byMe && kind === 'online') {
+      const a = winner || cfg.w, b = winner ? cfg[CHESS.other(winC)] : cfg.b;
+      chatSys({ sys: winner ? 'win' : 'draw', a, b, r: R.result.res, rb: R.result.by });
+    }
+    if (C.dead) return;
+    const ov = document.createElement('div'); ov.className = 'overlay';
+    ov.innerHTML = `<div class="modal"><div class="big">${big}</div><h2>${esc(overTitle(R))}</h2><p class="muted" style="margin:6px 0 10px">${esc(resultText(R))}</p>
+      <div class="row" style="justify-content:center;gap:6px">${['w', 'b'].filter(c => cfg[c] !== 'app').map(c => `<span class="chip num">${pav(cfg[c])} ${esc(t('chQRight'))}: ${R.stats[c].ok}/${R.stats[c].n}</span>`).join('')}${xp ? `<span class="chip hi num">+${xp} XP</span>` : ''}</div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button class="btn subject" id="eAgain">🔁 ${esc(t('playAgain'))}</button><button class="btn" id="eClose">${esc(t('close'))}</button></div></div>`;
+    document.body.appendChild(ov);
+    if (outcome === 'w' || (kind === 'phone' && winner)) { sfx('win'); confetti(150); }
+    $('#eClose', ov).onclick = () => ov.remove();
+    $('#eAgain', ov).onclick = () => { ov.remove(); const b = $('#cAgain'); if (b) b.click(); };
+  }
+  // online: follow the other phone
+  if (!C.local) {
+    const poll = async () => {
+      if (C.dead || C.pending || C.busy) return;
+      let evs; try { evs = await chessFetch(gid); } catch (e) { return; }
+      if (C.dead || C.pending || C.busy || !evs || evs.length < C.events.length || JSON.stringify(evs) === JSON.stringify(C.events)) return;
+      const before = C.R; C.events = evs; C.R = chessReplay(evs);
+      if (C.R.ply > before.ply) { const h = C.R.hist[C.R.hist.length - 1]; if (h && !h.miss) { C.anim = { f: h.m.f, t: h.m.t }; sfx('tap'); } else if (h && h.miss) { toast(`${pname(h.by, cfg)}: ❌ ${t('chMissed')}`); } }
+      paint();
+      if (C.R.status === 'over' && before.status !== 'over') gameEnd(false);
+    };
+    // quick while waiting for the other phone, slower on my own turn (still catches a resign); keeps mobile data low
+    let tick = 0;
+    S._chessPoll = setInterval(() => { tick++; if (document.hidden) return; const waiting = C.R.status === 'invite' || (C.R.status === 'active' && !controls(C.R.toMove)); if (waiting || tick % 4 === 0) poll(); }, 2000);
+    const cb = $('#chChatB'); if (cb) cb.onclick = () => chatSheet();
+  }
+  paint();
+  if (R0.status === 'over') { /* just viewing */ }
+  else if (kind === 'app' && R0.status === 'active' && R0.toMove === 'app') afterChange({ status: 'active', toMove: who.id });
+  else if (kind === 'phone' && R0.status === 'active' && (R0.ply > 0 || R0.toMove !== who.id)) afterChange({ status: 'active', toMove: R0.toMove, force: true });
+  // a finished online game I have not seen yet (the other phone ended it)
+  if (R0.status === 'over' && kind === 'online' && S.kid && who.kid && !((S.kid.chess || {}).seen || []).includes(cfg.id)) gameEnd(false);
+}
+
+/* ---------- family chat ---------- */
+async function chatLoad(days) { const rows = await S.store.loadPrefix('chat/fam/d/', days || 7); return rows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, b) => a.at - b.at); }
+function chatPost(ev) { return S.store.rpc('lh_log', { k: 'chat/fam/d/' + today(), ev }); }
+function chatSys(o) { if (!online()) return; const who = me(); chatPost(Object.assign({ id: rid(), by: who ? who.id : 'sys', at: Date.now() }, o)).catch(() => {}); }
+const seenKey = () => { const w = me(); return 'lh.chatSeen.' + (w ? w.id : 'x'); };
+function chatMsgHtml(m, myId, prev) {
+  const day = ymd(new Date(m.at)), pday = prev ? ymd(new Date(prev.at)) : null;
+  let h = day !== pday ? `<div class="cday">${esc(fmtDay(day))}</div>` : '';
+  if (m.sys) {
+    const r = m.r ? (m.r === 'res' ? tfa(t('chRes').res, { n: famName(m.rb) }) : (t('chRes')[m.r] || '')) : '';
+    h += `<div class="csys">${esc(tfa(t('chatSys')[m.sys] || '', { a: famName(m.a), b: famName(m.b), r }))} <span class="ct">${fmtTime(m.at)}</span></div>`;
+    return h;
+  }
+  const mine = m.by === myId, cont = prev && !prev.sys && prev.by === m.by && day === pday && m.at - prev.at < 180000;
+  h += `<div class="cmsg ${mine ? 'me' : ''} ${cont ? 'cont' : ''}">${mine ? '' : `<span class="cav">${cont ? '' : famAv(m.by)}</span>`}<div class="cbub">${!mine && !cont ? `<div class="cnm">${esc(famName(m.by))}</div>` : ''}<div class="ctx">${esc(m.txt)}</div><div class="ct">${fmtTime(m.at)}</div></div></div>`;
+  return h;
+}
+function chatUI(root, compact) {
+  const who = me();
+  root.innerHTML = `<div class="chat ${compact ? 'compact' : ''}"><div class="cmembers">${FAMILY.map(f => `<span class="${f.id === who.id ? 'me' : ''}" title="${esc(famName(f.id))}">${f.avatar}<small>${esc(famName(f.id))}</small></span>`).join('')}</div>
+    <div class="clist" id="cList" aria-live="polite"><p class="muted center small" style="margin-top:20px">…</p></div>
+    <div class="cquick">${t('chatQuick').map(q => `<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+    <form class="cform" id="cForm"><input id="cIn" maxlength="300" autocomplete="off" placeholder="${esc(t('chatPh'))}" aria-label="${esc(t('chatPh'))}"><button class="btn primary" type="submit">${esc(t('chatSend'))}</button></form></div>`;
+  const list = $('#cList', root);
+  let msgs = [], lastSig = '';
+  const draw = () => {
+    const sig = msgs.length + ':' + (msgs.length ? msgs[msgs.length - 1].id : '');
+    if (sig === lastSig) return; lastSig = sig;
+    const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+    list.innerHTML = msgs.length ? msgs.map((m, i) => chatMsgHtml(m, who.id, msgs[i - 1])).join('') : `<p class="muted center small" style="margin-top:20px">${esc(t('chatEmpty'))}</p>`;
+    if (atBottom || !draw.once) list.scrollTop = list.scrollHeight; draw.once = true;
+    if (msgs.length) lsSet(seenKey(), msgs[msgs.length - 1].at);
+    S.badges = Object.assign(S.badges || {}, { chat: 0 }); updateSocialUi();
+  };
+  const load = async () => { try { const m = await chatLoad(7); msgs = m; draw(); } catch (e) {} };
+  const send = async (txt) => {
+    txt = String(txt || '').trim().slice(0, 300); if (!txt) return;
+    const ev = { id: rid(), by: who.id, txt, at: Date.now() };
+    msgs.push(Object.assign({ pending: true }, ev)); draw(); sfx('tap');
+    try { await chatPost(ev); } catch (e) { msgs = msgs.filter(x => x.id !== ev.id); lastSig = ''; draw(); toast(t('chSendFail')); return; }
+    if (who.kid && (S.settings || {}).push) pushSend({ title: `💬 ${who.name} in die familie-klets`, body: txt, url: './#klets' });
+  };
+  $('#cForm', root).onsubmit = (e) => { e.preventDefault(); const inp = $('#cIn', root); const v = inp.value; inp.value = ''; send(v); };
+  root.querySelectorAll('[data-q]').forEach(b => b.onclick = () => send(b.dataset.q));
+  load();
+  return { load, stop: null };
+}
+function renderChat(main) {
+  const who = me();
+  if (!online()) { main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="card pad-lg center"><div style="font-size:48px">💬</div><p class="muted">${esc(t('chOnlineOnly'))}</p></div>`; wireBack(main); return; }
+  main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="row" style="justify-content:space-between"><h1>💬 ${esc(t('chatT'))}</h1><button class="btn sm" data-go="skaak">♟️ ${esc(t('chessT'))}</button></div><p class="small muted chatsub" style="margin:4px 0 10px">🔒 ${esc(t('chatSub'))}</p><div id="chatRoot" style="margin-top:8px"></div>`;
+  wireBack(main);
+  const c = chatUI($('#chatRoot'));
+  // size the message list so the input stays above the bottom bar on every phone
+  const fit = () => { const list = $('#cList'); if (!list || S.route.s !== 'chat') { removeEventListener('resize', fit); return; } const nav = $('#bottomnav'), navH = nav && getComputedStyle(nav).display !== 'none' ? nav.offsetHeight : 0; const below = $('.cquick').offsetHeight + $('#cForm').offsetHeight + 28 + navH; list.style.height = Math.max(150, innerHeight - list.getBoundingClientRect().top - below) + 'px'; };
+  fit(); addEventListener('resize', fit);
+  S._chessPoll = setInterval(() => { if (!document.hidden) c.load(); }, 3000);
+}
+function chatSheet() {
+  if ($('#chatSheet')) return;
+  const ov = document.createElement('div'); ov.className = 'overlay sheetwrap'; ov.id = 'chatSheet';
+  ov.innerHTML = `<div class="sheet"><div class="sh-grab"></div><div class="sh-head"><b>💬 ${esc(t('chatT'))}</b><button class="btn sm ghost" id="csX" aria-label="${esc(t('close'))}">✕</button></div><div id="csRoot"></div></div>`;
+  document.body.appendChild(ov);
+  const c = chatUI($('#csRoot', ov), true);
+  const h = setInterval(() => { if (!document.body.contains(ov)) { clearInterval(h); return; } if (!document.hidden) c.load(); }, 3000);
+  const close = () => { clearInterval(h); ov.remove(); };
+  $('#csX', ov).onclick = close; ov.addEventListener('click', e => { if (e.target === ov) close(); });
+}
+
+/* ---------- badges + background check (every 30 s while Leerhoek is open and visible) ---------- */
+function updateBadges(games, chat) {
+  const who = me(); if (!who) return;
+  const b = S.badges = S.badges || {};
+  if (games) {
+    let inv = 0, turn = 0, from = '', newest = 0;
+    games.forEach(g => { const R = chessReplay(g.events); if (!R) return; if (R.status === 'invite' && R.invitee === who.id && R.updated > Date.now() - 14 * 86400000) { inv++; from = pname(R.cfg.by, R.cfg); newest = Math.max(newest, R.cfg.at || 0); } if (R.status === 'active' && R.toMove === who.id) turn++; });
+    b.invites = inv; b.myTurn = turn; b.inviteFrom = from;
+    const seenInv = lsGet('lh.chess.invSeen.' + who.id, 0);
+    if (newest > seenInv) { lsSet('lh.chess.invSeen.' + who.id, newest); if (S.route.s !== 'chess') ping(`♟️ ${tf('chChallenges', { n: from })}`, 'skaak'); }
+  }
+  if (chat) {
+    const seen = lsGet(seenKey(), 0);
+    const unread = chat.filter(m => m.at > seen && m.by !== who.id && !m.sys);
+    if (S.route.s !== 'chat' && !$('#chatSheet')) {
+      const lastPinged = lsGet('lh.chatPinged.' + who.id, 0), newest = unread.length ? unread[unread.length - 1] : null;
+      if (newest && newest.at > lastPinged) { lsSet('lh.chatPinged.' + who.id, newest.at); if (seen) ping(`💬 ${famName(newest.by)}: ${newest.txt.slice(0, 60)}`, 'klets'); }
+      b.chat = unread.length;
+      if (!seen && chat.length) lsSet(seenKey(), chat[chat.length - 1].at); // first time on this device: start counting from now
+    } else b.chat = 0;
+  }
+  updateSocialUi();
+}
+function updateSocialUi() {
+  const b = S.badges || {}, who = me();
+  const cb = $('#chatBtn'); if (cb) { cb.hidden = !(online() && who); const n = $('#chatBdg'); if (n) { n.hidden = !b.chat; n.textContent = b.chat > 9 ? '9+' : (b.chat || ''); } }
+  document.querySelectorAll('[data-go="speel"] .ic').forEach(ic => { let d = ic.querySelector('.nbdg'); const n = (b.invites || 0) + (b.myTurn || 0); if (n && !d) { d = document.createElement('span'); d.className = 'nbdg'; ic.appendChild(d); } if (d) { if (n) d.textContent = n; else d.remove(); } });
+  const gn = $('#chChatN'); if (gn) { gn.hidden = !b.chat; gn.textContent = b.chat || ''; }
+  const sb = $('#socialBan'); if (sb) { const h = socialBanInner(); if (sb.innerHTML !== h) { sb.innerHTML = h; sb.querySelectorAll('[data-go]').forEach(x => x.onclick = () => go(x.dataset.go)); } }
+  const cc = document.querySelector('.chesscard'); if (cc) { const tmp = document.createElement('div'); tmp.innerHTML = chessHubCard(); const n = tmp.firstElementChild; if (cc.outerHTML !== n.outerHTML) { cc.replaceWith(n); n.onclick = () => go('skaak'); } }
+}
+function ping(msg, route) {
+  const old = $('#lhPing'); if (old) old.remove();
+  const el = document.createElement('button'); el.id = 'lhPing'; el.className = 'lhping'; el.textContent = msg;
+  el.onclick = () => { el.remove(); go(route); };
+  document.body.appendChild(el); sfx('gift');
+  setTimeout(() => { if (el.isConnected) el.classList.add('out'); }, 7000); setTimeout(() => el.remove(), 7600);
+}
+async function socialTick() {
+  if (!online() || !me() || document.hidden) return;
+  try {
+    const [games, chatRows] = await Promise.all([chessList(), S.store.loadPrefix('chat/fam/d/', 2)]);
+    const chat = chatRows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, z) => a.at - z.at);
+    updateBadges(games, chat);
+  } catch (e) {}
+}
+function socialInit() {
+  const cb = $('#chatBtn'); if (cb) cb.onclick = () => go('klets');
+  updateSocialUi();
+  setTimeout(socialTick, 2500);
+  setInterval(socialTick, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(socialTick, 800); });
+}
+/* parent panel card: choose Pa / Ma, then play chess or chat */
+function socialParentCard() {
+  const p = parentMe();
+  return `<div class="card" style="margin-top:14px" id="socialCard"><h3>${esc(t('chParentT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chParentSub'))}</p>
+    <div class="row" style="gap:8px"><span class="small"><b>${esc(t('chIAmL'))}</b></span><div class="seg">${['pa', 'ma'].map(x => `<button class="${p === x ? 'on' : ''}" data-pme="${x}">${famAv(x)} ${esc(famName(x))}</button>`).join('')}</div></div>
+    <div class="row" style="margin-top:12px"><button class="btn subject" id="pChess" ${p ? '' : 'disabled'}>${esc(t('chPlay'))}</button><button class="btn" id="pChat" ${p && online() ? '' : 'disabled'}>${esc(t('chChat'))}</button></div></div>`;
+}
+function wireSocialParent(root) {
+  const card = $('#socialCard', root); if (!card) return;
+  card.querySelectorAll('[data-pme]').forEach(b => b.onclick = () => { setParentMe(b.dataset.pme); card.outerHTML = socialParentCard(); wireSocialParent(root); });
+  const pc = $('#pChess', root), pt = $('#pChat', root);
+  if (pc) pc.onclick = () => { setAsParent(true); go('skaak'); };
+  if (pt) pt.onclick = () => { setAsParent(true); go('klets'); };
+}
+
 /* ------------------------------------------------------------------ boot */
 function applyTheme() {
   let th = null; try { th = localStorage.getItem('lh.theme'); } catch (e) {}
@@ -2084,8 +3109,11 @@ async function boot() {
   try { S.settings = await S.store.loadSettings(); } catch (e) {}
   let remembered = null; try { remembered = localStorage.getItem('lh.kid'); } catch (e) {}
   const r = parseRoute();
-  if (r.kid) await selectKid(r.kid); else if (remembered && KIDS.some(k => k.id === remembered)) await selectKid(remembered);
+  migrateLock(r);
+  if (lockedKid()) await selectKid(lockedKid());
+  else if (deviceLock() !== 'ouer') { if (r.kid) await selectKid(r.kid); else if (remembered && KIDS.some(k => k.id === remembered)) await selectKid(remembered); }
   render();
+  socialInit();
   if (window.LH_VERSION && 'serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (window.LH_VERSION) { setTimeout(checkForUpdate, 4000); setInterval(checkForUpdate, 15 * 60000); document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); }); }
 }
