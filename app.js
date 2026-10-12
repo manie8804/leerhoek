@@ -18,6 +18,7 @@ const UI = {
     planT: 'Vandag se studieplan', planSub: 'Gekies uit jou afbakening, jou eksamendatums en die vakke wat die meeste aandag nodig het.', planDone: 'Alles klaar vir vandag – sterk gedoen!',
     exT: 'Eindeksamen', exSub: 'Jou afbakening per vak: wat in die eksamen kom, hoe gereed jy is, en oefentoetse net op daardie werk.', exDateTBC: 'Datum nog onbekend', exDone: 'Klaar', exToday: 'Vandag!', exIn: 'oor',
     provisional: 'Voorlopig', confirmed: 'Bevestig', provisionalHint: 'Voorlopige afbakening: Kwartaal 3 + 4 (tale: die hele jaar), soos in Unika se vorige Novembervraestelle. Pa werk dit by sodra die skool die regte afbakening stuur.',
+    scopeOnlyL: 'Net afbakening', wholeYearL: 'Hele jaar', scopeOnlyHint: 'Vrae en woorde kom net uit die werk wat in die eksamen kom.', wholeYearHint: 'Vrae en woorde kom uit die hele jaar se werk.', scopeTab: 'Afbakening',
     scopeTopics: 'onderwerpe', ready: 'gereed', scopeTest: 'Afbakening-toets', showTopics: 'Wys onderwerpe', inScope: 'In afbakening',
     mistakesT: 'Foute-boek', mistakesSub: 'Elke vraag wat jy verkeerd kry, word hier gebêre. Herdoen hulle tot jy hulle reg kry – dan verdwyn hulle uit die boek.', open_: 'oop', fixedN: 'reggemaak', redoAll: 'Herdoen 10 foute', redo: 'Herdoen', redoT: 'Herdoen foute', recentMistakes: 'Onlangse foute', noMistakes: 'Geen foute nie – mooi so!', noMistakesShort: 'Niks oop nie 🎉', tapToRedo: 'Tik om reg te maak',
     playT: 'Speel & leer', playSub: 'Breinspeletjies met jou eie skoolwerk. Elke speletjie verdien XP en tel vir die tweeling-uitdaging!', brainGames: 'Breinspeletjies', pickSubj: 'Kies ’n vak vir die woordspeletjies:', allSubj: 'Alle vakke',
@@ -68,6 +69,7 @@ const UI = {
     planT: "Today's study plan", planSub: 'Picked from your exam scope, your exam dates and the subjects that need the most attention.', planDone: 'All done for today – great work!',
     exT: 'Final exams', exSub: 'Your exam scope per subject: what is in the exam, how ready you are, and practice tests on just that work.', exDateTBC: 'Date not known yet', exDone: 'Done', exToday: 'Today!', exIn: 'in',
     provisional: 'Provisional', confirmed: 'Confirmed', provisionalHint: "Provisional scope: Term 3 + 4 (languages: the whole year), as in Unika's previous November papers. Dad will update it as soon as the school sends the real scope.",
+    scopeOnlyL: 'Exam scope only', wholeYearL: 'Whole year', scopeOnlyHint: 'Questions and words come only from the work that is in the exam.', wholeYearHint: 'Questions and words come from the whole year’s work.', scopeTab: 'Scope',
     scopeTopics: 'topics', ready: 'ready', scopeTest: 'Scope test', showTopics: 'Show topics', inScope: 'In scope',
     mistakesT: 'Mistakes book', mistakesSub: 'Every question you get wrong is saved here. Redo them until you get them right – then they disappear from the book.', open_: 'open', fixedN: 'fixed', redoAll: 'Redo 10 mistakes', redo: 'Redo', redoT: 'Redo mistakes', recentMistakes: 'Recent mistakes', noMistakes: 'No mistakes – well done!', noMistakesShort: 'Nothing open 🎉', tapToRedo: 'Tap to fix them',
     playT: 'Play & learn', playSub: 'Brain games with your own schoolwork. Every game earns XP and counts for the twin challenge!', brainGames: 'Brain games', pickSubj: 'Choose a subject for the word games:', allSubj: 'All subjects',
@@ -677,21 +679,24 @@ function renderSubject(main, id) {
   setSubjectColor(s.color);
   const kid = S.kid, pct = subjectPct(kid, s);
   const ct = curTerm(), scope = new Set(scopeOf(s).topics);
-  let term = S._term && S._term[id] || (s.terms.find(tm => tm.term === ct && tm.topics.length) || s.terms.find(tm => tm.topics.length) || s.terms[0]).term;
+  const sco = scopeOf(s), hasScope = !sco.provisional && sco.topics.length > 0;
+  let term = S._term && S._term[id] || (hasScope ? 'scope' : (s.terms.find(tm => tm.term === ct && tm.topics.length) || s.terms.find(tm => tm.topics.length) || s.terms[0]).term);
+  if (term === 'scope' && !hasScope) term = s.terms[0].term;
   const draw = () => {
-    const tm = s.terms.find(x => x.term === term) || s.terms[0];
+    const tm = term === 'scope' ? { term: 'scope', title: { af: '🎯 Wat in die eksamen kom' + (sco.date ? ' · ' + fmtDate(sco.date) : ''), en: '🎯 What is in the exam' + (sco.date ? ' · ' + fmtDate(sco.date) : '') }, topics: sco.topics.map(x => findTopic(x)).filter(Boolean).map(f => f.tp) } : (s.terms.find(x => x.term === term) || s.terms[0]);
+    const termOf = (tid) => { const f = findTopic(tid); return f ? f.term : ''; };
     main.innerHTML = `<button class="back" data-go="vakke">← ${esc(t('subjects'))}</button>
     <div class="subhead"><span class="ic">${s.icon}</span><div class="t"><h1>${esc(tx(s.name))}</h1><p class="small muted">${esc(tx(s.intro))}</p>${schoolMark(kid, s.id) !== null ? `<div class="row" style="margin-top:8px;gap:6px"><span class="chip">🏫 ${esc(t('school'))}</span>${[1, 2, 3, 4].map(tm => { const v = schoolMark(kid, s.id, String(tm)); return `<span class="chip ${markCls(v, passTarget(s.id), goalOf(kid, s.id))}">${esc(t('termShort'))}${tm}: <span class="num">${v === null ? '–' : v + '%'}</span></span>`; }).join('')}<span class="chip">${esc(t('passL'))} <span class="num">${passTarget(s.id)}%</span></span><span class="chip">🎯 ${esc(t('goalL'))} <span class="num">${goalOf(kid, s.id)}%</span></span></div>` : ''}</div>${ring(pct)}</div>
     <div class="row" style="margin-top:12px;justify-content:space-between"><details class="tips" style="flex:1;min-width:240px"><summary>💡 ${esc(t('examTips'))}</summary><ul>${(s.examTips || []).map(x => `<li>${esc(tx(x))}</li>`).join('')}</ul></details>
     <div class="row" style="gap:8px"><button class="btn subject" data-go="afbakening-${s.id}">🎯 ${esc(t('scopeTest'))}</button><button class="btn" data-go="eksamen-${s.id}">🎓 ${esc(t('examPractice'))}</button><button class="btn" id="playSubj">🎮 ${esc(t('navPlay'))}</button></div></div>
     ${s.examFormat ? `<details class="tips" style="margin-top:10px"><summary>📄 ${esc(t('examFormatT'))}</summary><div class="prose small" style="margin-top:6px">${md(tx(s.examFormat))}</div></details>` : ''}
     ${(s.practiceExams || []).length ? `<div class="card" style="margin-top:10px"><h3>📝 ${esc(t('papers'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('paperSub'))}</p><div class="stack" style="gap:8px">${s.practiceExams.map(ex => { const pp = (kid.papers || {})[ex.id]; return `<div class="row" style="justify-content:space-between"><div><b>${esc(tx(ex.title))}</b><div class="small muted num">${ex.total} ${esc(t('marks'))} · ${ex.minutes} ${esc(t('min'))}${pp ? ` · ${esc(t('bestMark'))} ${pp.best}% (${pp.attempts}×)` : ''}</div></div><button class="btn sm subject" data-go="vraestel-${ex.id}">${esc(t('startPaper'))} →</button></div>`; }).join('')}</div></div>` : ''}
-    <div class="tabs">${s.terms.map(x => `<button class="${x.term === term ? 'on' : ''}" data-term="${x.term}">${esc(t('term'))} ${x.term}${x.term === ct ? ' · ' + esc(t('now')) : ''} <span class="num">(${x.topics.length})</span></button>`).join('')}</div>
+    <div class="tabs">${hasScope ? `<button class="${term === 'scope' ? 'on' : ''}" data-term="scope">🎯 ${esc(t('scopeTab'))} <span class="num">(${sco.topics.length})</span></button>` : ''}${s.terms.map(x => `<button class="${x.term === term ? 'on' : ''}" data-term="${x.term}">${esc(t('term'))} ${x.term}${x.term === ct ? ' · ' + esc(t('now')) : ''} <span class="num">(${x.topics.length})</span></button>`).join('')}</div>
     <h3 style="margin:6px 0 10px">${esc(tx(tm.title))}</h3>
-    <div class="topics">${tm.topics.length ? tm.topics.map((tp, i) => { const st = topicStatus(kid, tp.id), p = tprog(kid, tp.id); return `<div class="topic" style="animation-delay:${i * 40}ms"><div class="ix">${i + 1}</div><div><div class="tt">${esc(tx(tp.title))}</div><div class="bl">${esc(tx(tp.blurb))}</div><div class="row" style="gap:6px;margin-top:6px">${statusChip(st)}${p.attempts ? `<span class="chip num">${p.best}% · ${p.attempts}×</span>` : ''}${scope.has(tp.id) ? `<span class="chip hi">🎯 ${esc(t('inScope'))}</span>` : ''}</div></div><div class="acts"><button class="btn sm" data-go="onderwerp-${tp.id}">📖 ${esc(t('learn'))}</button><button class="btn sm subject" data-go="toets-${tp.id}">✏️ ${esc(t('test'))}</button></div></div>`; }).join('') : `<div class="card muted">…</div>`}</div>`;
+    <div class="topics">${tm.topics.length ? tm.topics.map((tp, i) => { const st = topicStatus(kid, tp.id), p = tprog(kid, tp.id); return `<div class="topic" style="animation-delay:${i * 40}ms"><div class="ix">${i + 1}</div><div><div class="tt">${esc(tx(tp.title))}</div><div class="bl">${esc(tx(tp.blurb))}</div><div class="row" style="gap:6px;margin-top:6px">${statusChip(st)}${p.attempts ? `<span class="chip num">${p.best}% · ${p.attempts}×</span>` : ''}${term === 'scope' ? `<span class="chip">${esc(t('termShort'))}${termOf(tp.id)}</span>` : (scope.has(tp.id) ? `<span class="chip hi">🎯 ${esc(t('inScope'))}</span>` : '')}${scope.has(tp.id) ? pagesChip(s, tp.id) : ''}</div></div><div class="acts"><button class="btn sm" data-go="onderwerp-${tp.id}">📖 ${esc(t('learn'))}</button><button class="btn sm subject" data-go="toets-${tp.id}">✏️ ${esc(t('test'))}</button></div></div>`; }).join('') : `<div class="card muted">…</div>`}</div>`;
     main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     const ps = $('#playSubj'); if (ps) ps.onclick = () => { setGameSubj(id); go('speel'); };
-    main.querySelectorAll('[data-term]').forEach(b => b.onclick = () => { term = +b.dataset.term; S._term = S._term || {}; S._term[id] = term; draw(); });
+    main.querySelectorAll('[data-term]').forEach(b => b.onclick = () => { term = b.dataset.term === 'scope' ? 'scope' : +b.dataset.term; S._term = S._term || {}; S._term[id] = term; draw(); });
   };
   draw();
 }
@@ -703,7 +708,7 @@ function renderTopic(main, tid) {
   const draw = () => {
     const tabs = [['summary', '📖', t('summary'), p.read], ['terms', '🃏', t('keyTerms'), p.flash], ['examples', '🧮', t('examples'), p.ex], ['quiz', '✏️', t('quiz'), p.attempts]];
     main.innerHTML = `<button class="back" data-go="vak-${subj.id}">← ${esc(tx(subj.name))}</button>
-    <div class="row" style="gap:8px"><span class="chip subject">${subj.icon} ${esc(tx(subj.short))} · ${esc(t('term'))} ${term}</span>${statusChip(topicStatus(kid, tid))}</div>
+    <div class="row" style="gap:8px"><span class="chip subject">${subj.icon} ${esc(tx(subj.short))} · ${esc(t('term'))} ${term}</span>${statusChip(topicStatus(kid, tid))}${scopeOf(subj).topics.includes(tid) && !scopeOf(subj).provisional ? `<span class="chip hi">🎯 ${esc(t('inScope'))}</span>${pagesChip(subj, tid)}` : ''}</div>
     <h1 style="margin-top:8px">${esc(tx(tp.title))}</h1><p class="muted">${esc(tx(tp.blurb))}</p>${S.storeKind === 'supa' ? `<button class="linkbtn small" id="askCoach" style="margin-top:6px">🤖 ${esc(t('coachAsk'))}</button>` : ''}
     <div class="ttabs">${tabs.map(([k, ic, lb, done]) => `<button class="${tab === k ? 'on' : ''}" data-tab="${k}"><span>${ic}</span><span class="lb">${esc(lb)}</span>${done ? '<span class="done">✓</span>' : ''}</button>`).join('')}</div>
     <div id="tabbody"></div>`;
@@ -750,7 +755,7 @@ function renderResources(main) {
 function buildQuestions(id, mode) {
   if (mode === 'exam') {
     const s = S.content.subjects[id]; if (!s) return null;
-    const pool = allTopics(s).flatMap(x => x.tp.quiz.map(q => ({ q, topic: x.tp, term: x.term })));
+    const pool = allTopics(s).filter(x => inPool(s, x.tp)).flatMap(x => x.tp.quiz.map(q => ({ q, topic: x.tp, term: x.term })));
     return { subj: s, title: tx(s.name) + ' · ' + t('examPractice'), qs: shuffle(pool).slice(0, 20), topicId: null };
   }
   if (mode === 'scope') {
@@ -1050,6 +1055,12 @@ function scopeOf(s) {
   const ids = (Array.isArray(e.topics) ? e.topics : defaultScopeTopics(s)).filter(id => valid.has(id));
   return { topics: ids, date: e.date || '', note: e.note || '', provisional: !Array.isArray(e.topics) };
 }
+function scopePages(s, id) { const e = ((S.settings || {}).exams || {})[s.id] || {}; return (e.pages || {})[id] || ''; }
+function scopeOnly() { try { return localStorage.getItem('lh.scopeOnly') !== '0'; } catch (e) { return true; } }
+function setScopeOnly(v) { try { localStorage.setItem('lh.scopeOnly', v ? '1' : '0'); } catch (e) {} }
+function inPool(s, tp) { if (!scopeOnly()) return true; const sc = scopeOf(s); if (sc.provisional || !sc.topics.length) return true; return sc.topics.includes(tp.id); }
+function pagesChip(s, id) { const pg = scopePages(s, id); return pg ? `<span class="chip">📖 ${esc(pg)}</span>` : ''; }
+function scopeToggle(attr) { const on = scopeOnly(); return `<div class="row chipsel" style="gap:6px;margin-top:8px"><button class="chip ${on ? 'on' : ''}" data-${attr}="1">🎯 ${esc(t('scopeOnlyL'))}</button><button class="chip ${on ? '' : 'on'}" data-${attr}="0">📚 ${esc(t('wholeYearL'))}</button></div><p class="small muted" style="margin-top:4px">${esc(on ? t('scopeOnlyHint') : t('wholeYearHint'))}</p>`; }
 function scopePct(kid, s, sc) { sc = sc || scopeOf(s); if (!sc.topics.length) return 0; return Math.round(sc.topics.reduce((a, id) => a + topicPct(kid, id), 0) / sc.topics.length); }
 function scopeReady(kid, sc) { return sc.topics.filter(id => (tprog(kid, id).best || 0) >= 70).length; }
 function examList() {
@@ -1108,13 +1119,13 @@ function renderExams(main) {
   <div class="row" style="gap:6px;margin-bottom:14px"><span class="chip hi">📅 ${esc(t('termNow'))} ${curTerm()}${curTerm() === 4 ? ' · ' + esc(t('finalTerm')) : ''}</span><button class="btn sm" data-go="foute">❌ ${esc(t('mistakesT'))} <span class="chip bad num">${mistakeCount(kid)}</span></button><button class="btn sm hi" data-go="rooster">📅 ${esc(t('roT'))}</button></div>
   ${list.some(x => x.sc.provisional) ? `<div class="banner" style="margin-bottom:14px">⏳ ${esc(t('provisionalHint'))}</div>` : ''}
   <div class="stack">${list.map(x => {
-    const s = x.s, sc = x.sc, pct = scopePct(kid, s, sc), rd = scopeReady(kid, sc), paper = (s.practiceExams || [])[0];
+    const s = x.s, sc = x.sc, pct = scopePct(kid, s, sc), rd = scopeReady(kid, sc), papers = s.practiceExams || [];
     return `<div class="card excard" style="--subject:${s.color}"><div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div style="min-width:0"><h2>${s.icon} ${esc(tx(s.name))}</h2><div class="row" style="gap:6px;margin-top:6px">${examWhen(x)}${sc.provisional ? `<span class="chip">⏳ ${esc(t('provisional'))}</span>` : `<span class="chip good">✓ ${esc(t('confirmed'))}</span>`}</div></div>${ring(pct)}</div>
     ${sc.note ? `<p class="small" style="margin-top:8px">📌 ${esc(sc.note)}</p>` : ''}
     <div class="small muted" style="margin:10px 0 6px"><span class="num">${rd}/${sc.topics.length}</span> ${esc(t('scopeTopics'))} ${esc(t('ready'))} (≥70 %)</div>
     <div class="bar-h subject"><i style="width:${sc.topics.length ? Math.round(100 * rd / sc.topics.length) : 0}%"></i></div>
-    <div class="row" style="margin-top:12px"><button class="btn subject" data-go="afbakening-${s.id}" ${sc.topics.length ? '' : 'disabled'}>🎯 ${esc(t('scopeTest'))}</button>${paper ? `<button class="btn" data-go="vraestel-${paper.id}">📝 ${esc(t('paper'))}</button>` : ''}</div>
-    <details class="tips" style="margin-top:10px"><summary>📋 ${esc(t('showTopics'))} (${sc.topics.length})</summary><div class="stack" style="gap:6px;margin-top:8px">${sc.topics.map(id => { const f = findTopic(id); return `<div class="row scopetopic" style="justify-content:space-between"><span style="min-width:0"><span class="chip">${esc(t('termShort'))}${f.term}</span> ${esc(tx(f.tp.title))}</span><span class="row" style="gap:6px">${statusChip(topicStatus(kid, id))}<button class="btn sm" data-go="onderwerp-${id}" aria-label="${esc(t('learn'))}">📖</button><button class="btn sm subject" data-go="toets-${id}" aria-label="${esc(t('test'))}">✏️</button></span></div>`; }).join('')}</div></details></div>`;
+    <div class="row" style="margin-top:12px"><button class="btn subject" data-go="afbakening-${s.id}" ${sc.topics.length ? '' : 'disabled'}>🎯 ${esc(t('scopeTest'))}</button>${papers.map((pa, i) => `<button class="btn" data-go="vraestel-${pa.id}">📝 ${esc(papers.length > 1 ? t('paper') + ' ' + (i + 1) : t('paper'))}</button>`).join('')}</div>
+    <details class="tips" style="margin-top:10px"><summary>📋 ${esc(t('showTopics'))} (${sc.topics.length})</summary><div class="stack" style="gap:6px;margin-top:8px">${sc.topics.map(id => { const f = findTopic(id); return `<div class="row scopetopic" style="justify-content:space-between"><span style="min-width:0"><span class="chip">${esc(t('termShort'))}${f.term}</span> ${esc(tx(f.tp.title))}${scopePages(s, id) ? ` <span class="small muted">· 📖 ${esc(scopePages(s, id))}</span>` : ''}</span><span class="row" style="gap:6px">${statusChip(topicStatus(kid, id))}<button class="btn sm" data-go="onderwerp-${id}" aria-label="${esc(t('learn'))}">📖</button><button class="btn sm subject" data-go="toets-${id}" aria-label="${esc(t('test'))}">✏️</button></span></div>`; }).join('')}</div></details></div>`;
   }).join('')}</div>`;
   main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
 }
@@ -1504,7 +1515,7 @@ const GAMES = [['vinnig', 'quick', '🚀'], ['geheue', 'memory', '🧩'], ['raai
 const GAME_ICON = { quick: '🚀', memory: '🧩', hangman: '🔤', sprint: '⚡', blitz: '✅' };
 const okPair = (e) => e.af && e.en && fold(e.af) !== fold(e.en) && e.af.length <= 26 && e.en.length <= 26;
 const okWord = (w) => !!w && w.length >= 3 && w.length <= 18 && [...fold(w)].every(c => /[a-z' -]/.test(c)) && (fold(w).match(/[a-z]/g) || []).length >= 3;
-function subjQs(sid, type) { const out = []; subjectsOfGrade(7).filter(s => !sid || sid === 'all' || s.id === sid).forEach(s => allTopics(s).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === type) out.push({ q, topic: tp, term, subj: s }); }))); return out; }
+function subjQs(sid, type) { const out = []; subjectsOfGrade(7).filter(s => !sid || sid === 'all' || s.id === sid).forEach(s => allTopics(s).filter(x => inPool(s, x.tp)).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === type) out.push({ q, topic: tp, term, subj: s }); }))); return out; }
 function subjLabel(sid) { const s = sid && sid !== 'all' ? S.content.subjects[sid] : null; return s ? `${s.icon} ${tx(s.name)}` : `🌈 ${t('allSubj')}`; }
 function gameCount(key, sid) {
   if (key === 'memory') return gamePool(sid).filter(okPair).length;
@@ -1526,14 +1537,15 @@ function renderGames(main) {
     <div class="card"><h3>⚔️ ${esc(t('chalT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chalSub'))}</p><div class="row" style="justify-content:space-between"><span class="chip ${ch ? 'good' : ''}">${ch ? `✓ ${esc(t('chalDone'))}: <span class="num">${ch.score}/${ch.total}</span>` : esc(t('chalNot'))}</span><button class="btn subject" data-go="uitdaging">${esc(ch ? t('chalReplay') : t('chalPlay'))} →</button></div></div>
   </div>
   ${chessHubCard()}
-  <h2 style="margin:22px 0 4px">🧠 ${esc(t('gamesFor'))}: <span style="color:var(--subject)">${esc(subjLabel(cur))}</span></h2><p class="small muted" style="margin-bottom:8px">${esc(t('pickSubj'))}</p>${subjChips(cur, 'gs')}
+  <h2 style="margin:22px 0 4px">🧠 ${esc(t('gamesFor'))}: <span style="color:var(--subject)">${esc(subjLabel(cur))}</span></h2><p class="small muted" style="margin-bottom:8px">${esc(t('pickSubj'))}</p>${subjChips(cur, 'gs')}${scopeToggle('gsc')}
   <div class="games" style="margin-top:12px">${GAMES.map(([slug, key, ic], i) => { const [nm, ds] = t('g.' + key); const st = g[key] || {}; const n = gameCount(key, cur); return `<button class="game" data-go="spel-${slug}" style="animation-delay:${i * 60}ms"><span class="gi">${ic}</span><b>${esc(nm)}</b><span class="small muted">${esc(ds)}</span><span class="row" style="gap:4px">${key === 'sprint' ? `<span class="chip">📐 ${esc(t('alwaysMaths'))}</span>` : `<span class="chip subject num">${esc(subjLabel(cur).split(' ')[0])} ${n} ${esc(key === 'blitz' ? t('nStatements') : key === 'quick' ? t('nQuestions') : t('nWords'))}</span>`}${st.plays ? `<span class="chip hi num">${esc(t('best'))}: ${esc(bestText(key, st.best))}</span>` : ''}</span></button>`; }).join('')}</div>
   <div class="row" style="margin-top:18px"><button class="btn" data-go="kentekens">🏅 ${esc(t('badges'))}</button><button class="btn" data-go="foute">❌ ${esc(t('mistakesT'))}</button></div>`;
   main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   main.querySelectorAll('[data-gs]').forEach(b => b.onclick = () => { setGameSubj(b.dataset.gs); renderGames(main); });
+  main.querySelectorAll('[data-gsc]').forEach(b => b.onclick = () => { setScopeOnly(b.dataset.gsc === '1'); renderGames(main); });
   fillTwin($('#twinBox'));
 }
-function gamePool(sid) { return dict().filter(e => !sid || sid === 'all' || e.s.id === sid); }
+function gamePool(sid) { return dict().filter(e => (!sid || sid === 'all' || e.s.id === sid) && inPool(e.s, e.tp)); }
 function gameHead(main, key, right) {
   const [nm, ds] = t('g.' + key), sid = gameSubj();
   if (key !== 'sprint') setSubjectColor(sid !== 'all' && S.content.subjects[sid] ? S.content.subjects[sid].color : null);
@@ -1559,7 +1571,7 @@ function setKeys(fn) { if (S._keyH) document.removeEventListener('keydown', S._k
 
 /* memory pairs: Afrikaans word ↔ English word */
 function renderMemory(main) {
-  let pool = gamePool(gameSubj()).filter(okPair); if (pool.length < 6) pool = dict().filter(okPair);
+  let pool = gamePool(gameSubj()).filter(okPair); if (pool.length < 6) pool = gamePool('all').filter(okPair); if (pool.length < 6) pool = dict().filter(okPair);
   const pick = [], seenA = new Set(), seenE = new Set();
   for (const e of shuffle(pool)) { if (pick.length >= 6) break; if (seenA.has(fold(e.af)) || seenE.has(fold(e.en))) continue; seenA.add(fold(e.af)); seenE.add(fold(e.en)); pick.push(e); }
   const cards = shuffle(pick.flatMap((e, i) => [{ p: i, txt: e.af, lang: 'AF' }, { p: i, txt: e.en, lang: 'EN' }]));
@@ -1584,7 +1596,7 @@ function renderMemory(main) {
 
 /* raai die woord: hangman with the definition as the clue */
 function renderHangman(main) {
-  let pool = gamePool(gameSubj()).filter(e => okWord(dWord(e)) && dDef(e)); if (pool.length < 5) pool = dict().filter(e => okWord(dWord(e)) && dDef(e));
+  let pool = gamePool(gameSubj()).filter(e => okWord(dWord(e)) && dDef(e)); if (pool.length < 5) pool = gamePool('all').filter(e => okWord(dWord(e)) && dDef(e)); if (pool.length < 5) pool = dict().filter(e => okWord(dWord(e)) && dDef(e));
   const words = shuffle(pool).slice(0, 5);
   const G = { i: 0, solved: 0, livesLeft: 0, log: [] };
   const KEYS = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -1744,7 +1756,7 @@ function renderQuick(main) {
       if (opts[i]) opts[i].classList.add(ok ? 'right' : 'wrong'); if (opts[ri]) opts[ri].classList.add('right');
       if (ok) { G.score++; G.streak++; } else { G.streak = 0; G.wrong.push(Object.assign({ right: G.opts[ri].txt }, it)); }
       funAnswer(ok, { quiet: true, streak: G.streak });
-      G.i++; setTimeout(() => { G.busy = false; if (G.i >= qs.length) finish(); else paint(); }, ok ? 300 : 1100);
+      G.i++; setTimeout(() => { G.busy = false; if (!$('#qQ')) return; if (G.i >= qs.length) finish(); else paint(); }, ok ? 300 : 1100);
     };
     setKeys((ev) => { const k = (ev.key || '').toLowerCase(); const m = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k); if (m >= 0 && qs[G.i] && G.opts && m < G.opts.length) answer(m); });
     S._gameTimer = setInterval(() => { const left = Math.max(0, Math.ceil((G.end - Date.now()) / 1000)); const el = $('#qT'); if (el) { el.textContent = left; el.classList.toggle('bad', left <= 10); } if (left <= 0) finish(); }, 250);
