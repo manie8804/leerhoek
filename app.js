@@ -167,14 +167,14 @@ function inline(s) {
 function md(src) {
   const lines = String(src || '').replace(/\r/g, '').split('\n');
   let out = '', i = 0;
-  const flushPara = (buf) => buf.length ? `<p>${inline(buf.join(' '))}</p>` : '';
+  const flushPara = (buf) => buf.length ? `<p>${buf.map(inline).join('<br>')}</p>` : '';
   let para = [];
   while (i < lines.length) {
     const ln = lines[i];
     if (/^\s*$/.test(ln)) { out += flushPara(para); para = []; i++; continue; }
     let m;
     if ((m = ln.match(/^(#{1,4})\s+(.*)/))) { out += flushPara(para); para = []; const h = Math.min(3, m[1].length + 0); out += `<h${h === 1 ? 2 : h}>${inline(m[2])}</h${h === 1 ? 2 : h}>`; i++; continue; }
-    if (/^\s*>/.test(ln)) { out += flushPara(para); para = []; const q = []; while (i < lines.length && /^\s*>/.test(lines[i])) { q.push(lines[i].replace(/^\s*>\s?/, '')); i++; } out += `<blockquote><p>${inline(q.join(' '))}</p></blockquote>`; continue; }
+    if (/^\s*>/.test(ln)) { out += flushPara(para); para = []; const q = []; while (i < lines.length && /^\s*>/.test(lines[i])) { q.push(lines[i].replace(/^\s*>\s?/, '')); i++; } out += `<blockquote><p>${q.map(x => x.trim() ? inline(x) : '</p><p>').join('<br>').replace(/<br><\/p><p><br>/g, '</p><p>')}</p></blockquote>`; continue; }
     if (/^\s*[-*]\s+/.test(ln)) { out += flushPara(para); para = []; out += '<ul>'; while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { out += `<li>${inline(lines[i].replace(/^\s*[-*]\s+/, ''))}</li>`; i++; } out += '</ul>'; continue; }
     if (/^\s*\d+[.)]\s+/.test(ln)) { out += flushPara(para); para = []; out += '<ol>'; while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) { out += `<li>${inline(lines[i].replace(/^\s*\d+[.)]\s+/, ''))}</li>`; i++; } out += '</ol>'; continue; }
     if (/^\s*\|/.test(ln)) {
@@ -792,12 +792,14 @@ function renderSubject(main, id) {
     <div class="row" style="gap:8px"><button class="btn subject" data-go="afbakening-${s.id}">🎯 ${esc(t('scopeTest'))}</button><button class="btn" data-go="eksamen-${s.id}">🎓 ${esc(t('examPractice'))}</button><button class="btn" id="playSubj">🎮 ${esc(t('navPlay'))}</button></div></div>
     ${s.examFormat ? `<details class="tips" style="margin-top:10px"><summary>📄 ${esc(t('examFormatT'))}</summary><div class="prose small" style="margin-top:6px">${md(tx(s.examFormat))}</div></details>` : ''}
     ${(s.practiceExams || []).length ? `<div class="card" style="margin-top:10px"><h3>📝 ${esc(t('papers'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('paperSub'))}</p><div class="stack" style="gap:8px">${s.practiceExams.map(ex => { const pp = (kid.papers || {})[ex.id]; return `<div class="row" style="justify-content:space-between"><div><b>${esc(tx(ex.title))}</b><div class="small muted num">${ex.total} ${esc(t('marks'))} · ${ex.minutes} ${esc(t('min'))}${pp ? ` · ${esc(t('bestMark'))} ${pp.best}% (${pp.attempts}×)` : ''}</div></div><button class="btn sm subject" data-go="vraestel-${ex.id}">${esc(t('startPaper'))} →</button></div>`; }).join('')}</div></div>` : ''}
+    ${photoCard(s)}
     <div class="tabs">${hasScope ? `<button class="${term === 'scope' ? 'on' : ''}" data-term="scope">🎯 ${esc(t('scopeTab'))} <span class="num">(${sco.topics.length})</span></button>` : ''}${s.terms.map(x => `<button class="${x.term === term ? 'on' : ''}" data-term="${x.term}">${esc(t('term'))} ${x.term}${x.term === ct ? ' · ' + esc(t('now')) : ''} <span class="num">(${x.topics.length})</span></button>`).join('')}</div>
     <h3 style="margin:6px 0 10px">${esc(tx(tm.title))}</h3>
     <div class="topics">${tm.topics.length ? tm.topics.map((tp, i) => { const st = topicStatus(kid, tp.id), p = tprog(kid, tp.id); return `<div class="topic" style="animation-delay:${i * 40}ms"><div class="ix">${i + 1}</div><div><div class="tt">${esc(tx(tp.title))}</div><div class="bl">${esc(tx(tp.blurb))}</div><div class="row" style="gap:6px;margin-top:6px">${statusChip(st)}${p.attempts ? `<span class="chip num">${p.best}% · ${p.attempts}×</span>` : ''}${term === 'scope' ? `<span class="chip">${esc(t('termShort'))}${termOf(tp.id)}</span>` : (scope.has(tp.id) ? `<span class="chip hi">🎯 ${esc(t('inScope'))}</span>` : '')}${scope.has(tp.id) ? pagesChip(s, tp.id) : ''}</div></div><div class="acts"><button class="btn sm" data-go="onderwerp-${tp.id}">📖 ${esc(t('learn'))}</button><button class="btn sm subject" data-go="toets-${tp.id}">✏️ ${esc(t('test'))}</button></div></div>`; }).join('') : `<div class="card muted">…</div>`}</div>`;
     main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     const ps = $('#playSubj'); if (ps) ps.onclick = () => { setGameSubj(id); go('speel'); };
     main.querySelectorAll('[data-term]').forEach(b => b.onclick = () => { term = b.dataset.term === 'scope' ? 'scope' : +b.dataset.term; S._term = S._term || {}; S._term[id] = term; draw(); });
+    wireSubjectPhotos(main, s);
   };
   draw();
 }
@@ -2106,7 +2108,8 @@ function scopeEditor(subjects) {
   return `<div class="card" style="margin-top:14px" id="scopeCard"><h3>🎯 ${esc(t('scopeT'))}</h3>${gradeTabs()}<p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('scopeHelp'))}</p>
   <div class="form-row" style="max-width:280px;margin-bottom:12px"><label for="curT">${esc(t('curTermL'))}</label><select id="curT"><option value="">${esc(t('auto'))} (${esc(t('term'))} ${autoTerm()})</option>${[1, 2, 3, 4].map(n => `<option value="${n}" ${+S.settings.currentTerm === n ? 'selected' : ''}>${esc(t('term'))} ${n}</option>`).join('')}</select></div>
   <div class="stack" style="gap:10px">${subjects.map(s => { const sc = scopeOf(s), set = new Set(sc.topics); return `<div class="scoperow" data-sid="${s.id}"><div class="row" style="justify-content:space-between;gap:8px"><b>${s.icon} ${esc(tx(s.short))}</b><input type="date" data-date value="${esc(sc.date)}" aria-label="${esc(t('exam1'))} ${esc(tx(s.short))}"></div>
-    <details><summary><span class="chip ${sc.provisional ? '' : 'good'}" data-cnt>${sc.topics.length} ${esc(t('topics'))}${sc.provisional ? ' · ' + esc(t('provisional')) : ''}</span> ${esc(t('pickTopics'))}</summary>
+    <details><summary><span class="chip ${sc.provisional ? '' : 'good'}" data-cnt>${sc.topics.length} ${esc(t('topics'))}${sc.provisional ? ' · ' + esc(t('provisional')) : ''}</span> ${esc(t('pickTopics'))} <span class="chip hi" data-phcnt hidden></span></summary>
+    ${scopePhotoBox(s)}
     <div class="row" style="gap:6px;margin:8px 0">${[['4', t('q4')], ['34', t('q34')], ['1234', t('qAll')], ['', t('qNone')]].map(([v, lb]) => `<button type="button" class="btn sm" data-q="${v}">${esc(lb)}</button>`).join('')}</div>
     ${s.terms.map(tm => `<div class="label" style="margin-top:8px">${esc(t('term'))} ${tm.term}</div>${tm.topics.map(tp => `<label class="ck"><input type="checkbox" data-tid="${tp.id}" data-term="${tm.term}" ${set.has(tp.id) ? 'checked' : ''}> <span>${esc(tx(tp.title))}</span></label>`).join('')}`).join('')}
     <input data-note placeholder="${esc(t('noteP'))}" value="${esc(sc.note)}" style="margin-top:8px;width:100%"></details></div>`; }).join('')}</div>
@@ -2117,6 +2120,7 @@ function wireScopeEditor(root) {
     const upd = () => { row.dataset.touched = '1'; row.querySelector('[data-cnt]').textContent = `${row.querySelectorAll('[data-tid]:checked').length} ${t('topics')}`; };
     row.querySelectorAll('[data-tid]').forEach(c => c.onchange = upd);
     row.querySelectorAll('[data-q]').forEach(b => b.onclick = () => { const terms = b.dataset.q.split('').map(Number); row.querySelectorAll('[data-tid]').forEach(c => { c.checked = terms.includes(+c.dataset.term); }); upd(); });
+    wireScopePhotos(row, upd);
   });
   root.querySelectorAll('[data-sg]').forEach(b => b.onclick = () => { S.scopeGrade = +b.dataset.sg; render(); });
   $('#saveScope', root).onclick = async () => {
@@ -2130,6 +2134,217 @@ function wireScopeEditor(root) {
     setExamsFor(scopeGrade(), ex); const ct = $('#curT', root).value; S.settings.currentTerm = ct ? +ct : null;
     await S.store.saveSettings(S.settings); toast(t('saved')); render();
   };
+}
+
+/* ------------------------------------------------------------------ v10b: photos of schoolwork (Edge Function "lh-files") */
+Object.assign(UI.af, {
+  phT: "Foto's van skoolwerk", phSub: 'Neem ’n foto van die afbakening, ’n toetskennisgewing of klasnotas. Net julle huishouding kan dit sien.',
+  phAdd: 'Foto', phUpload: 'Laai op', phCancel: 'Kanselleer', phNoteP: 'Nota (opsioneel), bv. bl. 40–62', phLoading: 'Laai foto’s …',
+  phNone: 'Nog geen foto’s nie.', phShrink: 'Maak foto kleiner …', phSending: 'Laai op …', phDone: 'Foto gestoor', phDel: 'Verwyder', phDelSure: 'Seker?',
+  phDeleted: 'Foto verwyder', phOpen: 'Maak oop', phClose: 'Maak toe', phOffline: 'Foto’s werk net as die toestel aanlyn en gekoppel is.',
+  phNet: 'Kon nie oplaai nie – probeer weer.', phFull: 'Julle het die maksimum van 300 foto’s bereik. Verwyder ou foto’s eers.',
+  phBig: 'Die foto is te groot.', phDecode: 'Hierdie foto kan nie hier oopgemaak word nie (bv. ’n HEIC-foto op ’n rekenaar). Stuur dit as JPG of neem dit met die foon.',
+  phNotImg: 'Kies ’n foto (JPG of PNG).', phKinds: { scope: 'Afbakening / eksamenrooster', test: 'Toetskennisgewing', notes: 'Klasnotas / werkkaart', other: 'Ander' },
+  phScopeL: 'Foto’s van die afbakening of toetskennisgewing', phRead: 'Lees die foto en merk onderwerpe', phReading: 'Lees die foto …',
+  phAiCheck: 'Kontroleer die merkies en die datum, en druk dan Stoor afbakening.', phAiNone: 'Geen bekende onderwerpe op die foto gevind nie – merk self.',
+  phAiOff: 'Die outomatiese lees van foto’s is nog nie aangeskakel nie.', phAiLimit: 'Die daaglikse limiet vir foto-lees is bereik. Probeer môre weer.', phNoKid: 'Voeg eers ’n leerder in hierdie graad by.',
+});
+Object.assign(UI.en, {
+  phT: 'Photos of schoolwork', phSub: 'Take a photo of the exam scope, a test notice or class notes. Only your household can see it.',
+  phAdd: 'Photo', phUpload: 'Upload', phCancel: 'Cancel', phNoteP: 'Note (optional), e.g. p. 40–62', phLoading: 'Loading photos …',
+  phNone: 'No photos yet.', phShrink: 'Making the photo smaller …', phSending: 'Uploading …', phDone: 'Photo saved', phDel: 'Delete', phDelSure: 'Sure?',
+  phDeleted: 'Photo deleted', phOpen: 'Open', phClose: 'Close', phOffline: 'Photos only work when this device is online and linked.',
+  phNet: 'Could not upload – try again.', phFull: 'You have reached the maximum of 300 photos. Delete old photos first.',
+  phBig: 'The photo is too large.', phDecode: 'This photo cannot be opened here (e.g. a HEIC photo on a computer). Send it as JPG or take it with the phone.',
+  phNotImg: 'Choose a photo (JPG or PNG).', phKinds: { scope: 'Exam scope / timetable', test: 'Test notice', notes: 'Class notes / worksheet', other: 'Other' },
+  phScopeL: 'Photos of the exam scope or test notice', phRead: 'Read the photo and tick topics', phReading: 'Reading the photo …',
+  phAiCheck: 'Check the ticks and the date, then press Save scope.', phAiNone: 'No known topics found on the photo – tick them yourself.',
+  phAiOff: 'Automatic photo reading is not switched on yet.', phAiLimit: 'The daily limit for photo reading has been reached. Try again tomorrow.', phNoKid: 'Add a learner in this grade first.',
+});
+const PH_KINDS = ['scope', 'test', 'notes', 'other'];
+const PH_ICON = { scope: '🎯', test: '📝', notes: '📒', other: '📷' };
+const FILES = { list: null, at: 0, ai: false, busy: null };
+function filesUrl() { const c = window.LH_CONFIG; return c && c.supabaseUrl ? c.supabaseUrl.replace(/\/$/, '') + '/functions/v1/lh-files' : null; }
+const filesOn = () => S.storeKind === 'supa' && !!filesUrl() && !!S.store && !!S.store.fk;
+async function filesApi(action, extra) {
+  const r = await fetch(filesUrl(), { method: 'POST', body: JSON.stringify(Object.assign({ action, fk: S.store.fk, apikey: S.store.key }, extra || {})) });
+  let j = null; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) { const err = new Error((j && j.error) || ('HTTP ' + r.status)); err.status = r.status; err.code = j && j.error; throw err; }
+  return j || {};
+}
+/* the household's photo list (one call serves every screen); refreshed after 2 min so photos from other devices show up (signed links last an hour) */
+async function photoList(force) {
+  if (!force && FILES.list && Date.now() - FILES.at < 2 * 60000) return FILES.list;
+  if (FILES.busy && !force) return FILES.busy;
+  FILES.busy = filesApi('list', {}).then(j => { FILES.list = j.files || []; FILES.ai = !!j.ai; FILES.at = Date.now(); FILES.busy = null; return FILES.list; }, e => { FILES.busy = null; throw e; });
+  return FILES.busy;
+}
+/* shrink in the browser: longest side 1600 px, JPEG 0.72 (±200–400 KB), white background for transparent PNGs */
+async function shrinkImage(file) {
+  if (!file || (file.type && !/^image\//.test(file.type))) throw new Error(t('phNotImg'));
+  let img = null;
+  try { img = await createImageBitmap(file); } catch (e) {
+    img = await new Promise(res => { const u = URL.createObjectURL(file), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = () => { URL.revokeObjectURL(u); res(null); }; im.src = u; });
+  }
+  if (!img || !img.width) throw new Error(t('phDecode'));
+  const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+  const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.72));
+  if (!blob) throw new Error(t('phDecode'));
+  return blob;
+}
+const phIsParent = () => deviceLock() === 'ouer' || adminViewing() || (S.route && S.route.s === 'parent');
+const phWho = () => phIsParent() ? (parentMe() || 'parent') : (S.kid ? S.kid.id : 'parent');
+const phCanDel = (f) => phIsParent() || (!!S.kid && f.by === S.kid.id);
+async function uploadPhoto(file, meta, say) {
+  say(t('phShrink'));
+  const blob = await shrinkImage(file);
+  if (blob.size > 3 * 1024 * 1024) throw new Error(t('phBig'));
+  say(t('phSending'));
+  let s;
+  try { s = await filesApi('sign', Object.assign({ bytes: blob.size, who: phWho() }, meta)); }
+  catch (e) { throw new Error(e.code === 'full' ? t('phFull') : e.code === 'too_big' ? t('phBig') : t('phNet')); }
+  const fd = new FormData(); fd.append('cacheControl', '3600'); fd.append('', blob, 'foto.jpg');
+  const h = { 'x-upsert': 'false' }; if (S.store.key) { h.apikey = S.store.key; if (/^eyJ/.test(S.store.key)) h.Authorization = 'Bearer ' + S.store.key; }
+  const r = await fetch(s.uploadUrl, { method: 'PUT', headers: h, body: fd }).catch(() => null);
+  if (!r || !r.ok) { filesApi('del', { id: s.id }).catch(() => {}); throw new Error(t('phNet')); }
+  await filesApi('done', { id: s.id });
+  await photoList(true).catch(() => {});
+  return s.id;
+}
+function phCss() {
+  if ($('#phCss')) return;
+  const st = document.createElement('style'); st.id = 'phCss';
+  st.textContent = `.phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:6px}
+.phit{display:flex;flex-direction:column;gap:4px;min-width:0}
+.phthw{position:relative}
+.phmeta{display:flex;flex-direction:column;gap:6px;min-width:0;align-items:flex-start}
+.phrows{grid-template-columns:1fr}
+.phrows .phit{flex-direction:row;gap:12px;align-items:flex-start}
+.phrows .phthw{width:84px;flex:none}
+.phth{display:block;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface-2);aspect-ratio:3/4;cursor:zoom-in;width:100%}
+.phth img{width:100%;height:100%;object-fit:cover;display:block}
+.phdel{position:absolute;top:4px;right:4px;min-width:26px;height:26px;border-radius:13px;border:0;background:rgba(0,0,0,.62);color:#fff;font-size:13px;padding:0 7px;cursor:pointer}
+.phcap{font-size:12px;line-height:1.3;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.phform{display:flex;gap:10px;align-items:flex-start;margin:6px 0 10px;flex-wrap:wrap}
+.phform img{width:84px;height:112px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.phform .stack{flex:1;min-width:180px}
+.phpick{cursor:pointer}
+.phview{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.phview[hidden]{display:none}
+.phview .phbox{max-width:min(960px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;align-items:center}
+.phview img{max-width:100%;max-height:calc(100vh - 130px);object-fit:contain;border-radius:8px;background:#fff}
+.phview .phcap{color:#fff;-webkit-line-clamp:4;text-align:center}
+.phai{margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--hi);color:var(--hi-ink)}`;
+  document.head.appendChild(st);
+}
+const phDay = (iso) => { try { return new Date(iso).toLocaleDateString(L === 'af' ? 'af-ZA' : 'en-ZA', { day: 'numeric', month: 'short' }); } catch (e) { return ''; } };
+function photoView(f) {
+  let ov = $('#phView');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'phView'; ov.className = 'phview'; ov.setAttribute('role', 'dialog'); document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="phbox"><img src="${esc(f.url)}" alt="${esc((t('phKinds') || {})[f.kind] || '')}"><div class="phcap">${PH_ICON[f.kind] || '📷'} ${esc((t('phKinds') || {})[f.kind] || '')} · ${esc(phDay(f.at))}${f.note ? ' · ' + esc(f.note) : ''}</div>
+    <div class="row" style="gap:8px"><a class="btn sm" href="${esc(f.url)}" target="_blank" rel="noopener">↗ ${esc(t('phOpen'))}</a><button type="button" class="btn sm primary" data-phclose>✕ ${esc(t('phClose'))}</button></div></div>`;
+  ov.hidden = false;
+  const close = () => { ov.hidden = true; document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  ov.onclick = (e) => { if (e.target === ov || e.target.closest('[data-phclose]')) close(); };
+}
+/* shared box: picker → preview form → upload; thumbnails with view / delete (/ read in the scope editor) */
+function photoBoxHtml(kinds) {
+  return `<div data-phform hidden></div><div class="phgrid" data-phgrid><span class="small muted" style="grid-column:1/-1">${esc(t('phLoading'))}</span></div><div class="small phai" data-phai hidden></div>`;
+}
+function wirePhotoBox(box, o) {
+  if (!box) return;
+  phCss();
+  const grid = box.querySelector('[data-phgrid]'), form = box.querySelector('[data-phform]'), inp = box.querySelector('[data-phfile]');
+  const kindsHtml = (sel) => o.kinds.map(k => `<option value="${k}" ${k === sel ? 'selected' : ''}>${PH_ICON[k]} ${esc(t('phKinds')[k])}</option>`).join('');
+  const draw = (all) => {
+    const list = all.filter(o.filter);
+    if (o.onCount) o.onCount(list.length);
+    if (!list.length) { grid.innerHTML = `<span class="small muted" style="grid-column:1/-1">${esc(t('phNone'))}</span>`; return; }
+    grid.classList.toggle('phrows', !!(o.read && FILES.ai));
+    grid.innerHTML = list.map(f => `<div class="phit" data-phid="${esc(f.id)}"><div class="phthw"><button type="button" class="phth" data-phview="${esc(f.id)}" aria-label="${esc(t('phOpen'))}">${f.url ? `<img src="${esc(f.url)}" alt="" loading="lazy">` : ''}</button>
+      ${phCanDel(f) ? `<button type="button" class="phdel" data-phdel="${esc(f.id)}" aria-label="${esc(t('phDel'))}">✕</button>` : ''}</div>
+      <div class="phmeta"><div class="phcap">${PH_ICON[f.kind] || '📷'} ${esc(phDay(f.at))}${f.note ? ' · ' + esc(f.note) : ''}</div>
+      ${o.read && FILES.ai ? `<button type="button" class="btn sm hi" data-phread="${esc(f.id)}">🤖 ${esc(t('phRead'))}</button>` : ''}</div></div>`).join('');
+    grid.querySelectorAll('[data-phview]').forEach(b => b.onclick = () => { const f = list.find(x => x.id === b.dataset.phview); if (f && f.url) photoView(f); });
+    grid.querySelectorAll('[data-phdel]').forEach(b => b.onclick = async () => {
+      if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = t('phDelSure'); setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = '✕'; } }, 4000); return; }
+      b.disabled = true;
+      try { await filesApi('del', { id: b.dataset.phdel }); await photoList(true); toast(t('phDeleted')); } catch (e) { toast(t('phNet')); }
+      load();
+    });
+    grid.querySelectorAll('[data-phread]').forEach(b => b.onclick = async () => {
+      const msg = box.querySelector('[data-phai]'); msg.hidden = false; msg.textContent = '🤖 ' + t('phReading'); b.disabled = true;
+      try { const res = await filesApi('read', Object.assign({ id: b.dataset.phread, today: today() }, o.readArgs())); if (!res.ai) msg.textContent = t('phAiOff'); else o.read(res, msg); }
+      catch (e) { msg.textContent = e.code === 'ai_limit' ? t('phAiLimit') : t('phNet'); }
+      b.disabled = false;
+    });
+  };
+  const load = async (force) => {
+    if (!navigator.onLine) { grid.innerHTML = `<span class="small muted">${esc(t('phOffline'))}</span>`; return; }
+    try { draw(await photoList(force)); } catch (e) { grid.innerHTML = `<span class="small muted">${esc(t('phOffline'))}</span>`; }
+  };
+  const showForm = (file) => {
+    const u = URL.createObjectURL(file);
+    form.hidden = false;
+    form.innerHTML = `<div class="phform"><img src="${u}" alt=""><div class="stack" style="gap:6px"><select data-phkind aria-label="${esc(t('phT'))}">${kindsHtml(o.kind)}</select><input data-phnote maxlength="120" placeholder="${esc(t('phNoteP'))}" aria-label="${esc(t('phNoteP'))}">
+      <div class="row" style="gap:6px"><button type="button" class="btn sm primary" data-phgo>⬆️ ${esc(t('phUpload'))}</button><button type="button" class="btn sm ghost" data-phcancel>${esc(t('phCancel'))}</button></div><div class="small muted" data-phmsg></div></div></div>`;
+    const done = () => { URL.revokeObjectURL(u); form.hidden = true; form.innerHTML = ''; };
+    form.querySelector('[data-phcancel]').onclick = done;
+    form.querySelector('[data-phgo]').onclick = async (ev) => {
+      const btn = ev.currentTarget, msg = form.querySelector('[data-phmsg]'); btn.disabled = true;
+      try {
+        await uploadPhoto(file, Object.assign(o.meta(), { kind: form.querySelector('[data-phkind]').value, note: form.querySelector('[data-phnote]').value.trim() }), (m) => { msg.textContent = m; });
+        done(); toast(t('phDone')); load();
+      } catch (e) { msg.textContent = e.message || t('phNet'); btn.disabled = false; }
+    };
+  };
+  if (inp) inp.onchange = () => { const f = inp.files && inp.files[0]; inp.value = ''; if (f) showForm(f); };
+  load();
+}
+/* subject page (learners) */
+function photoCard(s) {
+  if (!filesOn() || !S.kid) return '';
+  const k = KIDS.find(x => x.id === S.kid.id); if (k && k.role === 'player') return '';
+  return `<div class="card" id="phCard" style="margin-top:10px"><div class="row" style="justify-content:space-between;gap:8px;align-items:center"><h3 style="margin:0">📷 ${esc(t('phT'))}</h3>
+    <label class="btn sm subject phpick">＋ ${esc(t('phAdd'))}<input type="file" accept="image/*" data-phfile hidden></label></div>
+    <p class="small muted" style="margin:4px 0 6px">${esc(t('phSub'))}</p>${photoBoxHtml()}</div>`;
+}
+function wireSubjectPhotos(main, s) {
+  const box = $('#phCard', main); if (!box || !S.kid) return;
+  const kid = S.kid.id, g = curGrade();
+  wirePhotoBox(box, { kinds: PH_KINDS, kind: 'scope', filter: f => f.kid === kid && f.subj === s.id, meta: () => ({ kid, subj: s.id, grade: g }) });
+}
+/* parent's scope editor: scope / test photos of this subject and grade */
+function scopePhotoBox(s) {
+  if (!filesOn()) return '';
+  const g = scopeGrade(), kid = KIDS.find(k => k.role !== 'player' && (+k.grade || 7) === g);
+  return `<div class="phscope" data-phscope="${s.id}" style="margin:8px 0 4px"><div class="row" style="justify-content:space-between;gap:8px;align-items:center"><span class="small muted">📷 ${esc(t('phScopeL'))}</span>
+    ${kid ? `<label class="btn sm ghost phpick">＋ ${esc(t('phAdd'))}<input type="file" accept="image/*" data-phfile hidden></label>` : `<span class="small muted">${esc(t('phNoKid'))}</span>`}</div>${photoBoxHtml()}</div>`;
+}
+function wireScopePhotos(row, upd) {
+  const box = row.querySelector('[data-phscope]'); if (!box) return;
+  const sid = row.dataset.sid, g = scopeGrade(), s = subjectsOfGrade(g).find(x => x.id === sid); if (!s) return;
+  const kid = (KIDS.find(k => k.role !== 'player' && (+k.grade || 7) === g) || {}).id;
+  const cnt = row.querySelector('[data-phcnt]');
+  wirePhotoBox(box, {
+    kinds: ['scope', 'test', 'notes', 'other'], kind: 'scope',
+    filter: f => f.subj === sid && +f.grade === g && (f.kind === 'scope' || f.kind === 'test'),
+    meta: () => ({ kid, subj: sid, grade: g }),
+    onCount: (n) => { if (cnt) { cnt.hidden = !n; cnt.textContent = '📷 ' + n; } },
+    readArgs: () => ({ subject: tx(s.name), grade: g, topics: s.terms.flatMap(tm => tm.topics.map(tp => ({ id: tp.id, title: tx(tp.title) }))) }),
+    read: (res, msg) => {
+      const set = new Set(res.topics || []);
+      if (set.size) row.querySelectorAll('[data-tid]').forEach(c => { c.checked = set.has(c.dataset.tid); });
+      if (res.date) row.querySelector('[data-date]').value = res.date;
+      if (set.size || res.date) upd();
+      msg.innerHTML = `🤖 <b>${set.size} ${esc(t('topics'))}${res.date ? ' · ' + esc(fmtDate(res.date)) : ''}</b>${res.summary_af && L === 'af' ? ' – ' + esc(res.summary_af) : ''}<br>${esc(set.size ? t('phAiCheck') : t('phAiNone'))}`;
+      const det = row.querySelector('details'); if (det) det.open = true;
+    },
+  });
 }
 
 /* ------------------------------------------------------------------ install as an app (own website only) */
