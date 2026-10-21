@@ -1,4 +1,4 @@
-/* Leerhoek — Grade 7 study platform (Afrikaans / English)
+/* Leerhoek — study platform for a family circle, Grades 1–12 as content grows (Afrikaans / English)
    Single-page app. Content is loaded from content/index.json → content/gr7/*.json (or window.CONTENT_BUNDLE for the offline copy).
    Progress is stored in the artifact's shared db when the viewer is signed in with write access, otherwise in localStorage. */
 (() => {
@@ -109,10 +109,17 @@ const UI = {
     badgeNames: { fixer: ['Mistake muncher', 'Fix 25 mistakes in your mistakes book'], brain: ['Brain power', 'Play 10 brain games'], scope: ['Exam ready', 'Score 80 % or more in a scope test'], first: ['First test', 'Complete your first test'], perfect: ['Full marks', 'Score 100 % in a test'], five: ['Five tests', 'Complete 5 tests'], streak3: ['3-day streak', 'Learn 3 days in a row'], streak7: ['Week streak', '7 days in a row'], reader: ['Bookworm', 'Read 10 summaries'], subject: ['Subject boss', 'Every topic of a subject above 70 %'], xp1000: ['Champion', 'Earn 1 000 XP'] },
   }
 };
-const KIDS = [
-  { id: 'diaan', name: 'Diaan', avatar: '🦁' },
-  { id: 'stefan', name: 'Stefan', avatar: '🐆' },
+/* v10: the household's members come from kv household/profile (+ lh_me / lh_circle). These defaults are Diaan & Stefan's
+   household (h1) – used when the profile can't be read, so the twins' app never breaks. */
+const LEGACY_KIDS = [
+  { id: 'diaan', name: 'Diaan', avatar: '🦁', role: 'learner', grade: 7, school: 'Laerskool Unika' },
+  { id: 'stefan', name: 'Stefan', avatar: '🐆', role: 'learner', grade: 7, school: 'Laerskool Unika' },
 ];
+const LEGACY_PARENTS = [{ id: 'pa', name: 'Pa', avatar: '👨' }, { id: 'ma', name: 'Ma', avatar: '👩' }];
+const KIDS = LEGACY_KIDS.map(k => Object.assign({}, k));
+const PARENTS = LEGACY_PARENTS.map(p => Object.assign({}, p));
+const CIRCLE = [];   // members of the OTHER households in the family circle: {id, name, avatar, kid, role, grade, hid, house}
+let HOUSE = { id: null, name: '', circle: null, owner: false, legacy: true };
 /* School report data lives in kids/<id>.school = { terms: { "1": {afrikaans: 63, ...}, "2": {...} }, avg: {"1": 57, "2": 51} }
    Pass requirements (Laerskool Unika report): 50 % Huistaal, 40 % EAT, 40 % Wiskunde, 40 % in 3 more, 30 % in 2 more. */
 const PASS_TARGET = { afrikaans: 50, english: 40, wiskunde: 40, 'kreatiewe-kunste': 30, default: 40 };
@@ -266,11 +273,11 @@ class SupaStore {
 }
 function readFamilyKey() {
   // the key travels as #k=KEY~route in the shared link, then lives in ?k=KEY so a home-screen icon (iPhone: separate storage) keeps it
-  const m = (location.hash || '').match(/^#k=([A-Za-z0-9]+)(?:~([a-z]+))?/);
+  const m = (location.hash || '').match(/^#k=([A-Za-z0-9]+)(?:~([a-z0-9]+))?/);
   let q = null; try { q = new URLSearchParams(location.search).get('k'); } catch (e) {}
   const key = (m && m[1]) || (q && /^[A-Za-z0-9]+$/.test(q) ? q : null);
   if (key) { try { localStorage.setItem('lh.fk', key); } catch (e) {} }
-  if (m && m[2] && (m[2] === 'ouer' || KIDS.some(k => k.id === m[2]))) { try { localStorage.setItem('lh.lock', m[2]); if (m[2] !== 'ouer') localStorage.setItem('lh.kid', m[2]); else localStorage.removeItem('lh.kid'); } catch (e) {} }
+  if (m && m[2] && (m[2] === 'ouer' || /^[a-z0-9]+$/.test(m[2]))) { try { localStorage.setItem('lh.lock', m[2]); if (m[2] !== 'ouer') localStorage.setItem('lh.kid', m[2]); else localStorage.removeItem('lh.kid'); } catch (e) {} }
   if (m) { try { history.replaceState(null, '', location.pathname + '?k=' + m[1] + '#' + (m[2] || 'profiel')); } catch (e) { location.hash = m[2] || 'profiel'; } }
   if (key) return key;
   try { return localStorage.getItem('lh.fk'); } catch (e) { return null; }
@@ -278,6 +285,7 @@ function readFamilyKey() {
 function notify(kid, ev) {
   // own-website mode only: built-in Web Push (Supabase function lh-notify) and/or the ntfy app; simple requests (no preflight)
   const st = S.settings || {}; if (S.storeKind !== 'supa' || !ev || !kid) return;
+  if ((ev.type === 'login' || ev.type === 'logout') && (KIDS.find(k => k.id === kid.id) || {}).role === 'player') return;
   const A = UI.af, hm = new Date().toTimeString().slice(0, 5); let title, message, tags, tag = '', log = null;
   if (['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) {
     title = `${kid.name}: ${A.ev[ev.type]} ${ev.score}%`; message = `${ev.label || ''}\n${ev.correct}/${ev.total} · +${ev.xp} XP · ${Math.max(1, Math.round((ev.secs || 0) / 60))} min`;
@@ -338,7 +346,7 @@ async function initStore() {
     const fk = readFamilyKey();
     if (!fk) { S.keyProblem = 'missing'; return; }
     const st = new SupaStore(cfg.supabaseUrl, cfg.supabaseKey, fk);
-    try { if (await st.ping()) { S.store = st; S.storeKind = 'supa'; S.keyProblem = null; return; } S.keyProblem = 'bad'; }
+    try { if (await st.ping()) { S.store = st; S.storeKind = 'supa'; S.keyProblem = null; await loadHousehold(); return; } S.keyProblem = 'bad'; }
     catch (e) { S.keyProblem = 'offline'; }
     return;
   }
@@ -354,25 +362,115 @@ async function initStore() {
     S.store = new DbStore(db); S.storeKind = 'db';
   } catch (e) { S.store = new LocalStore(); S.storeKind = 'local'; }
 }
+
+/* ------------------------------------------------------------------ v10: household + family circle */
+async function loadHousehold() {
+  let me = null, prof = null, circle = [];
+  try { me = await S.store.rpc('lh_me'); } catch (e) {}
+  try { prof = await S.store.get('household/profile'); } catch (e) {}
+  if (me) { try { circle = (await S.store.rpc('lh_circle')) || []; } catch (e) {} }
+  S.houseMe = me; S.houseProf = prof; S.houseCircle = circle; S._circleAt = Date.now(); S._circleSig = JSON.stringify(circle || []);
+  applyHousehold(me, prof, circle);
+}
+function applyHousehold(me, prof, circle) {
+  const kids = prof && Array.isArray(prof.kids) && prof.kids.length ? prof.kids : LEGACY_KIDS;
+  const pars = prof && Array.isArray(prof.parents) && prof.parents.length ? prof.parents : LEGACY_PARENTS;
+  KIDS.splice(0, KIDS.length, ...kids.map(k => Object.assign({ role: 'learner', grade: 7, avatar: '🙂', school: '' }, k)));
+  PARENTS.splice(0, PARENTS.length, ...pars.map(p => Object.assign({ avatar: '🙂' }, p)));
+  HOUSE = { id: (me && me.id) || null, name: (me && me.name) || (prof && prof.name) || '', circle: (me && me.circle) || null, owner: !!(me && me.owner), legacy: !prof || !!prof.legacy };
+  CIRCLE.splice(0, CIRCLE.length);
+  (circle || []).forEach(hh => {
+    if (!hh || hh.me || !hh.profile) return; const p = hh.profile;
+    (p.kids || []).forEach(k => CIRCLE.push({ id: k.id, name: k.name, avatar: k.avatar || '🙂', kid: true, role: k.role || 'learner', grade: k.grade, hid: hh.hid, house: hh.name }));
+    (p.parents || []).forEach(x => CIRCLE.push({ id: x.id, name: x.circleName || x.name, avatar: x.avatar || '🙂', kid: false, hid: hh.hid, house: hh.name }));
+  });
+  rebuildFamily();
+  personalizeUi();
+}
+/* other households: their own names instead of Diaan/Stefan/Unika in the texts (h1 keeps the original texts) */
+function personalizeUi() {
+  if (HOUSE.legacy) return;
+  const learners = KIDS.filter(k => k.role !== 'player'), kn = (learners.length ? learners : KIDS).map(k => k.name), pn = PARENTS.map(p => p.name);
+  const andJ = (a, w) => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' ' + w + ' ' + a[a.length - 1];
+  UI.af.tagline = (kn.length ? andJ(kn, '&') : 'Leerhoek') + ' se studieplatform';
+  UI.en.tagline = kn.length ? andJ(kn, '&') + "'s study platform" : 'Leerhoek study platform';
+  UI.af.parentSub = andJ(pn, '&'); UI.en.parentSub = andJ(pn, '&');
+  const all = KIDS.map(k => k.name).concat(pn);
+  UI.af.chatSub = `Net vir ${andJ(all, 'en')} – niemand anders kan dit sien nie.`;
+  UI.en.chatSub = `Only for ${andJ(all, 'and')} – nobody else can see it.`;
+  UI.af.chalSub = 'Dieselfde 10 vrae vir almal in jou graad. Net jou eerste poging tel – wie wen hierdie week?';
+  UI.en.chalSub = 'The same 10 questions for everyone in your grade. Only your first attempt counts – who wins this week?';
+  UI.af.devSub = 'Elke toestel hoort aan een persoon. ’n Kind sien net sy of haar eie profiel. Die ouers (met die PIN) kan alles sien. Elke persoon se eie skakel koppel ’n toestel outomaties.';
+  UI.en.devSub = "Every device belongs to one person. A child only sees their own profile. The parents (with the PIN) can see everything. Each person's own link links a device automatically.";
+  if (learners.length !== 2) { UI.af.teBoth = 'Almal'; UI.en.teBoth = 'Everyone'; }
+  if (!learners.some(k => /unika/i.test(k.school || ''))) {
+    UI.af.examFormatT = 'Hoe lyk die vraestel'; UI.en.examFormatT = 'What the paper looks like';
+    UI.af.resourcesIntro = 'Gratis handboeke, werkboeke en ou vraestelle.'; UI.en.resourcesIntro = 'Free textbooks, workbooks and past papers.';
+    UI.af.provisionalHint = 'Voorlopige afbakening volgens CAPS. Die ouers werk dit by sodra die skool die regte afbakening stuur.';
+    UI.en.provisionalHint = 'Provisional scope following CAPS. The parents will update it as soon as the school sends the real scope.';
+    UI.af.scopeHelp = String(UI.af.scopeHelp).replace(/:[^:]*Unika[^.]*\./, ' volgens CAPS.');
+    UI.en.scopeHelp = String(UI.en.scopeHelp).replace(/:[^:]*Unika[^.]*\./, ' following CAPS.');
+  }
+  UI.af.fam = Object.assign({}, UI.af.fam); UI.en.fam = Object.assign({}, UI.en.fam);
+  PARENTS.forEach(p => { UI.af.fam[p.id] = p.name; UI.en.fam[p.id] = p.name; });
+}
+const kidGrade = (id) => +((KIDS.find(k => k.id === id) || {}).grade) || 7;
+function curGrade() { const k = S.kid && KIDS.find(x => x.id === S.kid.id); return +(k && k.grade) || +S.grade || +((KIDS[0] || {}).grade) || 7; }
+const houseGrades = () => [...new Set(KIDS.map(k => +k.grade || 7))];
+const editGrades = () => [...new Set(KIDS.filter(k => k.role !== 'player').map(k => +k.grade || 7))];
+function houseSubjects() { const seen = new Set(), out = []; houseGrades().forEach(g => subjectsOfGrade(g).forEach(s => { if (!seen.has(s.id)) { seen.add(s.id); out.push(s); } })); return out; }
+/* exam scope per grade (h1 keeps v9's settings.exams for Grade 7) */
+function examsFor(g) { const st = S.settings || {}; g = +g || 7; if (HOUSE.legacy && g === 7 && !(st.examsG && st.examsG[7])) return st.exams || {}; return (st.examsG || {})[g] || {}; }
+function setExamsFor(g, ex) { g = +g || 7; if (HOUSE.legacy && g === 7) { S.settings.exams = ex; return; } S.settings.examsG = Object.assign({}, S.settings.examsG || {}); S.settings.examsG[g] = ex; }
+const scopeGrade = () => { const gs = editGrades(); return S.scopeGrade && gs.includes(S.scopeGrade) ? S.scopeGrade : (gs[0] || 7); };
+function gradeTabs() { const gs = editGrades(); return gs.length > 1 ? `<div class="row chipsel" style="gap:6px;margin:6px 0 4px">${gs.map(g => `<button type="button" class="chip ${g === scopeGrade() ? 'on' : ''}" data-sg="${g}">${esc(t('chooseGrade'))} ${g}</button>`).join('')}</div>` : ''; }
 async function sha(s) { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('lh:' + s)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) { return 'plain:' + s; } }
 
 /* ------------------------------------------------------------------ content */
+/* v10: content per grade. content.js = the index of all grades + the first grade's subjects; other grades load on demand
+   from their own bundle (content-gr8.js …) into window.LH_GRADE_BUNDLES[g]. S.content.subjects = the ACTIVE grade's subjects. */
 async function loadContent() {
-  const content = { grades: [], subjects: {} };
+  const content = { grades: [], subjects: {}, byGrade: {} };
   if (window.CONTENT_BUNDLE) {
-    content.grades = window.CONTENT_BUNDLE.index.grades; Object.assign(content.subjects, window.CONTENT_BUNDLE.subjects); return content;
+    content.grades = window.CONTENT_BUNDLE.index.grades;
+    const g0 = +((content.grades.find(g => !g.bundle) || content.grades[0] || {}).grade) || 7;
+    content.byGrade[g0] = Object.assign({}, window.CONTENT_BUNDLE.subjects); content.subjects = content.byGrade[g0];
+    return content;
   }
   const idx = await (await fetch('content/index.json', { cache: 'no-cache' })).json();
   content.grades = idx.grades;
   const files = [];
-  idx.grades.forEach(g => g.subjects.forEach(s => files.push(s)));
+  idx.grades.forEach(g => g.subjects.forEach(s => files.push(Object.assign({ grade: +g.grade }, s))));
   const results = await Promise.allSettled(files.map(f => fetch(f.file, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })));
-  results.forEach((r, i) => { if (r.status === 'fulfilled') content.subjects[files[i].id] = r.value; });
+  results.forEach((r, i) => { if (r.status === 'fulfilled') { const g = files[i].grade; (content.byGrade[g] = content.byGrade[g] || {})[files[i].id] = r.value; } });
+  content.subjects = content.byGrade[+((content.grades[0] || {}).grade) || 7] || {};
   return content;
 }
-const subjectsOfGrade = (grade) => { const g = S.content.grades.find(x => x.grade === grade) || S.content.grades[0]; return g.subjects.map(s => S.content.subjects[s.id]).filter(Boolean); };
+const _gradeLoads = {};
+function ensureGrade(g) {
+  g = +g || 7; const C = S.content; if (!C || C.byGrade[g]) return Promise.resolve();
+  const ent = C.grades.find(x => +x.grade === g); if (!ent || !ent.bundle) { C.byGrade[g] = C.byGrade[g] || {}; return Promise.resolve(); }
+  if (_gradeLoads[g]) return _gradeLoads[g];
+  return (_gradeLoads[g] = new Promise((res) => {
+    const sc = document.createElement('script'); sc.src = ent.bundle + (window.LH_VERSION ? '?v=' + window.LH_VERSION : '');
+    sc.onload = () => { const b = (window.LH_GRADE_BUNDLES || {})[g]; C.byGrade[g] = (b && b.subjects) || {}; res(); };
+    sc.onerror = () => { delete _gradeLoads[g]; res(); };
+    document.head.appendChild(sc);
+  }));
+}
+const _strip7 = {};
+function gradeSubjects(g, school) {
+  const map = (S.content && S.content.byGrade[+g]) || {};
+  if (+g !== 7 || /unika/i.test(school || '')) return map;
+  // the Grade 7 paper format + practice papers are Laerskool Unika's – other schools don't get them
+  if (_strip7.src !== map) { _strip7.src = map; _strip7.out = {}; Object.keys(map).forEach(id => { const s = Object.assign({}, map[id]); delete s.examFormat; delete s.practiceExams; _strip7.out[id] = s; }); }
+  return _strip7.out;
+}
+function setActiveGrade(g, school) { S.grade = +g || 7; S.gradeSchool = school || ''; if (S.content) S.content.subjects = gradeSubjects(S.grade, school); }
+const subjectsOfGrade = (grade) => { grade = +grade || 7; const g = S.content.grades.find(x => +x.grade === grade); if (!g) return []; const map = grade === +S.grade ? S.content.subjects : gradeSubjects(grade, (KIDS.find(k => +k.grade === grade) || {}).school); return g.subjects.map(s => map[s.id]).filter(Boolean); };
+const subjById = (id) => (S.content.subjects || {})[id] || Object.values(S.content.byGrade || {}).map(m => m[id]).find(Boolean) || null;
 const allTopics = (subj) => subj.terms.flatMap(tm => tm.topics.map(tp => ({ tp, term: tm.term })));
-function findTopic(topicId) { for (const id in S.content.subjects) { const subj = S.content.subjects[id]; for (const tm of subj.terms) for (const tp of tm.topics) if (tp.id === topicId) return { subj, tp, term: tm.term }; } return null; }
+function findTopic(topicId) { const maps = [S.content.subjects].concat(Object.values(S.content.byGrade || {})); for (const m of maps) for (const id in m) { const subj = m[id]; for (const tm of subj.terms) for (const tp of tm.topics) if (tp.id === topicId) return { subj, tp, term: tm.term }; } return null; }
 
 /* ------------------------------------------------------------------ progress helpers */
 const tprog = (kid, tid) => kid.topics[tid] || {};
@@ -427,10 +525,10 @@ async function award(kid, xp, ev) {
   if (ev && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) { if (!kid.day || kid.day.d !== d) kid.day = { d, tests: 0 }; kid.day.tests++; if (S.sess && S.sess.kid === kid.id) S.sess.tests++; }
   if (S.sess && S.sess.kid === kid.id) S.sess.xp += xp;
   if (ev) { const m = missionOf(kid); if (!m.done) { if (m.k === 'tests' && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) m.p++; if (m.k === 'games' && ev.type === 'game') m.p++; if (m.p >= m.n) missionComplete(kid); } }
-  if (!has('subject') && ev && ev.subject) { const subj = S.content.subjects[ev.subject]; if (subj && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
+  if (!has('subject') && ev && ev.subject) { const subj = subjById(ev.subject); if (subj && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
   if (ev) {
     ev.t = Date.now(); ev.xp = xp;
-    const s = ev.subject ? S.content.subjects[ev.subject] : null, f = ev.topic ? findTopic(ev.topic) : null;
+    const s = ev.subject ? subjById(ev.subject) : null, f = ev.topic ? findTopic(ev.topic) : null;
     const pe = ev.paper ? findPaper(ev.paper) : null;
     if (!ev.label) ev.label = [s ? (s.short.af || s.short.en) : null, f ? (f.tp.title.af || f.tp.title.en) : null, pe ? (pe.ex.title.af || pe.ex.title.en) : null].filter(Boolean).join(' · ');
   }
@@ -478,7 +576,8 @@ function go(hash) { location.hash = hash; }
 function parseRoute() {
   const h = (location.hash || '').replace(/^#/, '');
   if (!h || h === 'home' || h === 'tuis') return { s: 'home' };
-  if (h === 'diaan' || h === 'stefan') return { s: 'home', kid: h };
+  if (/^s=[A-Za-z0-9]+$/.test(h)) return { s: 'setup', code: h.slice(2) };
+  if (KIDS.some(k => k.id === h)) return { s: 'home', kid: h };
   if (h === 'ouer' || h === 'parent') return { s: 'parent' };
   if (h === 'vakke') return { s: 'subjects' };
   if (h === 'kentekens') return { s: 'badges' };
@@ -507,6 +606,7 @@ function parseRoute() {
 }
 function nav() {
   const r = parseRoute();
+  if (r.s === 'setup') { $('#bottomnav').innerHTML = ''; $('#desknav').innerHTML = ''; return; }
   const parentDev = deviceLock() === 'ouer';
   const items = parentDev && !S.kid ? [['parent', '👪', t('parent')], ['chess', '♟️', t('navChess')], ['chat', '💬', t('navChat')]] : [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
   const hashes = { home: 'home', subjects: 'vakke', exams: 'eksamens', games: 'speel', dict: 'woordeboek', parent: 'ouer', badges: 'kentekens', resources: 'hulpbronne', chess: 'skaak', chat: 'klets' };
@@ -541,6 +641,7 @@ async function render() {
   if (lockedKid() && (!S.kid || !kidAllowed(S.kid.id)) && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(lockedKid());
   nav(); renderWho();
   if (!S.content) { main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`; return; }
+  if (r.s === 'setup') return renderSetup(main, r.code);
   if (r.s === 'parent') return renderParent(main);
   if (r.s === 'resources') return renderResources(main);
   if (window.LH_CONFIG && (S.keyProblem === 'missing' || S.keyProblem === 'bad')) return renderGate(main);
@@ -572,7 +673,7 @@ async function render() {
 }
 async function selectKid(id) {
   const k = KIDS.find(x => x.id === id); if (!k || !kidAllowed(id)) return;
-  S.kidId = id; S.kid = await S.store.loadKid(id);
+  S.kidId = id; await ensureGrade(k.grade); setActiveGrade(k.grade, k.school); S.kid = await S.store.loadKid(id);
   try { localStorage.setItem('lh.kid', id); } catch (e) {}
   if (S._unsubKid) S._unsubKid();
   S._unsubKid = S.store.subscribeKid(id, (fresh) => { if (fresh.updated > (S.kid.updated || 0) + 1000) { S.kid = fresh; renderWho(); if (['home', 'subjects', 'subject'].includes(S.route.s)) render(); } });
@@ -606,7 +707,7 @@ function renderGate(main) {
   });
 }
 function renderHome(main) {
-  const kid = S.kid, subjects = subjectsOfGrade(7);
+  const kid = S.kid, subjects = subjectsOfGrade(curGrade());
   const lv = levelOf(kid.xp), next = xpForLevel(lv + 1), cur = xpForLevel(lv), pct = clamp(Math.round(100 * (kid.xp - cur) / (next - cur)), 0, 100);
   const acc = kid.totals.answered ? Math.round(100 * kid.totals.correct / kid.totals.answered) : 0;
   const focus = focusSubjects(kid, subjects);
@@ -670,8 +771,8 @@ function subjectCard(s, kid, i) {
 }
 function wireSubjectCards(root) { root.querySelectorAll('[data-subj]').forEach(b => b.onclick = () => go('vak-' + b.dataset.subj)); }
 function renderSubjects(main) {
-  const subjects = subjectsOfGrade(7);
-  main.innerHTML = `<div class="row" style="justify-content:space-between"><h1>${esc(t('subjects'))}</h1><button class="btn sm" data-go="hulpbronne">🔗 ${esc(t('resources'))}</button></div><p class="muted" style="margin:4px 0 16px">${esc(t('chooseGrade'))} 7 · CAPS · ${esc(t('termNow'))} ${curTerm()}</p><div class="subjects">${subjects.map((s, i) => subjectCard(s, S.kid, i)).join('')}</div>`;
+  const subjects = subjectsOfGrade(curGrade());
+  main.innerHTML = `<div class="row" style="justify-content:space-between"><h1>${esc(t('subjects'))}</h1><button class="btn sm" data-go="hulpbronne">🔗 ${esc(t('resources'))}</button></div><p class="muted" style="margin:4px 0 16px">${esc(t('chooseGrade'))} ${curGrade()} · CAPS · ${esc(t('termNow'))} ${curTerm()}</p><div class="subjects">${subjects.map((s, i) => subjectCard(s, S.kid, i)).join('')}</div>`;
   wireSubjectCards(main); $('[data-go]', main).onclick = () => go('hulpbronne');
 }
 function renderSubject(main, id) {
@@ -746,7 +847,7 @@ function renderBadges(main) {
   main.innerHTML = `<h1>🏅 ${esc(t('allBadges'))}</h1><p class="muted" style="margin:4px 0 16px">${kid.badges.length} / ${BADGES.length}</p><div class="badges">${BADGES.map(b => `<div class="badge ${kid.badges.includes(b) ? 'earned' : ''}"><div class="ic">${BADGE_ICONS[b]}</div><div class="nm">${esc(t('badgeNames')[b][0])}</div><div class="ds">${esc(t('badgeNames')[b][1])}</div></div>`).join('')}</div>`;
 }
 function renderResources(main) {
-  const subjects = subjectsOfGrade(7);
+  const subjects = subjectsOfGrade(curGrade());
   main.innerHTML = `<h1>🔗 ${esc(t('resources'))}</h1><p class="muted" style="margin:6px 0 16px;max-width:70ch">${esc(t('resourcesIntro'))}</p>
   <div class="grid two">${subjects.map(s => `<div class="card" style="--subject:${s.color};border-left:6px solid var(--subject)"><h3>${s.icon} ${esc(tx(s.name))}</h3><ul style="margin:8px 0 0;padding-left:18px">${(s.resources || []).map(r => `<li style="margin:6px 0"><a href="${esc(r.url)}" target="_blank" rel="noopener"><b>${esc(tx(r.title))}</b></a><div class="small muted">${esc(tx(r.note))}</div></li>`).join('')}</ul></div>`).join('')}</div>`;
 }
@@ -962,7 +1063,7 @@ function renderPaper(main, id) {
 function fmtTime(ts) { const d = new Date(ts); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 function fmtDay(date) { const td = today(); if (date === td) return t('today'); const y = new Date(); y.setDate(y.getDate() - 1); const ys = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0'); if (date === ys) return t('yesterday'); return date; }
 function evText(ev) {
-  const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? S.content.subjects[ev.subject] : null;
+  const f = ev.topic ? findTopic(ev.topic) : null; const s = ev.subject ? subjById(ev.subject) : null;
   const what = (t('ev')[ev.type] || ev.type) + ((ev.type === 'paper' || ev.type === 'game' || ev.type === 'coach' || ev.type === 'mission' || ev.type === 'remind') && ev.label ? ' · ' + esc(ev.label) : (s ? ' · ' + tx(s.short) : '') + (f ? ' · ' + tx(f.tp.title) : ''));
   if (ev.type === 'logout') return what + ` — <b class="num">${ev.mins < 1 ? '&lt;1' : ev.mins} min</b>` + (ev.tests ? ` · ${ev.tests} ${esc(t('quizzes').toLowerCase())}` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
   return what + (ev.score !== undefined ? ` — <b class="num">${ev.score}%</b> (${ev.correct}/${ev.total})` : '') + (ev.xp ? ` <span class="chip hi num" style="padding:0 6px">+${ev.xp}</span>` : '');
@@ -981,7 +1082,7 @@ async function renderParent(main) {
     $('#pinf').onsubmit = async (e) => { e.preventDefault(); const v = inp.value.trim(); if (!/^\d{4,6}$/.test(v)) { $('#pinerr').textContent = t('setPin'); return; } const h = await sha(v); if (first) { S.settings.pinHash = h; await S.store.saveSettings(S.settings); S.parentUnlocked = true; if (!lhAfterUnlock()) render(); } else if (h === S.settings.pinHash) { S.parentUnlocked = true; if (!lhAfterUnlock()) render(); } else { $('#pinerr').textContent = t('pinWrong'); inp.value = ''; inp.classList.add('wrong'); setTimeout(() => inp.classList.remove('wrong'), 500); } };
     return;
   }
-  const subjects = subjectsOfGrade(7);
+  const subjects = houseSubjects();
   const kids = await Promise.all(KIDS.map(k => S.store.loadKid(k.id)));
   const logs = await Promise.all(KIDS.map(k => S.store.loadLogs(k.id, 14).catch(() => [])));
   const weekAgo = Date.now() - 7 * 86400000;
@@ -990,10 +1091,11 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${coachParentCard()}${scopeEditor(subjects)}${testsEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main); wireTestsEditor(main, subjects); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main);
+  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${houseCard()}${circleCard()}${coachParentCard()}${scopeEditor(subjectsOfGrade(scopeGrade()))}${testsEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireTestsEditor(main, subjects); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main); wireHouseCard(main); wireCircleCard(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
+    const subjects = subjectsOfGrade(kidGrade(kid.id));
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
     const week = events.filter(e => e.t >= weekAgo), quizzesWeek = week.filter(e => ['quiz', 'exam', 'scope', 'redo', 'challenge'].includes(e.type));
     const avgWeek = quizzesWeek.length ? Math.round(quizzesWeek.reduce((a, e) => a + e.score, 0) / quizzesWeek.length) : 0;
@@ -1009,7 +1111,7 @@ async function renderParent(main) {
       <div class="row" style="margin-top:12px"><button class="btn sm" data-report="${kid.id}">📋 ${esc(t('copyReport'))}</button></div></div>`;
   };
   cards.innerHTML = kids.map((k, i) => drawKid(k, logs[i])).join('');
-  const wire = () => cards.querySelectorAll('[data-report]').forEach(b => b.onclick = async () => { const kid = kids.find(k => k.id === b.dataset.report); if (await copyText(reportText(kid, subjects))) toast(t('copied')); });
+  const wire = () => cards.querySelectorAll('[data-report]').forEach(b => b.onclick = async () => { const kid = kids.find(k => k.id === b.dataset.report); if (await copyText(reportText(kid, subjectsOfGrade(kidGrade(kid.id))))) toast(t('copied')); });
   wire();
   // live updates
   if (S._unsubParent) S._unsubParent.forEach(u => u());
@@ -1048,14 +1150,14 @@ function autoTerm() { const m = new Date().getMonth() + 1; return m <= 3 ? 1 : m
 function curTerm() { const v = +((S.settings || {}).currentTerm); return v >= 1 && v <= 4 ? v : autoTerm(); }
 
 /* ---------- afbakening (exam scope) ---------- */
-function defaultScopeTopics(s) { const terms = LANG_SUBJ.includes(s.id) ? [1, 2, 3, 4] : [3, 4]; return allTopics(s).filter(x => terms.includes(x.term)).map(x => x.tp.id); }
+function defaultScopeTopics(s) { const terms = LANG_SUBJ.includes(s.id) || +s.grade >= 10 || (+s.grade >= 8 && ['wiskunde', 'ebw'].includes(s.id)) ? [1, 2, 3, 4] : [3, 4]; return allTopics(s).filter(x => terms.includes(x.term)).map(x => x.tp.id); }
 function scopeOf(s) {
-  const e = ((S.settings || {}).exams || {})[s.id] || {};
+  const e = examsFor(s.grade)[s.id] || {};
   const valid = new Set(allTopics(s).map(x => x.tp.id));
   const ids = (Array.isArray(e.topics) ? e.topics : defaultScopeTopics(s)).filter(id => valid.has(id));
   return { topics: ids, date: e.date || '', note: e.note || '', provisional: !Array.isArray(e.topics) };
 }
-function scopePages(s, id) { const e = ((S.settings || {}).exams || {})[s.id] || {}; return (e.pages || {})[id] || ''; }
+function scopePages(s, id) { const e = examsFor(s.grade)[s.id] || {}; return (e.pages || {})[id] || ''; }
 function scopeOnly() { try { return localStorage.getItem('lh.scopeOnly') !== '0'; } catch (e) { return true; } }
 function setScopeOnly(v) { try { localStorage.setItem('lh.scopeOnly', v ? '1' : '0'); } catch (e) {} }
 function inPool(s, tp) { if (!scopeOnly()) return true; const sc = scopeOf(s); if (sc.provisional || !sc.topics.length) return true; return sc.topics.includes(tp.id); }
@@ -1064,7 +1166,7 @@ function scopeToggle(attr) { const on = scopeOnly(); return `<div class="row chi
 function scopePct(kid, s, sc) { sc = sc || scopeOf(s); if (!sc.topics.length) return 0; return Math.round(sc.topics.reduce((a, id) => a + topicPct(kid, id), 0) / sc.topics.length); }
 function scopeReady(kid, sc) { return sc.topics.filter(id => (tprog(kid, id).best || 0) >= 70).length; }
 function examList() {
-  return subjectsOfGrade(7).map(s => { const sc = scopeOf(s); return { s, sc, days: sc.date ? daysBetween(today(), sc.date) : null }; })
+  return subjectsOfGrade(curGrade()).map(s => { const sc = scopeOf(s); return { s, sc, days: sc.date ? daysBetween(today(), sc.date) : null }; })
     .sort((a, b) => { const k = (x) => x.days === null ? 999 : x.days < 0 ? 1000 - x.days : x.days; return k(a) - k(b); });
 }
 function examWhen(x) {
@@ -1080,11 +1182,11 @@ function planWhy(kid, sid) {
   if (tt) return tf('rePlanWhy', { n: tt.days });
   const x = examList().find(e => e.s.id === sid);
   if (x && x.days !== null && x.days >= 0 && x.days <= 21) return `${t('exam1')} ${t('exIn')} ${x.days} ${t('days')}`;
-  if (focusSubjects(kid, subjectsOfGrade(7)).some(f => f.s.id === sid)) return t('focusShort');
+  if (focusSubjects(kid, subjectsOfGrade(curGrade())).some(f => f.s.id === sid)) return t('focusShort');
   return '';
 }
 function studyPlan(kid) {
-  const subjects = subjectsOfGrade(7), td = today(), cur = curTerm();
+  const subjects = subjectsOfGrade(curGrade()), td = today(), cur = curTerm();
   const ex = examList().filter(x => x.days === null || x.days >= 0);
   const tests = schedItems(kid.id).filter(x => x.kind === 'test' && inStudyWindow(x));
   const near = tests.map(x => x.subj).concat(ex.filter(x => x.days !== null && x.days <= 21).map(x => x.s.id));
@@ -1149,7 +1251,7 @@ function mistakeItems(kid, sid) {
     .filter(x => x && (!sid || sid === 'all' || x.subj.id === sid)).sort((a, b) => b.t - a.t);
 }
 function renderMistakes(main) {
-  const kid = S.kid, items = mistakeItems(kid), subjects = subjectsOfGrade(7);
+  const kid = S.kid, items = mistakeItems(kid), subjects = subjectsOfGrade(curGrade());
   const per = subjects.map(s => ({ s, n: items.filter(x => x.subj.id === s.id).length })).filter(x => x.n);
   main.innerHTML = `<button class="back" data-go="eksamens">← ${esc(t('exT'))}</button><h1>❌ ${esc(t('mistakesT'))}</h1><p class="muted" style="margin:4px 0 14px;max-width:70ch">${esc(t('mistakesSub'))}</p>
   ${items.length ? `<div class="card"><div class="row" style="justify-content:space-between"><div><div class="big2 num">${items.length}</div><div class="small muted">${esc(t('open_'))} · <span class="num">${kid.totals.fixed || 0}</span> ${esc(t('fixedN'))}</div></div><button class="btn hi" data-go="herdoen">🔁 ${esc(t('redoAll'))}</button></div></div>
@@ -1162,12 +1264,13 @@ function renderMistakes(main) {
 /* ---------- weekly twin challenge ---------- */
 function weekQuestions() {
   const pool = [];
-  subjectsOfGrade(7).forEach(s => scopeOf(s).topics.forEach(tid => { const f = findTopic(tid); f.tp.quiz.forEach(q => { if (q.type !== 'match') pool.push({ q, topic: f.tp, term: f.term, subj: s }); }); }));
+  subjectsOfGrade(curGrade()).forEach(s => scopeOf(s).topics.forEach(tid => { const f = findTopic(tid); f.tp.quiz.forEach(q => { if (q.type !== 'match') pool.push({ q, topic: f.tp, term: f.term, subj: s }); }); }));
   return sshuffle(pool, seeded('week' + weekId())).slice(0, 10);
 }
 function weekXp(k) { return k && k.week && k.week.w === weekId() ? k.week.xp : 0; }
 async function twinData() {
-  const other = KIDS.find(k => k.id !== S.kid.id);
+  const other = KIDS.find(k => k.id !== S.kid.id && k.role !== 'player' && kidGrade(k.id) === kidGrade(S.kid.id));
+  if (!other) return null;
   if (S._twin && S._twin.id === other.id && Date.now() - S._twin.at < 60000) return S._twin.kid;
   try { const o = await S.store.loadKid(other.id); S._twin = { id: other.id, kid: o, at: Date.now() }; return o; } catch (e) { return null; }
 }
@@ -1429,7 +1532,7 @@ let DICT = null;
 function dict() {
   if (DICT) return DICT;
   const seen = new Set(); DICT = [];
-  subjectsOfGrade(7).forEach(s => allTopics(s).forEach(({ tp, term }) => (tp.keyTerms || []).forEach(k => {
+  subjectsOfGrade(curGrade()).forEach(s => allTopics(s).forEach(({ tp, term }) => (tp.keyTerms || []).forEach(k => {
     const e = { af: (k.term && k.term.af) || '', en: (k.term && k.term.en) || '', daf: (k.def && k.def.af) || '', den: (k.def && k.def.en) || '', s, tp, term };
     const key = s.id + '|' + fold(e.af); if (!e.af || seen.has(key)) return; seen.add(key); DICT.push(e);
   })));
@@ -1473,13 +1576,13 @@ function linkTerms(root, entries) {
   root.querySelectorAll('.dw').forEach(b => b.onclick = () => wordPopup(map.get(b.dataset.k)));
 }
 function wordOfDay() {
-  const sets = {}; subjectsOfGrade(7).forEach(s => { sets[s.id] = new Set(scopeOf(s).topics); });
+  const sets = {}; subjectsOfGrade(curGrade()).forEach(s => { sets[s.id] = new Set(scopeOf(s).topics); });
   const pool = dict().filter(e => sets[e.s.id] && sets[e.s.id].has(e.tp.id) && dOther(e));
   const P = pool.length ? pool : dict();
   return P[Math.floor(seeded('wotd' + today())() * P.length)];
 }
 function subjChips(cur, attr) {
-  return `<div class="row chipsel" style="gap:6px">${[['all', '🌈', t('allSubj')]].concat(subjectsOfGrade(7).map(s => [s.id, s.icon, tx(s.short)])).map(([id, ic, nm]) => `<button class="chip ${cur === id ? 'on' : ''}" data-${attr}="${id}">${ic} ${esc(nm)}</button>`).join('')}</div>`;
+  return `<div class="row chipsel" style="gap:6px">${[['all', '🌈', t('allSubj')]].concat(subjectsOfGrade(curGrade()).map(s => [s.id, s.icon, tx(s.short)])).map(([id, ic, nm]) => `<button class="chip ${cur === id ? 'on' : ''}" data-${attr}="${id}">${ic} ${esc(nm)}</button>`).join('')}</div>`;
 }
 function renderDict(main) {
   const tab = S.dictTab || 'terms';
@@ -1515,7 +1618,7 @@ const GAMES = [['vinnig', 'quick', '🚀'], ['geheue', 'memory', '🧩'], ['raai
 const GAME_ICON = { quick: '🚀', memory: '🧩', hangman: '🔤', sprint: '⚡', blitz: '✅' };
 const okPair = (e) => e.af && e.en && fold(e.af) !== fold(e.en) && e.af.length <= 26 && e.en.length <= 26;
 const okWord = (w) => !!w && w.length >= 3 && w.length <= 18 && [...fold(w)].every(c => /[a-z' -]/.test(c)) && (fold(w).match(/[a-z]/g) || []).length >= 3;
-function subjQs(sid, type) { const out = []; subjectsOfGrade(7).filter(s => !sid || sid === 'all' || s.id === sid).forEach(s => allTopics(s).filter(x => inPool(s, x.tp)).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === type) out.push({ q, topic: tp, term, subj: s }); }))); return out; }
+function subjQs(sid, type) { const out = []; subjectsOfGrade(curGrade()).filter(s => !sid || sid === 'all' || s.id === sid).forEach(s => allTopics(s).filter(x => inPool(s, x.tp)).forEach(({ tp, term }) => tp.quiz.forEach(q => { if (q.type === type) out.push({ q, topic: tp, term, subj: s }); }))); return out; }
 function subjLabel(sid) { const s = sid && sid !== 'all' ? S.content.subjects[sid] : null; return s ? `${s.icon} ${tx(s.name)}` : `🌈 ${t('allSubj')}`; }
 function gameCount(key, sid) {
   if (key === 'memory') return gamePool(sid).filter(okPair).length;
@@ -2000,7 +2103,7 @@ function wireMarksEditor(root, kids) {
   };
 }
 function scopeEditor(subjects) {
-  return `<div class="card" style="margin-top:14px" id="scopeCard"><h3>🎯 ${esc(t('scopeT'))}</h3><p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('scopeHelp'))}</p>
+  return `<div class="card" style="margin-top:14px" id="scopeCard"><h3>🎯 ${esc(t('scopeT'))}</h3>${gradeTabs()}<p class="small muted" style="margin:6px 0 12px;max-width:75ch">${esc(t('scopeHelp'))}</p>
   <div class="form-row" style="max-width:280px;margin-bottom:12px"><label for="curT">${esc(t('curTermL'))}</label><select id="curT"><option value="">${esc(t('auto'))} (${esc(t('term'))} ${autoTerm()})</option>${[1, 2, 3, 4].map(n => `<option value="${n}" ${+S.settings.currentTerm === n ? 'selected' : ''}>${esc(t('term'))} ${n}</option>`).join('')}</select></div>
   <div class="stack" style="gap:10px">${subjects.map(s => { const sc = scopeOf(s), set = new Set(sc.topics); return `<div class="scoperow" data-sid="${s.id}"><div class="row" style="justify-content:space-between;gap:8px"><b>${s.icon} ${esc(tx(s.short))}</b><input type="date" data-date value="${esc(sc.date)}" aria-label="${esc(t('exam1'))} ${esc(tx(s.short))}"></div>
     <details><summary><span class="chip ${sc.provisional ? '' : 'good'}" data-cnt>${sc.topics.length} ${esc(t('topics'))}${sc.provisional ? ' · ' + esc(t('provisional')) : ''}</span> ${esc(t('pickTopics'))}</summary>
@@ -2015,15 +2118,16 @@ function wireScopeEditor(root) {
     row.querySelectorAll('[data-tid]').forEach(c => c.onchange = upd);
     row.querySelectorAll('[data-q]').forEach(b => b.onclick = () => { const terms = b.dataset.q.split('').map(Number); row.querySelectorAll('[data-tid]').forEach(c => { c.checked = terms.includes(+c.dataset.term); }); upd(); });
   });
+  root.querySelectorAll('[data-sg]').forEach(b => b.onclick = () => { S.scopeGrade = +b.dataset.sg; render(); });
   $('#saveScope', root).onclick = async () => {
-    const ex = Object.assign({}, S.settings.exams || {});
+    const ex = Object.assign({}, examsFor(scopeGrade()));
     root.querySelectorAll('.scoperow').forEach(row => {
       const sid = row.dataset.sid, cur = Object.assign({}, ex[sid] || {});
       cur.date = row.querySelector('[data-date]').value || ''; cur.note = row.querySelector('[data-note]').value.trim();
       if (row.dataset.touched) cur.topics = [...row.querySelectorAll('[data-tid]:checked')].map(c => c.dataset.tid);
       ex[sid] = cur;
     });
-    S.settings.exams = ex; const ct = $('#curT', root).value; S.settings.currentTerm = ct ? +ct : null;
+    setExamsFor(scopeGrade(), ex); const ct = $('#curT', root).value; S.settings.currentTerm = ct ? +ct : null;
     await S.store.saveSettings(S.settings); toast(t('saved')); render();
   };
 }
@@ -2595,11 +2699,21 @@ Object.assign(UI.en, {
 });
 const tf = (k, o) => String(t(k)).replace(/\{(\w+)\}/g, (m, x) => (o && o[x] !== undefined ? o[x] : m));
 const tfa = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, x) => (o && o[x] !== undefined ? o[x] : m));
-const FAMILY = KIDS.map(k => ({ id: k.id, avatar: k.avatar, kid: true })).concat([{ id: 'pa', avatar: '👨' }, { id: 'ma', avatar: '👩' }]);
-const isFam = (id) => FAMILY.some(f => f.id === id);
-function famName(id, lang) { const k = KIDS.find(x => x.id === id); if (k) return k.name; const f = UI[lang || L].fam; return (f && f[id]) || id; }
-const famAv = (id) => (FAMILY.find(f => f.id === id) || {}).avatar || '🙂';
-function parentMe() { try { const v = localStorage.getItem('lh.parentMe'); return v === 'pa' || v === 'ma' ? v : null; } catch (e) { return null; } }
+const FAMILY = KIDS.map(k => ({ id: k.id, avatar: k.avatar, kid: true })).concat(PARENTS.map(p => ({ id: p.id, avatar: p.avatar })));
+function rebuildFamily() { FAMILY.splice(0, FAMILY.length, ...KIDS.map(k => ({ id: k.id, avatar: k.avatar, kid: true })), ...PARENTS.map(p => ({ id: p.id, avatar: p.avatar }))); }
+/* v10: games and the circle chat include the other households of the family circle */
+const SOCIAL_ALL = () => FAMILY.concat(CIRCLE.map(c => ({ id: c.id, avatar: c.avatar, kid: c.kid, hid: c.hid })));
+const isFam = (id) => FAMILY.some(f => f.id === id) || CIRCLE.some(c => c.id === id);
+const isKidAny = (id) => KIDS.some(k => k.id === id) || CIRCLE.some(c => c.id === id && c.kid);
+function famName(id, lang) {
+  const k = KIDS.find(x => x.id === id); if (k) return k.name;
+  const c = CIRCLE.find(x => x.id === id); if (c) return c.name;
+  const p = PARENTS.find(x => x.id === id), f = UI[lang || L].fam;
+  if (p && !HOUSE.legacy) return p.name;
+  return (f && f[id]) || (p && p.name) || id;
+}
+const famAv = (id) => (FAMILY.find(f => f.id === id) || CIRCLE.find(c => c.id === id) || {}).avatar || '🙂';
+function parentMe() { try { const v = localStorage.getItem('lh.parentMe'); return PARENTS.some(p => p.id === v) ? v : null; } catch (e) { return null; } }
 function setParentMe(v) { try { localStorage.setItem('lh.parentMe', v); } catch (e) {} }
 function setAsParent(on) { S.asParent = !!on; try { if (on) sessionStorage.setItem('lh.asParent', '1'); else sessionStorage.removeItem('lh.asParent'); } catch (e) {} }
 try { if (sessionStorage.getItem('lh.asParent') === '1') S.asParent = true; } catch (e) {}
@@ -3080,7 +3194,7 @@ QG.snakes = {
 
 /* ---------- storage of games ---------- */
 const locKey = (pid) => 'lh.chess.loc.' + pid;
-async function chessList(lim) { if (!online()) return []; const rows = await S.store.loadPrefix('chess/g/', lim || 12); return (rows || []).map(r => ({ id: r.key.slice(8), events: (r.value && r.value.events) || [] })); }
+async function chessList(lim) { if (!online()) return []; const rows = await S.store.loadPrefix('chess/g/', lim || (CIRCLE.length ? 40 : 12)); return (rows || []).map(r => ({ id: r.key.slice(8), events: (r.value && r.value.events) || [] })); }
 async function chessFetch(id) { const v = await S.store.get('chess/g/' + id); return (v && v.events) || null; }
 async function chessAppend(id, ev) { await S.store.rpc('lh_log', { k: 'chess/g/' + id, ev }); }
 function chessSetup() { const d = { game: 'chess', mode: 'app', lvl: 'easy', color: 'w', opp: null, popp: null, friend: '', subj: null, secs: 30 }; const v = Object.assign(d, lsGet('lh.chess.setup', {})); if (!QG[v.game]) v.game = 'chess'; return v; }
@@ -3137,7 +3251,7 @@ function socialBanInner() {
 /* ---------- lobby ---------- */
 async function renderChessLobby(main) {
   const who = me(), su = chessSetup();
-  const famOpp = FAMILY.filter(f => f.id !== who.id);
+  const famOpp = SOCIAL_ALL().filter(f => f.id !== who.id);
   if (!su.opp || su.opp === who.id || !isFam(su.opp)) su.opp = famOpp[0].id;
   if (!su.popp || su.popp === who.id) su.popp = famOpp[0].id;
   if (!su.subj) su.subj = who.kid ? gameSubj() : 'all';
@@ -3175,7 +3289,7 @@ async function renderChessLobby(main) {
     let h = '';
     if (su.mode === 'app') h = `<div class="label" style="margin:14px 0 6px">${esc(G.luck ? t('qgAppSmart') : t('chLevel'))}</div>${seg('lvl', su.lvl, [['easy', '🙂 ' + t('chLvl').easy], ['med', '😎 ' + t('chLvl').med], ['hard', '🔥 ' + t('chLvl').hard]])}${G.luck ? `<p class="small muted" style="margin-top:6px">${esc(t('qgAppSmartHint'))}</p>` : ''}${colorSeg()}`;
     else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}</div>${colorSeg()}`;
-    else h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOppPhone'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.popp === f.id ? 'on' : ''}" data-popp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}<button class="${su.popp === 'friend' ? 'on' : ''}" data-popp="friend"><span>🙂</span>${esc(t('chFriend'))}</button></div>
+    else h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOppPhone'))}</div><div class="whos">${famOpp.filter(f => FAMILY.some(x => x.id === f.id)).map(f => `<button class="${su.popp === f.id ? 'on' : ''}" data-popp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}<button class="${su.popp === 'friend' ? 'on' : ''}" data-popp="friend"><span>🙂</span>${esc(t('chFriend'))}</button></div>
       ${su.popp === 'friend' ? `<input id="chFriendIn" maxlength="20" placeholder="${esc(t('chFriendName'))}" value="${esc(su.friend || '')}" style="margin-top:8px;width:100%">` : ''}${colorSeg()}`;
     $('#chOpts').innerHTML = h;
     $('#chGo').textContent = su.mode === 'fam' ? t('chInvite') : `${GICON[su.game]} ${t('chStart')}`;
@@ -3202,8 +3316,8 @@ async function renderChessLobby(main) {
       $('#chGo').disabled = true;
       try { await chessAppend(id, ev); } catch (e) { toast(t('chSendFail')); $('#chGo').disabled = false; return; }
       chatSys({ sys: 'inv', a: who.id, b: opp, g: su.game });
-      pushTo([opp], { title: `${GICON[su.game]} ${famName(who.id, 'af')} daag ${KIDS.some(k => k.id === opp) ? 'jou' : famName(opp, 'af')} uit vir ${gname(su.game, 'af')}!`, body: 'Tik om te aanvaar en te speel.', url: './#skaak' });
-      toast(tf(KIDS.some(k => k.id === opp) ? 'chInvSent' : 'chInvSentP', { n: famName(opp) }));
+      pushTo([opp], { title: `${GICON[su.game]} ${famName(who.id, 'af')} daag ${isKidAny(opp) ? 'jou' : famName(opp, 'af')} uit vir ${gname(su.game, 'af')}!`, body: 'Tik om te aanvaar en te speel.', url: './#skaak' });
+      toast(tf(isKidAny(opp) ? 'chInvSent' : 'chInvSentP', { n: famName(opp) }));
       go('skaak-' + id);
       return;
     }
@@ -3280,7 +3394,7 @@ async function renderQGame(main, gid) {
   if (!R0) return go('skaak');
   const G = R0.G, cfg = R0.cfg, kind = cfg.kind;
   const C = S.chess = { gid, local: gid === 'l', events: events.slice(), R: R0, busy: false, pending: 0, flip: false, dead: false, qi: 0, combo: 0, life: lsGet('lh.chess.life.' + cfg.id, {}), anim: null, pend: null };
-  C.pool = shuffle(quickPool(cfg.subj));
+  C.pool = shuffle(quickPool(cfg.subj)); if (C.pool.length < 4) C.pool = shuffle(quickPool('all'));
   const myColor = kind === 'phone' ? null : R0.colorOf(who.id);
   const spectator = kind === 'online' && !myColor;
   const controls = (id) => kind === 'phone' ? id !== 'app' : id === who.id;
@@ -3532,8 +3646,13 @@ async function renderQGame(main, gid) {
 }
 
 /* ---------- family chat ---------- */
-async function chatLoad(days) { const rows = await S.store.loadPrefix('chat/fam/d/', days || 7); return rows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, b) => a.at - b.at); }
-function chatPost(ev) { return S.store.rpc('lh_log', { k: 'chat/fam/d/' + today(), ev }); }
+async function chatLoad(days) { const rows = await S.store.loadPrefix(chatPrefix(), days || 7); return rows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, b) => a.at - b.at); }
+function chatPost(ev) { return S.store.rpc('lh_log', { k: chatPrefix() + today(), ev }); }
+let CHAT_SCOPE = 'fam';
+const chatKring = () => CHAT_SCOPE === 'kring' && CIRCLE.length > 0;
+const chatPrefix = () => chatKring() ? 'kring/chat/d/' : 'chat/fam/d/';
+const chatMembers = () => chatKring() ? SOCIAL_ALL() : FAMILY;
+const chatTabs = () => CIRCLE.length ? `<div class="row chipsel" style="gap:6px;margin-bottom:8px"><button type="button" class="chip ${chatKring() ? '' : 'on'}" data-cs="fam">🏠 ${esc(t('chatFam'))}</button><button type="button" class="chip ${chatKring() ? 'on' : ''}" data-cs="kring">👨‍👩‍👧‍👦 ${esc(t('chatKring'))}</button></div>` : '';
 function chatSys(o) { if (!online()) return; const who = me(); chatPost(Object.assign({ id: rid(), by: who ? who.id : 'sys', at: Date.now() }, o)).catch(() => {}); }
 const seenKey = () => { const w = me(); return 'lh.chatSeen.' + (w ? w.id : 'x'); };
 function chatMsgHtml(m, myId, prev) {
@@ -3550,7 +3669,7 @@ function chatMsgHtml(m, myId, prev) {
 }
 function chatUI(root, compact) {
   const who = me();
-  root.innerHTML = `<div class="chat ${compact ? 'compact' : ''}"><div class="cmembers">${FAMILY.map(f => `<span class="${f.id === who.id ? 'me' : ''}" title="${esc(famName(f.id))}">${f.avatar}<small>${esc(famName(f.id))}</small></span>`).join('')}</div>
+  root.innerHTML = `${chatTabs()}<div class="chat ${compact ? 'compact' : ''}"><div class="cmembers">${chatMembers().map(f => `<span class="${f.id === who.id ? 'me' : ''}" title="${esc(famName(f.id))}">${f.avatar}<small>${esc(famName(f.id))}</small></span>`).join('')}</div>
     <div class="clist" id="cList" aria-live="polite"><p class="muted center small" style="margin-top:20px">…</p></div>
     <div class="cquick">${t('chatQuick').map(q => `<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
     <form class="cform" id="cForm"><input id="cIn" maxlength="300" autocomplete="off" placeholder="${esc(t('chatPh'))}" aria-label="${esc(t('chatPh'))}"><button class="btn primary" type="submit">${esc(t('chatSend'))}</button></form></div>`;
@@ -3562,7 +3681,7 @@ function chatUI(root, compact) {
     const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
     list.innerHTML = msgs.length ? msgs.map((m, i) => chatMsgHtml(m, who.id, msgs[i - 1])).join('') : `<p class="muted center small" style="margin-top:20px">${esc(t('chatEmpty'))}</p>`;
     if (atBottom || !draw.once) list.scrollTop = list.scrollHeight; draw.once = true;
-    if (msgs.length) lsSet(seenKey(), msgs[msgs.length - 1].at);
+    if (msgs.length) lsSet(seenKey() + (chatKring() ? '.k' : ''), msgs[msgs.length - 1].at);
     S.badges = Object.assign(S.badges || {}, { chat: 0 }); updateSocialUi();
   };
   const load = async () => { try { const m = await chatLoad(7); msgs = m; draw(); } catch (e) {} };
@@ -3572,8 +3691,9 @@ function chatUI(root, compact) {
     msgs.push(Object.assign({ pending: true }, ev)); draw(); sfx('tap');
     try { await chatPost(ev); } catch (e) { msgs = msgs.filter(x => x.id !== ev.id); lastSig = ''; draw(); toast(t('chSendFail')); return; }
     // everyone else in the family gets it on their phone (the boys too, if their notifications are on)
-    pushTo(FAMILY.map(f => f.id).filter(id => id !== who.id), { title: `💬 ${who.name} in die familie-klets`, body: txt, url: './#klets' });
+    pushTo(chatMembers().map(f => f.id).filter(id => id !== who.id), { title: `💬 ${who.name} in die ${chatKring() ? 'familiekring' : 'familie'}-klets`, body: txt, url: './#klets' });
   };
+  root.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => { CHAT_SCOPE = b.dataset.cs; render(); });
   $('#cForm', root).onsubmit = (e) => { e.preventDefault(); const inp = $('#cIn', root); const v = inp.value; inp.value = ''; send(v); };
   root.querySelectorAll('[data-q]').forEach(b => b.onclick = () => send(b.dataset.q));
   load();
@@ -3581,8 +3701,9 @@ function chatUI(root, compact) {
 }
 function renderChat(main) {
   const who = me();
+  if (!CIRCLE.length) refreshCircle(true);
   if (!online()) { main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="card pad-lg center"><div style="font-size:48px">💬</div><p class="muted">${esc(t('chOnlineOnly'))}</p></div>`; wireBack(main); return; }
-  main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="row" style="justify-content:space-between"><h1>💬 ${esc(t('chatT'))}</h1><button class="btn sm" data-go="skaak">♟️ ${esc(t('chessT'))}</button></div><p class="small muted chatsub" style="margin:4px 0 10px">🔒 ${esc(t('chatSub'))}</p><div id="chatRoot" style="margin-top:8px"></div>`;
+  main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="row" style="justify-content:space-between"><h1>💬 ${esc(t('chatT'))}</h1><button class="btn sm" data-go="skaak">♟️ ${esc(t('chessT'))}</button></div><p class="small muted chatsub" style="margin:4px 0 10px">🔒 ${esc(chatKring() ? t('chatSubK') : t('chatSub'))}</p><div id="chatRoot" style="margin-top:8px"></div>`;
   wireBack(main);
   const c = chatUI($('#chatRoot'));
   // size the message list so the input stays above the bottom bar on every phone
@@ -3639,8 +3760,17 @@ function ping(msg, route) {
   document.body.appendChild(el); sfx('gift');
   setTimeout(() => { if (el.isConnected) el.classList.add('out'); }, 7000); setTimeout(() => el.remove(), 7600);
 }
+async function refreshCircle(force) {
+  if (!online() || !S.houseMe || (!force && Date.now() - (S._circleAt || 0) < 60000)) return;
+  S._circleAt = Date.now();
+  try {
+    const c = (await S.store.rpc('lh_circle')) || [], sig = JSON.stringify(c);
+    if (sig !== S._circleSig) { S._circleSig = sig; S.houseCircle = c; applyHousehold(S.houseMe, S.houseProf, c); updateSocialUi(); if (S.route && ['chat', 'chess'].includes(S.route.s)) render(); }
+  } catch (e) {}
+}
 async function socialTick() {
   if (!online() || !me() || document.hidden) return;
+  refreshCircle();
   try {
     const [games, chatRows] = await Promise.all([chessList(), S.store.loadPrefix('chat/fam/d/', 2)]);
     const chat = chatRows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, z) => a.at - z.at);
@@ -3658,7 +3788,7 @@ function socialInit() {
 function socialParentCard() {
   const p = parentMe();
   return `<div class="card" style="margin-top:14px" id="socialCard"><h3>${esc(t('chParentT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chParentSub'))}</p>
-    <div class="row" style="gap:8px"><span class="small"><b>${esc(t('chIAmL'))}</b></span><div class="seg">${['pa', 'ma'].map(x => `<button class="${p === x ? 'on' : ''}" data-pme="${x}">${famAv(x)} ${esc(famName(x))}</button>`).join('')}</div></div>
+    <div class="row" style="gap:8px"><span class="small"><b>${esc(t('chIAmL'))}</b></span><div class="seg">${PARENTS.map(p => p.id).map(x => `<button class="${p === x ? 'on' : ''}" data-pme="${x}">${famAv(x)} ${esc(famName(x))}</button>`).join('')}</div></div>
     <div class="row" style="margin-top:12px"><button class="btn subject" id="pChess" ${p ? '' : 'disabled'}>${esc(t('chPlay'))}</button><button class="btn" id="pChat" ${p && online() ? '' : 'disabled'}>${esc(t('chChat'))}</button></div></div>`;
 }
 function wireSocialParent(root) {
@@ -3720,8 +3850,8 @@ const REMIND_DEFAULT = { on: true, study: '15:30', weekend: '10:00', evening: '1
 const remindCfg = () => Object.assign({}, REMIND_DEFAULT, (S.settings || {}).remind || {});
 function schedItems(kidId) {
   const st = S.settings || {}, td = today(), rc = remindCfg(), out = [];
-  (st.tests || []).forEach(x => { if (!x || !x.date || !(x.kid === 'both' || x.kid === kidId)) return; const s = S.content.subjects[x.subj]; out.push({ kind: 'test', s, subj: x.subj, date: x.date, title: x.title || '', topics: x.topics || [], id: x.id }); });
-  subjectsOfGrade(7).forEach(s => { const e = (st.exams || {})[s.id]; if (e && e.date) out.push({ kind: 'exam', s, subj: s.id, date: e.date, title: e.note || '', topics: e.topics || null }); });
+  (st.tests || []).forEach(x => { if (!x || !x.date || !(x.kid === 'both' || x.kid === kidId)) return; const s = subjById(x.subj); out.push({ kind: 'test', s, subj: x.subj, date: x.date, title: x.title || '', topics: x.topics || [], id: x.id }); });
+  subjectsOfGrade(kidGrade(kidId)).forEach(s => { const e = examsFor(s.grade)[s.id]; if (e && e.date) out.push({ kind: 'exam', s, subj: s.id, date: e.date, title: e.note || '', topics: e.topics || null }); });
   return out.map(x => Object.assign(x, { days: daysBetween(td, x.date), lead: x.kind === 'test' ? rc.testDays : rc.examDays }))
     .filter(x => x.days >= 0).sort((a, b) => a.days - b.days || (a.kind === 'test' ? -1 : 1));
 }
@@ -3755,7 +3885,7 @@ function testsEditor(subjects) {
       <label><span class="small">${esc(t('teDate'))}</span><input type="date" id="teDate" min="${td}" required></label>
       <label class="wide"><span class="small">${esc(t('teWhat'))}</span><input id="teWhat" maxlength="60"></label>
       <button class="btn primary" type="submit">${esc(t('teAdd'))}</button></form>
-    <div class="telist">${list.length ? list.map(x => { const s = S.content.subjects[x.subj]; const d = daysBetween(td, x.date); return `<div class="terow"><span><b>${esc(fmtDate(x.date))}</b> · ${s ? s.icon + ' ' + esc(tx(s.short)) : esc(x.subj)}${x.title ? ' – ' + esc(x.title) : ''} <span class="small muted">· ${x.kid === 'both' ? esc(t('teBoth')) : esc(famName(x.kid))}${d >= 0 ? ' · ' + esc(tf('roIn', { n: d })) : ''}</span></span><button class="btn sm ghost" data-tdel="${esc(x.id)}" aria-label="${esc(t('teDel'))}">✕</button></div>`; }).join('') : `<p class="small muted">${esc(t('teNone'))}</p>`}</div>
+    <div class="telist">${list.length ? list.map(x => { const s = subjById(x.subj); const d = daysBetween(td, x.date); return `<div class="terow"><span><b>${esc(fmtDate(x.date))}</b> · ${s ? s.icon + ' ' + esc(tx(s.short)) : esc(x.subj)}${x.title ? ' – ' + esc(x.title) : ''} <span class="small muted">· ${x.kid === 'both' ? esc(t('teBoth')) : esc(famName(x.kid))}${d >= 0 ? ' · ' + esc(tf('roIn', { n: d })) : ''}</span></span><button class="btn sm ghost" data-tdel="${esc(x.id)}" aria-label="${esc(t('teDel'))}">✕</button></div>`; }).join('') : `<p class="small muted">${esc(t('teNone'))}</p>`}</div>
     <h3 style="margin-top:16px">${esc(t('reT'))}</h3>
     <form id="reForm" class="reform"><label class="ck"><input type="checkbox" id="reOn" ${rc.on ? 'checked' : ''}> <span>${esc(t('reOn'))}</span></label>
       <div class="regrid"><label><span class="small">${esc(t('reStudy'))}</span><input type="time" id="reStudy" value="${esc(rc.study)}"></label><label><span class="small">${esc(t('reWeekend'))}</span><input type="time" id="reWeekend" value="${esc(rc.weekend)}"></label><label><span class="small">${esc(t('reEvening'))}</span><input type="time" id="reEvening" value="${esc(rc.evening)}"></label><label><span class="small">${esc(t('reMorning'))}</span><input type="time" id="reMorning" value="${esc(rc.morning)}"></label>
@@ -3781,6 +3911,229 @@ function wireTestsEditor(root, subjects) {
   };
 }
 
+
+/* ------------------------------------------------------------------ v10: self-setup link #s=CODE + invites */
+const AV_KIDS = ['🦁', '🐆', '🐯', '🐻', '🐼', '🦊', '🐺', '🦅', '🐬', '🦄', '🐸', '🐵', '🐨', '🦉', '🐙', '🐝', '🦋', '🐢'];
+const AV_PAR = ['👨', '👩', '🧔', '👱‍♀️', '👴', '👵', '🧑', '👱'];
+const ROUTE_WORDS = ['ouer', 'parent', 'home', 'tuis', 'vakke', 'kentekens', 'hulpbronne', 'profiel', 'eksamens', 'foute', 'speel', 'uitdaging', 'woordeboek', 'afrigter', 'skaak', 'vraagspel', 'rooster', 'klets'];
+function slugId(s) { const x = String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '').slice(0, 12); return x.length >= 2 ? x : (x + 'kind').slice(0, 6); }
+function uniqId(base, taken) { let id = base, n = 2; while (taken.has(id)) id = base + (n++); taken.add(id); return id; }
+function setupGradeNote() { const gs = (S.content && S.content.grades) || []; return gs.map(g => `${t('chooseGrade')} ${g.grade}${g.subjects.length < 5 ? ' (' + g.subjects.map(s => s.name ? tx(s.name) : s.id).join(', ') + ')' : ''}`).join(' · '); }
+function renderSetup(main, code) {
+  if (S.setupDone) return renderSetupDone(main, S.setupDone);
+  const st = S.setupState || (S.setupState = { house: '', parents: [{ name: 'Pa', circle: '', av: '👨' }, { name: 'Ma', circle: '', av: '👩' }], kids: [{ name: '', av: '🦁', role: 'learner', grade: 8, school: '' }] });
+  const gopts = (sel) => Array.from({ length: 12 }, (_, i) => i + 1).map(g => `<option value="${g}" ${+sel === g ? 'selected' : ''}>${g}</option>`).join('');
+  const avSel = (list, cur, attr) => `<select ${attr} aria-label="Avatar" style="font-size:20px">${list.map(a => `<option ${a === cur ? 'selected' : ''}>${a}</option>`).join('')}</select>`;
+  main.innerHTML = `<div class="card pad-lg" style="max-width:720px;margin:12px auto;text-align:left"><div style="text-align:center">${mascot()}</div><h1 style="margin-top:8px">👋 ${esc(t('setupT'))}</h1><p class="small muted" style="margin:6px 0 14px">${esc(t('setupSub'))}</p>
+  <form id="setupF" class="stack" style="gap:14px" autocomplete="off">
+    <div class="form-row"><label for="suHouse">${esc(t('setupHouse'))}</label><input id="suHouse" maxlength="60" placeholder="${esc(t('setupHouseP'))}" value="${esc(st.house)}"></div>
+    <h3>${esc(t('setupParents'))}</h3>
+    ${st.parents.map((p, i) => `<div class="card" style="padding:12px"><div class="small muted" style="margin-bottom:6px">${esc(i ? t('setupParent2') : t('setupParent1'))}</div><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_PAR, p.av, `data-pav="${i}"`)}<input data-pnm="${i}" maxlength="24" placeholder="${esc(t('setupParentNmP'))}" value="${esc(p.name)}" aria-label="${esc(t('setupParentNm'))}" style="flex:1;min-width:110px"><input data-pci="${i}" maxlength="30" placeholder="${esc(t('setupParentCircP'))}" value="${esc(p.circle)}" aria-label="${esc(t('setupParentCirc'))}" style="flex:1;min-width:140px"></div><div class="small muted" style="margin-top:4px">${esc(t('setupParentHelp'))}</div></div>`).join('')}
+    <h3>${esc(t('setupKids'))}</h3>
+    ${st.kids.map((k, i) => `<div class="card" style="padding:12px"><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_KIDS, k.av, `data-kav="${i}"`)}<input data-knm="${i}" maxlength="24" placeholder="${esc(t('setupKidNm'))}" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:110px"><select data-krole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><label class="small">${esc(k.role === 'player' ? t('setupLevel') : t('setupGrade'))} <select data-kgr="${i}">${gopts(k.grade)}</select></label>${k.role === 'player' ? '' : `<input data-ksc="${i}" maxlength="50" placeholder="${esc(t('setupSchool'))}" value="${esc(k.school)}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:160px">`}${st.kids.length > 1 ? `<button type="button" class="btn sm ghost" data-kdel="${i}">✕ ${esc(t('setupDel'))}</button>` : ''}</div></div>`).join('')}
+    <div><button type="button" class="btn sm" id="suAdd">${esc(t('setupAddKid'))}</button></div>
+    <p class="small muted">${esc(tf('setupGradeNote', { g: setupGradeNote() }))}</p>
+    <h3>🔐 ${esc(t('setupPin'))}</h3><p class="small muted" style="margin-top:-8px">${esc(t('setupPinHint'))}</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><input id="suPin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" aria-label="${esc(t('setupPin'))}"><input id="suPin2" type="password" inputmode="numeric" maxlength="6" placeholder="${esc(t('setupPin2'))}" aria-label="${esc(t('setupPin2'))}"></div>
+    <div id="suErr" class="small" style="color:var(--bad);min-height:18px"></div>
+    <button class="btn primary block" type="submit" id="suGo">${esc(t('setupGo'))}</button>
+  </form></div>`;
+  const F = $('#setupF');
+  const grab = () => {
+    st.house = $('#suHouse').value;
+    st.parents.forEach((p, i) => { p.name = F.querySelector(`[data-pnm="${i}"]`).value; p.circle = F.querySelector(`[data-pci="${i}"]`).value; p.av = F.querySelector(`[data-pav="${i}"]`).value; });
+    st.kids.forEach((k, i) => { k.name = F.querySelector(`[data-knm="${i}"]`).value; k.av = F.querySelector(`[data-kav="${i}"]`).value; k.role = F.querySelector(`[data-krole="${i}"]`).value; k.grade = +F.querySelector(`[data-kgr="${i}"]`).value; const sc = F.querySelector(`[data-ksc="${i}"]`); if (sc) k.school = sc.value; });
+  };
+  F.querySelectorAll('[data-krole]').forEach(s => s.onchange = () => { grab(); renderSetup(main, code); });
+  $('#suAdd').onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ name: '', av: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '' }); renderSetup(main, code); };
+  F.querySelectorAll('[data-kdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.kdel, 1); renderSetup(main, code); });
+  F.onsubmit = async (e) => {
+    e.preventDefault(); grab(); const err = (k) => { $('#suErr').textContent = t(k); };
+    const parents = st.parents.filter(p => p.name.trim()), kids = st.kids.filter(k => k.name.trim());
+    if (!st.house.trim() || !parents.length) return err('setupErrName');
+    if (!kids.length) return err('setupErrKid');
+    const pin = $('#suPin').value.trim(); if (!/^\d{4,6}$/.test(pin) || pin !== $('#suPin2').value.trim()) return err('setupErrPin');
+    const btn = $('#suGo'); btn.disabled = true; btn.textContent = t('setupBusy');
+    try { S.setupDone = await doSetup(code, st.house.trim(), parents, kids, pin); S.setupState = null; renderSetup(main, code); }
+    catch (ex) { btn.disabled = false; btn.textContent = t('setupGo'); err(ex && ex.message === 'invite' ? 'setupErrInv' : 'setupErrNet'); }
+  };
+}
+async function doSetup(code, house, parents, kids, pin) {
+  const cfg = window.LH_CONFIG; if (!cfg || !cfg.supabaseUrl) throw new Error('net');
+  const h = { apikey: cfg.supabaseKey, 'Content-Type': 'application/json' }; if (/^eyJ/.test(cfg.supabaseKey)) h.Authorization = 'Bearer ' + cfg.supabaseKey;
+  const r = await fetch(cfg.supabaseUrl.replace(/\/$/, '') + '/rest/v1/rpc/lh_setup', { method: 'POST', headers: h, body: JSON.stringify({ code, hname: house }) });
+  if (!r.ok) { const txt = await r.text().catch(() => ''); throw new Error(/invite invalid/.test(txt) ? 'invite' : 'net'); }
+  const key = JSON.parse(await r.text());
+  const st = new SupaStore(cfg.supabaseUrl, cfg.supabaseKey, key);
+  const taken = new Set(ROUTE_WORDS.concat(['pa', 'ma', 'diaan', 'stefan']));
+  try { ((await st.rpc('lh_circle')) || []).forEach(hh => { const p = hh.profile || {}; (p.kids || []).concat(p.parents || []).forEach(m => taken.add(m.id)); }); } catch (e) {}
+  const prof = { v: 1, name: house,
+    kids: kids.map(k => ({ id: uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.av, role: k.role === 'player' ? 'player' : 'learner', grade: +k.grade || 8, school: k.role === 'player' ? '' : String(k.school || '').trim().slice(0, 50) })),
+    parents: parents.map(p => ({ id: uniqId('p' + slugId(p.circle || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circle || p.name).trim().slice(0, 30), avatar: p.av })) };
+  await st.put('household/profile', prof);
+  await st.put('settings/main', { pinHash: await sha(pin), examDate: null, examTitle: '', currentTerm: null });
+  try { localStorage.setItem('lh.fk', key); localStorage.setItem('lh.lock', 'ouer'); localStorage.removeItem('lh.kid'); } catch (e) {}
+  return { key, prof };
+}
+function renderSetupDone(main, d) {
+  const base = location.origin + location.pathname, link = (route) => `${base}#k=${d.key}~${route}`;
+  const row = (av, nm, route, who) => { const u = link(route); return `<div class="card" style="padding:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${av} ${esc(nm)}</b><span class="row" style="gap:6px"><button class="btn sm" data-copy="${esc(u)}">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('setupWaMsg', { n: who, u }))}">💬 WhatsApp</a></span></div><div class="small muted" style="word-break:break-all;margin-top:6px">${esc(u)}</div></div>`; };
+  main.innerHTML = `<div class="card pad-lg" style="max-width:720px;margin:12px auto;text-align:left"><h1>🎉 ${esc(t('setupDoneT'))}</h1><p class="small muted" style="margin:6px 0 14px">${esc(t('setupDoneSub'))}</p>
+    <div class="stack" style="gap:10px" id="suLinks">${d.prof.kids.map(k => row(k.avatar, k.name, k.id, k.name)).join('')}
+    ${row(d.prof.parents.map(p => p.avatar).join(''), t('setupParentsLink'), 'ouer', d.prof.parents.map(p => p.name).join(' & '))}</div>
+    <p class="small" style="margin-top:14px"><b>${esc(t('setupKeep'))}</b></p>
+    <button class="btn primary block" id="suOpen" style="margin-top:10px">${esc(t('setupOpenMine'))}</button></div>`;
+  main.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => { if (await copyText(b.dataset.copy)) toast(t('copied')); });
+  $('#suOpen').onclick = () => { location.href = base + '?k=' + d.key + '#ouer'; };
+}
+/* owner household: invite a family + usage totals of the circle */
+function circleCard() {
+  if (!online() || !HOUSE.owner) return '';
+  return `<div class="card" style="margin-top:14px" id="circleCard"><h3>${esc(t('invT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('invSub'))}</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><input id="invLabel" maxlength="40" placeholder="${esc(t('invLabelP'))}" style="flex:1;min-width:160px"><button class="btn primary" id="invMake">${esc(t('invMake'))}</button></div>
+    <div id="invOut" style="margin-top:10px"></div>
+    <details style="margin-top:10px"><summary class="small">${esc(t('invList'))}</summary><div id="invList" class="small" style="margin-top:6px">…</div></details>
+    ${(S.houseCircle || []).filter(x => !x.me).length ? `<h3 style="margin-top:16px">${esc(t('kringHouses'))}</h3><div class="stack" style="gap:6px;margin-top:6px">${(S.houseCircle || []).filter(x => !x.me).map(x => `<div class="row" style="justify-content:space-between;gap:8px"><span class="small">🏠 ${esc(x.name || '—')} <span class="muted">· ${((x.profile || {}).kids || []).map(k => esc(k.avatar || '') + ' ' + esc(k.name)).join(', ')}</span></span><button type="button" class="btn sm ghost" data-kick="${esc(x.hid)}">${esc(t('kringKick'))}</button></div>`).join('')}</div>` : ''}
+    <h3 style="margin-top:16px">${esc(t('kringT'))}</h3><p class="small muted" style="margin:4px 0 8px">${esc(t('kringSub'))}</p><div id="kringUse" class="small">…</div></div>`;
+}
+function wireCircleCard(root) {
+  const card = $('#circleCard', root); if (!card) return;
+  const base = location.origin + location.pathname;
+  const loadInv = async () => { const box = $('#invList', card); try { const l = (await S.store.rpc('lh_invites')) || []; box.innerHTML = l.length ? l.map(x => `<div>• ${esc(x.label || '—')} – ${x.used ? esc(tf('invUsed', { n: x.by || '?' })) : new Date(x.expires) < new Date() ? esc(t('invExpired')) : esc(tf('invOpen', { d: fmtDate(String(x.expires).slice(0, 10)) }))}</div>`).join('') : '<span class="muted">—</span>'; } catch (e) { box.textContent = '—'; } };
+  $('#invMake', card).onclick = async () => {
+    const lb = $('#invLabel', card).value.trim();
+    try {
+      const code = await S.store.rpc('lh_invite', { label: lb }), u = `${base}#s=${code}`;
+      $('#invOut', card).innerHTML = `<div class="card" style="padding:12px"><div class="small" style="word-break:break-all" id="invUrl">${esc(u)}</div><div class="row" style="gap:6px;margin-top:8px"><button class="btn sm" id="invCopy">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('invMsg', { u }))}">💬 WhatsApp</a></div></div>`;
+      $('#invCopy', card).onclick = async () => { if (await copyText(u)) toast(t('copied')); };
+      $('#invLabel', card).value = ''; loadInv();
+    } catch (e) { toast(t('setupErrNet')); }
+  };
+  loadInv();
+  card.querySelectorAll('[data-kick]').forEach(b => b.onclick = async () => {
+    if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = t('kringKickSure'); return; }
+    try { await S.store.rpc('lh_kick', { hid: b.dataset.kick }); await loadHousehold(); toast(t('kringKicked')); render(); } catch (e) { toast(t('setupErrNet')); }
+  });
+  (async () => {
+    const box = $('#kringUse', card);
+    try {
+      const rows = (await S.store.rpc('lh_circle_usage')) || []; const cols = t('kringCols');
+      box.innerHTML = rows.length ? `<div class="tbl"><table class="marks"><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${rows.map(r => { const tt = r.totals || {}; return `<tr><td>${esc(r.avatar || '🙂')} ${esc(r.name || '')} <span class="muted">(${esc(r.house || '')})</span></td><td class="num">${r.role === 'player' ? '🎲' : esc(String(r.grade || ''))}</td><td class="num">${+r.xp || 0}</td><td class="num">${+tt.quizzes || 0}</td><td class="num">${Math.round((+tt.secs || 0) / 60)}</td><td>${r.updated ? esc(fmtDay(new Date(+r.updated).toISOString().slice(0, 10))) : '—'}</td></tr>`; }).join('')}</table></div>` : `<span class="muted">${esc(t('kringNone'))}</span>`;
+    } catch (e) { box.textContent = '—'; }
+  })();
+}
+Object.assign(UI.af, {
+  setupT: 'Welkom by Leerhoek', setupSub: 'Stel julle gesin op – dit vat 2 minute. Net julle sien julle kinders se vordering. Die speletjies en die familiekring-klets deel julle met die res van die familie.',
+  setupHouse: 'Gesinsnaam', setupHouseP: 'bv. Johan en Marietjie', setupParents: '👪 Ouers', setupParent1: 'Ouer 1', setupParent2: 'Ouer 2 (opsioneel – maak leeg as daar net een is)',
+  setupParentNm: 'Naam vir jou kinders', setupParentNmP: 'Vir jou kinders, bv. Pa', setupParentCirc: 'Naam vir die res van die familie', setupParentCircP: 'Vir die familie, bv. Oom Johan',
+  setupParentHelp: 'Jou kinders sien die eerste naam; die neefs en niggies sien die tweede.',
+  setupKids: '🧒 Kinders', setupKidNm: 'Naam', setupKidRole: 'Gebruik', setupLearner: '📚 Leer + speel', setupPlayer: '🎲 Net speletjies + klets', setupGrade: 'Graad', setupLevel: 'Speel op graad-vlak', setupSchool: 'Skool', setupAddKid: '＋ Nog ’n kind', setupDel: 'Verwyder',
+  setupGradeNote: 'Inhoud tans beskikbaar: {g}. Ander grade en vakke kom by soos dit gebou word.',
+  setupPin: 'Ouer-PIN (4–6 syfers)', setupPin2: 'Herhaal PIN', setupPinHint: 'Net die ouers ken dit – dit sluit die ouerblad (vordering, instellings).',
+  setupGo: 'Stoor en kry ons skakels', setupBusy: 'Besig…',
+  setupErrName: 'Vul die gesinsnaam en minstens een ouer se naam in.', setupErrKid: 'Voeg minstens een kind by (met ’n naam).', setupErrPin: 'Die PIN moet 4–6 syfers wees en twee keer dieselfde.',
+  setupErrInv: 'Hierdie uitnodiging werk nie meer nie (reeds gebruik of verval). Vra vir ’n nuwe skakel.', setupErrNet: 'Kon nie die bediener bereik nie – probeer weer.',
+  setupDoneT: 'Klaar! Hier is julle skakels', setupDoneSub: 'Stuur elke persoon sy of haar eie skakel. Maak dit op daardie persoon se foon oop en sit dit op die tuisskerm (Deel → Voeg by tuisskerm). Elke skakel koppel die foon aan net daardie persoon.',
+  setupParentsLink: 'Ouers (albei gebruik hierdie skakel)', setupCopy: 'Kopieer', setupKeep: 'Bewaar hierdie skakels – dit is julle gesin se sleutel tot Leerhoek.', setupOpenMine: 'Maak my ouerblad oop',
+  setupWaMsg: 'Hier is jou Leerhoek-skakel, {n}: {u}',
+  invT: '✉️ Nooi ’n gesin na die familiekring', invSub: 'Maak ’n eenmalige skakel (14 dae geldig). Die gesin stel self hul name, kinders, grade en PIN op. Elke gesin se vordering bly privaat; net speletjies en die familiekring-klets word gedeel.',
+  invLabelP: 'Vir wie? bv. Boet Johan', invMake: 'Maak skakel', invMsg: 'Hallo! Hier is julle skakel om Leerhoek vir julle gesin op te stel (werk een keer, 14 dae geldig): {u}',
+  invList: 'Uitnodigings', invUsed: 'opgestel deur {n}', invOpen: 'nog oop tot {d}', invExpired: 'verval',
+  kringT: '👨‍👩‍👧‍👦 Familiekring – gebruik', kringSub: 'Net totale (XP, toetse, minute, laaste aktiwiteit) – nie hul antwoorde, punte of klets nie.', kringNone: 'Nog geen ander gesinne in die kring nie.',
+  kringCols: ['Wie', 'Graad', 'XP', 'Toetse', 'Min', 'Laaste'],
+  chatFam: 'Ons gesin', chatKring: 'Familiekring', chatSubK: 'Vir almal in die familiekring – ooms, tannies, neefs en niggies.',
+});
+Object.assign(UI.en, {
+  setupT: 'Welcome to Leerhoek', setupSub: "Set up your family – it takes 2 minutes. Only you see your children's progress. The games and the family-circle chat are shared with the rest of the family.",
+  setupHouse: 'Family name', setupHouseP: 'e.g. John and Mary', setupParents: '👪 Parents', setupParent1: 'Parent 1', setupParent2: 'Parent 2 (optional – leave empty if there is only one)',
+  setupParentNm: 'Name your children use', setupParentNmP: 'For your children, e.g. Dad', setupParentCirc: 'Name for the rest of the family', setupParentCircP: 'For the family, e.g. Uncle John',
+  setupParentHelp: 'Your children see the first name; nephews and nieces see the second.',
+  setupKids: '🧒 Children', setupKidNm: 'Name', setupKidRole: 'Use', setupLearner: '📚 Learn + play', setupPlayer: '🎲 Games + chat only', setupGrade: 'Grade', setupLevel: 'Play at grade level', setupSchool: 'School', setupAddKid: '＋ Another child', setupDel: 'Remove',
+  setupGradeNote: 'Content available now: {g}. Other grades and subjects are added as they are built.',
+  setupPin: 'Parent PIN (4–6 digits)', setupPin2: 'Repeat PIN', setupPinHint: 'Only the parents know it – it locks the parent panel (progress, settings).',
+  setupGo: 'Save and get our links', setupBusy: 'Working…',
+  setupErrName: "Fill in the family name and at least one parent's name.", setupErrKid: 'Add at least one child (with a name).', setupErrPin: 'The PIN must be 4–6 digits and the same twice.',
+  setupErrInv: "This invite doesn't work any more (already used or expired). Ask for a new link.", setupErrNet: "Couldn't reach the server – try again.",
+  setupDoneT: 'Done! Here are your links', setupDoneSub: "Send each person their own link. Open it on that person's phone and add it to the home screen (Share → Add to Home Screen). Each link ties the phone to just that person.",
+  setupParentsLink: 'Parents (both use this link)', setupCopy: 'Copy', setupKeep: "Keep these links – they are your family's key to Leerhoek.", setupOpenMine: 'Open my parent panel',
+  setupWaMsg: 'Here is your Leerhoek link, {n}: {u}',
+  invT: '✉️ Invite a family to the circle', invSub: "Make a one-off link (valid for 14 days). The family sets up their own names, children, grades and PIN. Each family's progress stays private; only the games and the family-circle chat are shared.",
+  invLabelP: 'For whom? e.g. Brother John', invMake: 'Make link', invMsg: 'Hi! Here is your link to set up Leerhoek for your family (works once, valid for 14 days): {u}',
+  invList: 'Invites', invUsed: 'set up by {n}', invOpen: 'open until {d}', invExpired: 'expired',
+  kringT: '👨‍👩‍👧‍👦 Family circle – usage', kringSub: 'Totals only (XP, tests, minutes, last activity) – not their answers, marks or chat.', kringNone: 'No other families in the circle yet.',
+  kringCols: ['Who', 'Grade', 'XP', 'Tests', 'Min', 'Last'],
+  chatFam: 'Our family', chatKring: 'Family circle', chatSubK: 'For everyone in the family circle – uncles, aunts and cousins.',
+});
+
+
+/* ---------- v10: the parents edit their household (people, grades, schools) and see everyone's link ---------- */
+function houseCard() {
+  if (S.storeKind !== 'supa') return '';
+  const st = S.houseEdit || (S.houseEdit = { kids: KIDS.map(k => Object.assign({}, k)), parents: PARENTS.map(p => Object.assign({}, p)) });
+  const gopts = (sel) => Array.from({ length: 12 }, (_, i) => i + 1).map(g => `<option value="${g}" ${+sel === g ? 'selected' : ''}>${g}</option>`).join('');
+  const avSel = (list, cur, attr) => `<select ${attr} aria-label="Avatar">${(list.includes(cur) ? list : [cur].concat(list)).map(a => `<option ${a === cur ? 'selected' : ''}>${a}</option>`).join('')}</select>`;
+  const base = location.origin + location.pathname, fk = S.store.fk;
+  const linkRow = (av, nm, route) => { const u = `${base}#k=${fk}~${route}`; return `<div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="small">${av} <b>${esc(nm)}</b></span><span class="row" style="gap:6px"><button type="button" class="btn sm" data-hcopy="${esc(u)}">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('setupWaMsg', { n: nm, u }))}">💬</a></span></div>`; };
+  return `<div class="card" style="margin-top:14px" id="houseCard"><details ${S.houseOpen ? 'open' : ''}><summary><h3 style="display:inline">${esc(t('houseT'))}</h3></summary><p class="small muted" style="margin:6px 0 10px">${esc(t('houseSub'))}</p>
+    <div class="label">${esc(t('setupKids'))}</div>
+    ${st.kids.map((k, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_KIDS, k.avatar, `data-hkav="${i}"`)}<input data-hknm="${i}" maxlength="24" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:100px"><select data-hkrole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select><label class="small">${esc(t('setupGrade'))} <select data-hkgr="${i}">${gopts(k.grade)}</select></label><input data-hksc="${i}" maxlength="50" value="${esc(k.school || '')}" placeholder="${esc(t('setupSchool'))}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hkdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>`).join('')}
+    <button type="button" class="btn sm" id="hAddKid">${esc(t('houseAddKid'))}</button>
+    <div class="label" style="margin-top:12px">${esc(t('setupParents'))}</div>
+    ${st.parents.map((p, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_PAR, p.avatar, `data-hpav="${i}"`)}<input data-hpnm="${i}" maxlength="24" value="${esc(p.name)}" aria-label="${esc(t('setupParentNm'))}" placeholder="${esc(t('setupParentNmP'))}" style="flex:1;min-width:100px"><input data-hpci="${i}" maxlength="30" value="${esc(p.circleName || '')}" aria-label="${esc(t('setupParentCirc'))}" placeholder="${esc(t('setupParentCircP'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hpdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>`).join('')}
+    <button type="button" class="btn sm" id="hAddPar">${esc(t('houseAddPar'))}</button>
+    <div id="hErr" class="small" style="color:var(--bad);min-height:18px;margin-top:8px"></div>
+    <button type="button" class="btn primary" id="hSave">💾 ${esc(t('houseSave'))}</button>
+    <div class="label" style="margin-top:14px">🔗 ${esc(t('houseLinks'))}</div><p class="small muted" style="margin:2px 0 6px">${esc(t('houseLinksSub'))}</p>
+    <div class="stack" style="gap:6px">${KIDS.map(k => linkRow(k.avatar, k.name, k.id)).join('')}${linkRow(PARENTS.map(p => p.avatar).join(''), t('setupParentsLink'), 'ouer')}</div>
+  </details></div>`;
+}
+function wireHouseCard(root) {
+  const card = $('#houseCard', root); if (!card) return;
+  const st = S.houseEdit;
+  card.querySelector('details').ontoggle = (e) => { S.houseOpen = e.target.open; };
+  const grab = () => {
+    st.kids.forEach((k, i) => { k.avatar = card.querySelector(`[data-hkav="${i}"]`).value; k.name = card.querySelector(`[data-hknm="${i}"]`).value; k.role = card.querySelector(`[data-hkrole="${i}"]`).value; k.grade = +card.querySelector(`[data-hkgr="${i}"]`).value; k.school = card.querySelector(`[data-hksc="${i}"]`).value; });
+    st.parents.forEach((p, i) => { p.avatar = card.querySelector(`[data-hpav="${i}"]`).value; p.name = card.querySelector(`[data-hpnm="${i}"]`).value; p.circleName = card.querySelector(`[data-hpci="${i}"]`).value; });
+  };
+  const redraw = () => { S.houseOpen = true; card.outerHTML = houseCard(); wireHouseCard(root); };
+  card.querySelectorAll('[data-hcopy]').forEach(b => b.onclick = async () => { if (await copyText(b.dataset.hcopy)) toast(t('copied')); });
+  $('#hAddKid', card).onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ id: null, name: '', avatar: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '' }); redraw(); };
+  $('#hAddPar', card).onclick = () => { grab(); st.parents.push({ id: null, name: '', circleName: '', avatar: AV_PAR[st.parents.length % AV_PAR.length] }); redraw(); };
+  card.querySelectorAll('[data-hkdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.hkdel, 1); redraw(); });
+  card.querySelectorAll('[data-hpdel]').forEach(b => b.onclick = () => { grab(); st.parents.splice(+b.dataset.hpdel, 1); redraw(); });
+  $('#hSave', card).onclick = async () => {
+    grab();
+    const kids = st.kids.filter(k => k.name.trim()), parents = st.parents.filter(p => p.name.trim());
+    if (!kids.length || !parents.length) { $('#hErr', card).textContent = t('houseNeed'); return; }
+    const taken = new Set(ROUTE_WORDS.concat(CIRCLE.map(c => c.id), kids.filter(k => k.id).map(k => k.id), parents.filter(p => p.id).map(p => p.id)));
+    if (!HOUSE.legacy) ['pa', 'ma', 'diaan', 'stefan'].forEach(x => taken.add(x));
+    const prof = Object.assign({}, S.houseProf || { v: 1, legacy: HOUSE.legacy }, {
+      name: (S.houseProf && S.houseProf.name) || HOUSE.name,
+      kids: kids.map(k => ({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: k.role === 'player' ? 'player' : 'learner', grade: +k.grade || 7, school: k.role === 'player' ? '' : String(k.school || '').trim().slice(0, 50) })),
+      parents: parents.map(p => Object.assign({}, p, { id: p.id || uniqId('p' + slugId(p.circleName || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circleName || '').trim().slice(0, 30) })),
+    });
+    try {
+      await S.store.put('household/profile', prof);
+      S.houseProf = prof; S.houseEdit = null; applyHousehold(S.houseMe, prof, S.houseCircle);
+      await Promise.all(houseGrades().map(ensureGrade)); if (!S.kid) setActiveGrade((KIDS[0] || {}).grade || 7, (KIDS[0] || {}).school);
+      toast(t('houseSaved')); S.houseOpen = true; render();
+    } catch (e) { $('#hErr', card).textContent = t('setupErrNet'); }
+  };
+}
+Object.assign(UI.af, {
+  houseT: '👪 Ons gesin – mense en skakels', houseSub: 'Voeg mense by of haal hulle uit, verander grade of skole, en stuur iemand weer sy of haar skakel. Wie jy uithaal, se vordering bly gestoor.',
+  houseAddKid: '＋ Kind / speler', houseAddPar: '＋ Ouer', houseSave: 'Stoor gesin', houseNeed: 'Hou minstens een ouer en een kind.', houseSaved: 'Gesin gestoor',
+  houseLinks: 'Skakels', houseLinksSub: 'Elke persoon se eie skakel – maak dit op sy of haar foon oop.',
+  kringHouses: '🏠 Gesinne in die kring', kringKick: 'Haal uit kring', kringKickSure: 'Seker? Tik weer', kringKicked: 'Gesin uit die kring gehaal',
+});
+Object.assign(UI.en, {
+  houseT: '👪 Our family – people and links', houseSub: "Add or remove people, change grades or schools, and resend someone their link. Removed people's progress stays saved.",
+  houseAddKid: '＋ Child / player', houseAddPar: '＋ Parent', houseSave: 'Save family', houseNeed: 'Keep at least one parent and one child.', houseSaved: 'Family saved',
+  houseLinks: 'Links', houseLinksSub: "Each person's own link – open it on their phone.",
+  kringHouses: '🏠 Families in the circle', kringKick: 'Remove from circle', kringKickSure: 'Sure? Tap again', kringKicked: 'Family removed from the circle',
+});
+
 /* ------------------------------------------------------------------ boot */
 function applyTheme() {
   let th = null; try { th = localStorage.getItem('lh.theme'); } catch (e) {}
@@ -3803,6 +4156,8 @@ async function boot() {
   render(); // splash
   const [content] = await Promise.all([loadContent(), initStore()]);
   S.content = content;
+  try { await Promise.all(houseGrades().map(ensureGrade)); } catch (e) {}
+  setActiveGrade((KIDS[0] || {}).grade || 7, (KIDS[0] || {}).school);
   try { S.settings = await S.store.loadSettings(); } catch (e) {}
   let remembered = null; try { remembered = localStorage.getItem('lh.kid'); } catch (e) {}
   const r = parseRoute();
