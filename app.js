@@ -45,7 +45,7 @@ const UI = {
     levelNames: ['Nuweling', 'Leerder', 'Ondersoeker', 'Kenner', 'Vakbaas', 'Meester', 'Legende'],
     levelUp: 'Vlak op!', nowLevel: 'Jy is nou', newBadge: 'Nuwe kenteken!', close: 'Lekker!',
     examIn: 'Eksamen oor', examDays: 'dae', setExam: 'Stel die eksamendatum in die ouerpaneel', examTips: 'Eksamenwenke',
-    notLinked: 'Hierdie toestel is nie aan die gesin se Leerhoek gekoppel nie – vordering word net hier gestoor. Maak die skakel oop wat Pa gestuur het.', linkTitle: 'Koppel hierdie toestel', linkSub: 'Maak die skakel oop wat Pa vir jou gestuur het, of plak dit hier:', linkBtn: 'Koppel', linkBad: 'Die skakel of kode werk nie – vra Pa vir die nuwe skakel.', linkOffline: 'Kan nie die bediener bereik nie – kyk of die internet werk en probeer weer.', localOnly: 'Vordering word net op hierdie toestel gestoor. Meld by Claude aan (Pa of Ma se rekening) sodat dit oral sinkroniseer, of kopieer jou vorderingskode.', copyCode: 'Kopieer vorderingskode', copied: 'Gekopieer!', shareProgress: 'Deel my vordering', shareDone: 'Vorderingsverslag gekopieer – plak dit in ’n boodskap vir Pa.',
+    notLinked: 'Hierdie toestel is nie aan jou gesin se Leerhoek gekoppel nie – vordering word net hier gestoor. Maak jou eie Leerhoek-skakel oop.', linkTitle: 'Koppel hierdie toestel', linkSub: 'Maak jou eie Leerhoek-skakel oop (bv. uit WhatsApp), of plak dit hier:', linkBtn: 'Koppel', linkBad: 'Die skakel of kode werk nie – vra jou ouers vir ’n nuwe skakel.', linkOffline: 'Kan nie die bediener bereik nie – kyk of die internet werk en probeer weer.', localOnly: 'Vordering word net op hierdie toestel gestoor. Meld by Claude aan (Pa of Ma se rekening) sodat dit oral sinkroniseer, of kopieer jou vorderingskode.', copyCode: 'Kopieer vorderingskode', copied: 'Gekopieer!', shareProgress: 'Deel my vordering', shareDone: 'Vorderingsverslag gekopieer – plak dit in ’n boodskap vir Pa.',
     parentPin: 'Ouerpaneel', enterPin: 'Tik die ouer-PIN in', setPin: 'Kies ’n 4-syfer PIN vir die ouerpaneel', pinWrong: 'Verkeerde PIN', unlock: 'Ontsluit', savePin: 'Stoor PIN',
     dashboard: 'Ouerpaneel', lastActive: 'Laas aktief', never: 'nog nooit', thisWeek: 'hierdie week', timeOn: 'Tyd op platform', mastery: 'Bemeestering per vak', weak: 'Onderwerpe wat aandag nodig het', noWeak: 'Niks dringend nie – alles bo 70 %.', activity: 'Aktiwiteit', noActivity: 'Nog geen aktiwiteit nie.',
     copyReport: 'Kopieer verslag', settings: 'Instellings', examDate: 'Eksamendatum (eerste vraestel)', examTitle: 'Byskrif', save: 'Stoor', saved: 'Gestoor', changePin: 'Verander PIN', importCode: 'Voer vorderingskode in', importHint: 'Plak die kode wat ’n seun van ’n ander toestel gekopieer het.', importBtn: 'Voer in', imported: 'Vordering ingevoer',
@@ -96,7 +96,7 @@ const UI = {
     levelNames: ['Rookie', 'Learner', 'Explorer', 'Expert', 'Subject boss', 'Master', 'Legend'],
     levelUp: 'Level up!', nowLevel: 'You are now', newBadge: 'New badge!', close: 'Nice!',
     examIn: 'Exam in', examDays: 'days', setExam: 'Set the exam date in the parent panel', examTips: 'Exam tips',
-    notLinked: "This device isn't linked to the family's Leerhoek – progress is only saved here. Open the link Dad sent.", linkTitle: 'Link this device', linkSub: 'Open the link Dad sent you, or paste it here:', linkBtn: 'Link', linkBad: "That link or code doesn't work – ask Dad for the new link.", linkOffline: "Can't reach the server – check the internet and try again.", localOnly: "Progress is only saved on this device. Sign in to Claude (Dad's or Mom's account) so it syncs everywhere, or copy your progress code.", copyCode: 'Copy progress code', copied: 'Copied!', shareProgress: 'Share my progress', shareDone: 'Progress report copied – paste it in a message to Dad.',
+    notLinked: "This device isn't linked to your family's Leerhoek – progress is only saved here. Open your own Leerhoek link.", linkTitle: 'Link this device', linkSub: 'Open your own Leerhoek link (e.g. from WhatsApp), or paste it here:', linkBtn: 'Link', linkBad: "That link or code doesn't work – ask your parents for a new link.", linkOffline: "Can't reach the server – check the internet and try again.", localOnly: "Progress is only saved on this device. Sign in to Claude (Dad's or Mom's account) so it syncs everywhere, or copy your progress code.", copyCode: 'Copy progress code', copied: 'Copied!', shareProgress: 'Share my progress', shareDone: 'Progress report copied – paste it in a message to Dad.',
     parentPin: 'Parent panel', enterPin: 'Enter the parent PIN', setPin: 'Choose a 4-digit PIN for the parent panel', pinWrong: 'Wrong PIN', unlock: 'Unlock', savePin: 'Save PIN',
     dashboard: 'Parent panel', lastActive: 'Last active', never: 'never', thisWeek: 'this week', timeOn: 'Time on platform', mastery: 'Mastery per subject', weak: 'Topics that need attention', noWeak: 'Nothing urgent – everything above 70 %.', activity: 'Activity', noActivity: 'No activity yet.',
     copyReport: 'Copy report', settings: 'Settings', examDate: 'Exam date (first paper)', examTitle: 'Caption', save: 'Save', saved: 'Saved', changePin: 'Change PIN', importCode: 'Import progress code', importHint: 'Paste the code a boy copied from another device.', importBtn: 'Import', imported: 'Progress imported',
@@ -130,7 +130,7 @@ const PAIR_COLORS = ['#2f6df6', '#d97706', '#9333ea', '#16a34a', '#db2777', '#0d
 
 /* ------------------------------------------------------------------ state */
 let L = 'af';
-try { L = localStorage.getItem('lh.lang') || 'af'; } catch (e) {}
+try { L = localStorage.getItem('lh.lang') || (/^af\b/i.test(navigator.language || '') ? 'af' : 'en'); } catch (e) {}
 const S = {
   content: null,         // { grades:[], subjects: {id: subjectJson} }
   kid: null,             // active kid record
@@ -394,7 +394,7 @@ function setLangQuiet(l) { L = l; try { localStorage.setItem('lh.lang', l); } ca
 function applyLangs(prof) {
   const langs = houseLangs(prof); S.langs = langs;
   let saved = null; try { saved = localStorage.getItem('lh.lang'); } catch (e) {}
-  const want = saved && langs.includes(saved) ? saved : (prof && langs.includes(prof.lang) ? prof.lang : (langs.includes(L) ? L : langs[0]));
+  const want = saved && langs.includes(saved) ? saved : (prof && langs.includes(prof.lang) ? prof.lang : langs[0]);
   if (want !== L) { L = want; document.documentElement.lang = L; }
   const box = document.getElementById('lang');
   if (box) { box.style.display = langs.length < 2 ? 'none' : ''; box.querySelectorAll('button').forEach(b => { b.style.display = langs.includes(b.dataset.l) ? '' : 'none'; b.classList.toggle('on', b.dataset.l === L); }); }
@@ -441,6 +441,24 @@ function personalizeUi() {
   }
   UI.af.fam = Object.assign({}, UI.af.fam); UI.en.fam = Object.assign({}, UI.en.fam);
   PARENTS.forEach(p => { UI.af.fam[p.id] = p.name; UI.en.fam[p.id] = p.name; });
+  // v10.7: no twins, no fixed "Mom and Dad" – the family's own wording
+  const pAf = pn.length ? andJ(pn, 'en') : 'jou ouers', pEn = pn.length ? andJ(pn, 'and') : 'your parents';
+  UI.af.weekT = 'Gesinsuitdaging'; UI.en.weekT = 'Family challenge';
+  UI.af.weekSolo = 'My week'; UI.en.weekSolo = 'My week';
+  UI.af.playSub = 'Breinspeletjies met jou eie skoolwerk. Elke speletjie verdien XP vir jou week!';
+  UI.en.playSub = 'Brain games with your own schoolwork. Every game earns XP for your week!';
+  UI.af.coachDisclose = 'Jy gesels met ’n KI (Claude), nie met ’n mens nie. Die afrigter help jou om SELF te dink en te leer – dit doen nie jou werk vir jou nie. Jou ouers kan die gesprekke sien.';
+  UI.en.coachDisclose = 'You are chatting with an AI (Claude), not a person. The coach helps you think and learn YOURSELF – it does not do your work for you. Your parents can see the chats.';
+  UI.af.coachOff = 'Die afrigter is nog nie aangeskakel nie.'; UI.en.coachOff = "The coach isn't switched on yet.";
+  UI.af.pushSub = 'Leerhoek stuur self kennisgewings na jou foon – geen ekstra app nodig nie. Doen dit een keer op elke ouer se foon: maak Leerhoek oop met sy ikoon, gaan na Ouer en tik die knoppie hieronder.';
+  UI.en.pushSub = 'Leerhoek sends notifications to your phone itself – no extra app needed. Do this once on each parent’s phone: open Leerhoek from its icon, go to Parent and tap the button below.';
+  UI.af.shareDone = 'Vorderingsverslag gekopieer – plak dit in ’n boodskap vir jou ouers.'; UI.en.shareDone = 'Progress report copied – paste it in a message to your parents.';
+  UI.af.lockNote = `🔒 Hierdie toestel is net vir {n}. ${pAf} kan met die PIN alles sien.`;
+  UI.en.lockNote = `🔒 This device is only for {n}. ${pEn} can see everything with the PIN.`;
+  UI.af.devParent = 'Ouers (ouer-toestel)'; UI.en.devParent = 'Parents (parent device)';
+  UI.af.roNone = 'Nog geen toetse of eksamens op die rooster nie. Jou ouers sit dit by in die ouerpaneel.';
+  UI.en.roNone = 'No tests or exams on the schedule yet. Your parents add them in the parent panel.';
+  UI.af.reParents = `Stuur ’n kopie aan ${pAf}`; UI.en.reParents = `Send a copy to ${pEn}`;
 }
 const kidGrade = (id) => +((KIDS.find(k => k.id === id) || {}).grade) || 7;
 function curGrade() { const k = S.kid && KIDS.find(x => x.id === S.kid.id); return +(k && k.grade) || +S.grade || +((KIDS[0] || {}).grade) || 7; }
@@ -486,13 +504,39 @@ function ensureGrade(g) {
     document.head.appendChild(sc);
   }));
 }
-const _strip7 = {};
+/* v10.7: content written for one school (its home school) reads neutral for learners at other schools */
+const HOME_SCHOOL = { 7: /unika/i, 8: /brits/i, 10: /brits/i };
+const _neutral = {};
+function neutralText(x, lang, g) {
+  if (typeof x !== 'string' || !/Unika|Brits|Diaan|Stefan/.test(x)) return x;
+  const cap = (w, pre) => (/^\s*$|[.!?:]\s*$|[\n#*>|(“"]\s*$/.test(pre) ? w.charAt(0).toUpperCase() + w.slice(1) : w);
+  const school = (re, af, en) => { x = x.replace(re, (m, off, str) => cap(lang === 'af' ? af : en, str.slice(Math.max(0, off - 3), off))); };
+  if (g === 7) {
+    school(/(?:Laerskool )?Unika['’]s/g, 'jou skool se', "your school's");
+    school(/Laerskool Unika/g, 'jou skool', 'your school');
+    school(/(?<![\w-])Unika(?![\w])/g, 'jou skool', 'your school');
+    x = x.replace(/\bDiaan\b/g, 'Pieter').replace(/\bStefan\b/g, 'Sipho');
+  }
+  school(/Hoërskool Brits['’]s/g, 'jou skool se', "your school's");
+  school(/Hoërskool Brits/g, 'jou skool', 'your school');
+  if (lang === 'af') x = x.replace(/\bop Brits(?![\w-])/g, 'in Pretoria');
+  return x.replace(/(?<![\w-])Brits(?![\w])/g, 'Pretoria');
+}
+function neutralCopy(v, lang, g) {
+  if (Array.isArray(v)) return v.map(x => neutralCopy(x, lang, g));
+  if (v && typeof v === 'object') { const o = {}; for (const k in v) o[k] = neutralCopy(v[k], k === 'af' || k === 'en' ? k : lang, g); return o; }
+  return typeof v === 'string' ? neutralText(v, lang, g) : v;
+}
 function gradeSubjects(g, school) {
-  const map = (S.content && S.content.byGrade[+g]) || {};
-  if (+g !== 7 || /unika/i.test(school || '')) return map;
-  // the Grade 7 paper format + practice papers are Laerskool Unika's – other schools don't get them
-  if (_strip7.src !== map) { _strip7.src = map; _strip7.out = {}; Object.keys(map).forEach(id => { const s = Object.assign({}, map[id]); delete s.examFormat; delete s.practiceExams; _strip7.out[id] = s; }); }
-  return _strip7.out;
+  g = +g; const map = (S.content && S.content.byGrade[g]) || {};
+  const home = HOME_SCHOOL[g];
+  if (!home || home.test(school || '') || (HOUSE.legacy && g === 7)) return map;
+  if (!_neutral[g] || _neutral[g].src !== map) {
+    const out = {};
+    Object.keys(map).forEach(id => { const sj = neutralCopy(map[id], 'en', g); if (g === 7) { delete sj.examFormat; delete sj.practiceExams; } out[id] = sj; });
+    _neutral[g] = { src: map, out };
+  }
+  return _neutral[g].out;
 }
 function setActiveGrade(g, school) { S.grade = +g || 7; S.gradeSchool = school || ''; if (S.content) S.content.subjects = gradeSubjects(S.grade, school); }
 const subjectsOfGrade = (grade, kidId) => { grade = +grade || 7; const g = S.content.grades.find(x => +x.grade === grade); if (!g) return []; const map = grade === +S.grade ? S.content.subjects : gradeSubjects(grade, (KIDS.find(k => +k.grade === grade) || {}).school); const all = g.subjects.map(s => map[s.id]).filter(Boolean); const sk = skipSet(grade, kidId); const out = sk.size ? all.filter(s => !sk.has(s.id)) : all; return out.length ? out : all; };
@@ -778,7 +822,7 @@ function wireLinkPanel() {
 }
 function renderGate(main) {
   const blocked = window.LH_CONFIG && (S.keyProblem === 'missing' || S.keyProblem === 'bad');
-  main.innerHTML = `<div class="gate">${mascot()}<h1>${esc(blocked ? t('linkTitle') : t('chooseProfile'))}</h1><p class="sub">${esc(t('tagline'))}</p>
+  main.innerHTML = `<div class="gate">${mascot()}<h1>${esc(blocked ? t('linkTitle') : t('chooseProfile'))}</h1><p class="sub">${esc(blocked ? 'Leerhoek' : t('tagline'))}</p>
   ${blocked ? '' : '<div class="profiles" id="profiles"></div>'}${linkPanel()}<div style="margin-top:20px;text-align:left">${instSlot()}</div></div>`;
   wireLinkPanel(); wireInstall();
   if (blocked) return;
@@ -822,7 +866,7 @@ function renderHome(main) {
   <div class="tiles">
     <button class="card tile ${chest.ready ? 'ready' : ''}" id="chestT"><span class="ti">${chest.opened ? '💰' : '🎁'}</span><b>${esc(t('chestT'))}</b><span class="small muted">${chest.opened ? esc(t('chestDone')) : chest.ready ? esc(t('chestReady')) : `<span class="num">${Math.min(3, chest.tests)}/3</span> ${esc(t('testsToday'))}`}</span>${!chest.opened && !chest.ready ? `<div class="bar-h" style="margin-top:auto"><i style="width:${Math.round(100 * Math.min(3, chest.tests) / 3)}%;background:var(--hi)"></i></div>` : ''}</button>
     <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
-    <button class="card tile" id="wotdT" style="--subject:${wd ? wd.s.color : 'var(--brand)'}"><span class="ti">📖</span><b>${esc(t('wotd'))}</b>${wd ? `<span class="wotd">${esc(dWord(wd))}</span><span class="small muted">${esc(dOther(wd))}</span>` : ''}</button>
+    <button class="card tile" id="wotdT" style="--subject:${wd ? wd.s.color : 'var(--brand)'}"><span class="ti">📖</span><b>${esc(t('wotd'))}</b>${wd ? `<span class="wotd">${esc(dWord(wd))}</span><span class="small muted">${esc(dAlt(wd))}</span>` : ''}</button>
     <button class="card tile" data-go="foute"><span class="ti">❌</span><b>${esc(t('mistakesT'))}</b><span class="big2 num">${mc}</span><span class="small muted">${esc(mc ? t('tapToRedo') : t('noMistakesShort'))}</span></button>
   </div>${coachCta()}
   ${focus.length ? (() => { const rows = subjects.map(s => ({ s, mark: schoolMark(kid, s.id), tm: schoolMarkTerm(kid, s.id), pass: passTarget(s.id), goal: goalOf(kid, s.id) })).filter(x => x.mark !== null).sort((a, b) => ((a.mark - a.pass) - (b.mark - b.pass)) || ((a.mark - a.goal) - (b.mark - b.goal)));
@@ -1386,6 +1430,7 @@ async function twinData() {
 function twinRows(o) { return [S.kid, o].filter(Boolean).map(k => ({ k, xp: weekXp(k), ch: k.challenge && k.challenge.w === weekId() ? k.challenge : null })).sort((a, b) => b.xp - a.xp); }
 async function fillTwin(box, mini) {
   if (!box) return; const o = await twinData(); if (!document.body.contains(box)) return;
+  if (!o && !HOUSE.legacy && t('weekSolo') !== 'weekSolo') { const c = box.closest('.tile, .card'), h = c && c.querySelector(mini ? 'b' : 'h3'); if (h) h.textContent = (mini ? '' : '🏆 ') + t('weekSolo'); }
   const rows = twinRows(o), max = Math.max(1, ...rows.map(r => r.xp)), lead = rows.length > 1 && rows[0].xp > rows[1].xp;
   if (mini) { box.innerHTML = rows.map((r, i) => `<span class="num">${r.k.avatar} ${r.xp}${i === 0 && lead ? ' 👑' : ''}</span>`).join(' <span class="muted">vs</span> '); return; }
   box.innerHTML = rows.map((r, i) => `<div class="twin"><span class="av">${r.k.avatar}</span><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><b>${esc(r.k.name)}${i === 0 && lead ? ' 👑' : ''}</b><span class="num small">${r.xp} XP${r.ch ? ` · ⚔️ ${r.ch.score}/${r.ch.total}` : ''}</span></div><div class="bar-h"><i style="width:${Math.round(100 * r.xp / max)}%;background:${i === 0 ? 'var(--hi)' : 'var(--brand)'}"></i></div></div></div>`).join('')
@@ -1649,11 +1694,13 @@ function dict() {
 }
 const dWord = (e) => (L === 'af' ? e.af : e.en) || e.af;
 const dOther = (e) => (L === 'af' ? e.en : e.af) || '';
+/* v10.7: show the translation only if the household uses the other language, or the word is from an Afrikaans subject */
+const dAlt = (e) => { const o = dOther(e); if (!o) return ''; const other = L === 'af' ? 'en' : 'af'; return (!S.langs || S.langs.includes(other) || /^afrikaans/.test((e.s && e.s.id) || '')) ? o : ''; };
 const dDef = (e) => (L === 'af' ? e.daf : e.den) || e.daf || e.den;
 function wordPopup(e) {
   if (!e) return;
   const ov = document.createElement('div'); ov.className = 'overlay';
-  ov.innerHTML = `<div class="modal wordpop" style="--subject:${e.s.color}"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><h2 style="margin:10px 0 2px">${esc(dWord(e))}</h2>${dOther(e) ? `<div class="small muted">${L === 'af' ? 'English' : 'Afrikaans'}: <b>${esc(dOther(e))}</b></div>` : ''}<p style="margin:12px 0 16px;text-align:left">${esc(dDef(e))}</p><div class="row" style="justify-content:center"><button class="btn" id="wTopic">📖 ${esc(t('toTopic'))}</button><button class="btn hi" id="wClose">${esc(t('close'))}</button></div></div>`;
+  ov.innerHTML = `<div class="modal wordpop" style="--subject:${e.s.color}"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><h2 style="margin:10px 0 2px">${esc(dWord(e))}</h2>${dAlt(e) ? `<div class="small muted">${L === 'af' ? 'English' : 'Afrikaans'}: <b>${esc(dAlt(e))}</b></div>` : ''}<p style="margin:12px 0 16px;text-align:left">${esc(dDef(e))}</p><div class="row" style="justify-content:center"><button class="btn" id="wTopic">📖 ${esc(t('toTopic'))}</button><button class="btn hi" id="wClose">${esc(t('close'))}</button></div></div>`;
   document.body.appendChild(ov);
   $('#wClose', ov).onclick = () => ov.remove();
   $('#wTopic', ov).onclick = () => { ov.remove(); go('onderwerp-' + e.tp.id); };
@@ -1713,7 +1760,7 @@ function renderDict(main) {
     if (q) list = list.map(e => { const a = fold(dWord(e)), b = fold(dOther(e)), d = fold(e.daf + ' ' + e.den); return { e, r: a.startsWith(q) ? 0 : a.includes(q) ? 1 : b.includes(q) ? 2 : d.includes(q) ? 3 : 9 }; }).filter(x => x.r < 9).sort((x, y) => x.r - y.r || dWord(x.e).localeCompare(dWord(y.e), L)).map(x => x.e);
     else list = list.slice().sort((x, y) => dWord(x).localeCompare(dWord(y), L));
     const n = list.length;
-    $('#dres').innerHTML = n ? `<div class="small muted" style="margin-bottom:8px"><span class="num">${n}</span> ${esc(t('dictWords'))}</div><div class="dlist">${list.slice(0, limit).map(e => `<div class="dentry" style="--subject:${e.s.color}"><div class="row" style="justify-content:space-between;gap:6px"><b class="dt">${esc(dWord(e))}</b>${dOther(e) ? `<span class="chip">${L === 'af' ? 'EN' : 'AF'}: ${esc(dOther(e))}</span>` : ''}</div><div class="dd">${esc(dDef(e))}</div><div class="row small" style="gap:6px;margin-top:6px"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><button class="linkbtn" data-tp="${e.tp.id}">${esc(tx(e.tp.title))} →</button></div></div>`).join('')}</div>${n > limit ? `<div class="center" style="margin-top:12px"><button class="btn" id="dmore">${esc(t('showMore'))}</button></div>` : ''}`
+    $('#dres').innerHTML = n ? `<div class="small muted" style="margin-bottom:8px"><span class="num">${n}</span> ${esc(t('dictWords'))}</div><div class="dlist">${list.slice(0, limit).map(e => `<div class="dentry" style="--subject:${e.s.color}"><div class="row" style="justify-content:space-between;gap:6px"><b class="dt">${esc(dWord(e))}</b>${dAlt(e) ? `<span class="chip">${L === 'af' ? 'EN' : 'AF'}: ${esc(dAlt(e))}</span>` : ''}</div><div class="dd">${esc(dDef(e))}</div><div class="row small" style="gap:6px;margin-top:6px"><span class="chip subject">${e.s.icon} ${esc(tx(e.s.short))}</span><button class="linkbtn" data-tp="${e.tp.id}">${esc(tx(e.tp.title))} →</button></div></div>`).join('')}</div>${n > limit ? `<div class="center" style="margin-top:12px"><button class="btn" id="dmore">${esc(t('showMore'))}</button></div>` : ''}`
       : `<div class="card muted">${esc(t('dictNone'))}</div>`;
     $('#dres').querySelectorAll('[data-tp]').forEach(b => b.onclick = () => go('onderwerp-' + b.dataset.tp));
     const m = $('#dmore'); if (m) m.onclick = () => { limit += 60; show(); };
