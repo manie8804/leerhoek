@@ -162,7 +162,7 @@ function inline(s) {
   s = s.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>').replace(/_\{([^}]+)\}/g, '<sub>$1</sub>');
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<i>$2</i>');
-  return s;
+  return s.replace(/\n/g, '<br>');
 }
 function md(src) {
   const lines = String(src || '').replace(/\r/g, '').split('\n');
@@ -499,10 +499,32 @@ const subjectsOfGrade = (grade, kidId) => { grade = +grade || 7; const g = S.con
 /* v10.3: which subjects a learner doesn't take (profile kid.skip); in a parent view only what EVERY learner in the grade skips */
 function skipSet(grade, kidId) {
   const me = kidId ? KIDS.find(k => k.id === kidId) : (S.kid && !(S.route && S.route.s === 'parent') ? KIDS.find(k => k.id === S.kid.id) : null);
-  if (me && (+me.grade || 7) === +grade) return new Set(Array.isArray(me.skip) ? me.skip : []);
-  const ls = KIDS.filter(k => k.role !== 'player' && (+k.grade || 7) === +grade).map(k => Array.isArray(k.skip) ? k.skip : []);
-  return ls.length ? new Set(ls.reduce((a, b) => a.filter(x => b.includes(x)))) : new Set();
+  if (me && (+me.grade || 7) === +grade) return new Set(hiddenOf(me, grade));
+  const ls = KIDS.filter(k => k.role !== 'player' && (+k.grade || 7) === +grade).map(k => hiddenOf(k, grade));
+  return new Set(ls.length ? ls.reduce((a, b) => a.filter(x => b.includes(x))) : hiddenOf({}, grade));
 }
+/* v10.5: default subjects per household language + optional subjects (kid.take) */
+const houseMainLang = (prof) => { prof = prof === undefined ? S.houseProf : prof; return prof && prof.lang === 'en' ? 'en' : 'af'; };
+const gradeIdx = (g) => ((S.content && S.content.grades) || []).find(x => +x.grade === +g) || null;
+function defaultOn(grade, sid, main) {
+  const e = gradeIdx(grade), sb = e && e.subjects.find(x => x.id === sid); if (!sb) return true;
+  if (sb.opt) return false;
+  if (sb.lang && sb.lvl && e.subjects.some(x => x.lang === sb.lang && x.lvl === 'hl') && e.subjects.some(x => x.lang === sb.lang && x.lvl === 'fal'))
+    return (sb.lvl === 'hl') === (sb.lang === (main || houseMainLang()));
+  return true;
+}
+/* the subjects one learner does NOT see (main = household main language; default: the current household's) */
+function hiddenOf(k, grade, main) {
+  const skip = Array.isArray(k.skip) ? k.skip : [], take = Array.isArray(k.take) ? k.take : [], e = gradeIdx(grade);
+  return (e ? e.subjects.map(x => x.id) : phaseStubIds(grade)).filter(id => defaultOn(grade, id, main) ? skip.includes(id) : !take.includes(id));
+}
+/* ticks → skip (default subjects unticked) + take (non-default subjects ticked) */
+function ticksToSel(k, ticks, grade, main) {
+  if (!ticks.length) return;
+  k.skip = ticks.filter(c => !c.checked && defaultOn(grade, c.value, main)).map(c => c.value);
+  k.take = ticks.filter(c => c.checked && !defaultOn(grade, c.value, main)).map(c => c.value);
+}
+const selOf = (k, list) => { const skip = Array.isArray(k.skip) ? k.skip.filter(x => list.includes(x)) : [], take = Array.isArray(k.take) ? k.take.filter(x => list.includes(x)) : []; return Object.assign(skip.length ? { skip } : {}, take.length ? { take } : {}); };
 /* placeholder subjects (photos + notes questions only) for grades whose content isn't built yet; ids are the ones the real content will use */
 const STUB_NAMES = { english: ['English', 'English'], afrikaans: ['Afrikaans', 'Afrikaans'], wiskunde: ['Wiskunde', 'Mathematics'], nwt: ['Natuurwetenskappe en Tegnologie', 'Natural Sciences and Technology'],
   'sosiale-wetenskappe': ['Sosiale Wetenskappe', 'Social Sciences'], lewensvaardighede: ['Lewensvaardighede', 'Life Skills'], natuurwetenskappe: ['Natuurwetenskappe', 'Natural Sciences'],
@@ -4277,7 +4299,7 @@ function renderSetup(main, code, r) {
     if (r.lang && r.lang !== L) setLangQuiet(r.lang);
     S.setupState = { sep, lang: r.lang === 'en' ? (sep ? 'en' : 'en2') : 'af', house: '', parents: [{ name: L === 'en' ? 'Dad' : 'Pa', circle: '', av: '👨' }, { name: L === 'en' ? 'Mom' : 'Ma', circle: '', av: '👩' }], kids: [{ name: '', av: '🦁', role: 'learner', grade: 8, school: '', skip: [], extra: '' }] };
   }
-  const st = S.setupState;
+  const st = S.setupState; st.tickMain = langOf(st.lang).lang;   // the language the ticks are drawn with
   const gopts = (sel) => Array.from({ length: 12 }, (_, i) => i + 1).map(g => `<option value="${g}" ${+sel === g ? 'selected' : ''}>${g}</option>`).join('');
   const avSel = (list, cur, attr) => `<select ${attr} aria-label="Avatar" style="font-size:20px">${list.map(a => `<option ${a === cur ? 'selected' : ''}>${a}</option>`).join('')}</select>`;
   main.innerHTML = `<div class="card pad-lg" style="max-width:720px;margin:12px auto;text-align:left"><div style="text-align:center">${mascot()}</div><h1 style="margin-top:8px">👋 ${esc(t('setupT'))}</h1><p class="small muted" style="margin:6px 0 14px">${esc(t(st.sep ? 'setupSubSep' : 'setupSub'))}</p>
@@ -4289,7 +4311,7 @@ function renderSetup(main, code, r) {
     <h3>${esc(t('setupKids'))}</h3>
     ${st.kids.map((k, i) => { const list = gradeSubjList(k.grade); return `<div class="card" style="padding:12px"><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_KIDS, k.av, `data-kav="${i}"`)}<input data-knm="${i}" maxlength="24" placeholder="${esc(t('setupKidNm'))}" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:110px"><select data-krole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select></div>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><label class="small">${esc(k.role === 'player' ? t('setupLevel') : t('setupGrade'))} <select data-kgr="${i}">${gopts(k.grade)}</select></label>${k.role === 'player' ? '' : `<input data-ksc="${i}" maxlength="50" placeholder="${esc(t('setupSchool'))}" value="${esc(k.school)}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:160px">`}${st.kids.length > 1 ? `<button type="button" class="btn sm ghost" data-kdel="${i}">✕ ${esc(t('setupDel'))}</button>` : ''}</div>
-      ${k.role === 'player' ? '' : `${gradeHasContent(k.grade) ? '' : `<div class="small muted" style="margin-top:8px">ℹ️ ${esc(tf('suNoContent', { g: k.grade }))}</div>`}${subjTicks(list, k.skip || [], 'data-ksk', i)}<div class="form-row" style="margin-top:8px"><label class="small" for="suX${i}">${esc(t('suExtra'))}</label><input id="suX${i}" data-kx="${i}" maxlength="200" placeholder="${esc(t('suExtraP'))}" value="${esc(k.extra || '')}"></div>`}</div>`; }).join('')}
+      ${k.role === 'player' ? '' : `${gradeHasContent(k.grade) ? '' : `<div class="small muted" style="margin-top:8px">ℹ️ ${esc(tf('suNoContent', { g: k.grade }))}</div>`}${subjTicks(list, hiddenOf(k, k.grade, st.tickMain), 'data-ksk', i)}<div class="form-row" style="margin-top:8px"><label class="small" for="suX${i}">${esc(t('suExtra'))}</label><input id="suX${i}" data-kx="${i}" maxlength="200" placeholder="${esc(t('suExtraP'))}" value="${esc(k.extra || '')}"></div>`}</div>`; }).join('')}
     <div><button type="button" class="btn sm" id="suAdd">${esc(t('setupAddKid'))}</button></div>
     <p class="small muted">${esc(tf('setupGradeNote', { g: setupGradeNote() }))}</p>
     <h3>🔐 ${esc(t('setupPin'))}</h3><p class="small muted" style="margin-top:-8px">${esc(t('setupPinHint'))}</p>
@@ -4299,20 +4321,21 @@ function renderSetup(main, code, r) {
   </form></div>`;
   const F = $('#setupF');
   const grab = () => {
-    st.house = $('#suHouse').value; st.lang = $('#suLang').value;
+    st.house = $('#suHouse').value; const newLang = $('#suLang').value;
     st.parents.forEach((p, i) => { p.name = F.querySelector(`[data-pnm="${i}"]`).value; const ci = F.querySelector(`[data-pci="${i}"]`); p.circle = ci ? ci.value : ''; p.av = F.querySelector(`[data-pav="${i}"]`).value; });
     st.kids.forEach((k, i) => {
       k.name = F.querySelector(`[data-knm="${i}"]`).value; k.av = F.querySelector(`[data-kav="${i}"]`).value; k.role = F.querySelector(`[data-krole="${i}"]`).value; k.grade = +F.querySelector(`[data-kgr="${i}"]`).value;
       const sc = F.querySelector(`[data-ksc="${i}"]`); if (sc) k.school = sc.value;
-      const ticks = [...F.querySelectorAll(`[data-ksk="${i}"]`)]; if (ticks.length) k.skip = ticks.filter(c => !c.checked).map(c => c.value);
+      ticksToSel(k, [...F.querySelectorAll(`[data-ksk="${i}"]`)], k.grade, st.tickMain);
       const x = F.querySelector(`[data-kx="${i}"]`); if (x) k.extra = x.value;
     });
+    st.lang = newLang;
   };
   const again = () => renderSetup(main, code, r);
   $('#suLang').onchange = () => { grab(); setLangQuiet(langOf(st.lang).lang); again(); };
   F.querySelectorAll('[data-krole]').forEach(x => x.onchange = () => { grab(); again(); });
-  F.querySelectorAll('[data-kgr]').forEach(x => x.onchange = () => { grab(); st.kids[+x.dataset.kgr].skip = []; again(); });
-  $('#suAdd').onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ name: '', av: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '', skip: [], extra: '' }); again(); };
+  F.querySelectorAll('[data-kgr]').forEach(x => x.onchange = () => { grab(); st.kids[+x.dataset.kgr].skip = []; st.kids[+x.dataset.kgr].take = []; again(); });
+  $('#suAdd').onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ name: '', av: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '', skip: [], take: [], extra: '' }); again(); };
   F.querySelectorAll('[data-kdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.kdel, 1); again(); });
   F.onsubmit = async (e) => {
     e.preventDefault(); grab(); const err = (k) => { $('#suErr').textContent = t(k); };
@@ -4337,8 +4360,8 @@ async function doSetup(code, house, parents, kids, pin, opt) {
   try { ((await st.rpc('lh_circle')) || []).forEach(hh => { const p = hh.profile || {}; (p.kids || []).concat(p.parents || []).forEach(m => taken.add(m.id)); }); } catch (e) {}
   const lg = langOf(opt.lang || 'af');
   const prof = Object.assign({ v: 1, name: house }, lg, {
-    kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 8, list = gradeSubjList(g).map(x => x.id), skip = learner && Array.isArray(k.skip) ? k.skip.filter(x => list.includes(x)) : [], extra = learner ? extraOf(k.extra) : [];
-      return Object.assign({ id: uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.av, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, skip.length ? { skip } : {}, extra.length ? { extra } : {}); }),
+    kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 8, list = gradeSubjList(g).map(x => x.id), sel = learner ? selOf(k, list) : {}, extra = learner ? extraOf(k.extra) : [];
+      return Object.assign({ id: uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.av, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, sel, extra.length ? { extra } : {}); }),
     parents: parents.map(p => ({ id: uniqId('p' + slugId(p.circle || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circle || p.name).trim().slice(0, 30), avatar: p.av })) });
   await st.put('household/profile', prof);
   await st.put('settings/main', { pinHash: await sha(pin), examDate: null, examTitle: '', currentTerm: null });
@@ -4448,9 +4471,10 @@ function houseCard() {
   const avSel = (list, cur, attr) => `<select ${attr} aria-label="Avatar">${(list.includes(cur) ? list : [cur].concat(list)).map(a => `<option ${a === cur ? 'selected' : ''}>${a}</option>`).join('')}</select>`;
   const base = location.origin + location.pathname, fk = S.store.fk;
   const linkRow = (av, nm, route) => { const u = `${base}#k=${fk}~${route}`; return `<div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="small">${av} <b>${esc(nm)}</b></span><span class="row" style="gap:6px"><button type="button" class="btn sm" data-hcopy="${esc(u)}">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('setupWaMsg', { n: nm, u }))}">💬</a></span></div>`; };
+  st.tickMain = langOf(st.lang || 'af').lang;
   return `<div class="card" style="margin-top:14px" id="houseCard"><details ${S.houseOpen ? 'open' : ''}><summary><h3 style="display:inline">${esc(t('houseT'))}</h3></summary><p class="small muted" style="margin:6px 0 10px">${esc(t('houseSub'))}</p>
     <div class="label">${esc(t('setupKids'))}</div>
-    ${st.kids.map((k, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_KIDS, k.avatar, `data-hkav="${i}"`)}<input data-hknm="${i}" maxlength="24" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:100px"><select data-hkrole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select><label class="small">${esc(t('setupGrade'))} <select data-hkgr="${i}">${gopts(k.grade)}</select></label><input data-hksc="${i}" maxlength="50" value="${esc(k.school || '')}" placeholder="${esc(t('setupSchool'))}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hkdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>${k.role === 'player' ? '' : `<div style="margin:-2px 0 10px 4px">${subjTicks(gradeSubjList(k.grade), Array.isArray(k.skip) ? k.skip : [], 'data-hksk', i)}<input data-hkx="${i}" maxlength="200" value="${esc(k.extra || '')}" placeholder="${esc(t('suExtraP'))}" aria-label="${esc(t('suExtra'))}" style="margin-top:6px;width:100%"></div>`}`).join('')}
+    ${st.kids.map((k, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_KIDS, k.avatar, `data-hkav="${i}"`)}<input data-hknm="${i}" maxlength="24" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:100px"><select data-hkrole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select><label class="small">${esc(t('setupGrade'))} <select data-hkgr="${i}">${gopts(k.grade)}</select></label><input data-hksc="${i}" maxlength="50" value="${esc(k.school || '')}" placeholder="${esc(t('setupSchool'))}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hkdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>${k.role === 'player' ? '' : `<div style="margin:-2px 0 10px 4px">${subjTicks(gradeSubjList(k.grade), hiddenOf(k, k.grade, langOf(st.lang || 'af').lang), 'data-hksk', i)}<input data-hkx="${i}" maxlength="200" value="${esc(k.extra || '')}" placeholder="${esc(t('suExtraP'))}" aria-label="${esc(t('suExtra'))}" style="margin-top:6px;width:100%"></div>`}`).join('')}
     <button type="button" class="btn sm" id="hAddKid">${esc(t('houseAddKid'))}</button>
     <div class="label" style="margin-top:12px">${esc(t('setupParents'))}</div>
     ${st.parents.map((p, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_PAR, p.avatar, `data-hpav="${i}"`)}<input data-hpnm="${i}" maxlength="24" value="${esc(p.name)}" aria-label="${esc(t('setupParentNm'))}" placeholder="${esc(t('setupParentNmP'))}" style="flex:1;min-width:100px"><input data-hpci="${i}" maxlength="30" value="${esc(p.circleName || '')}" aria-label="${esc(t('setupParentCirc'))}" placeholder="${esc(t('setupParentCircP'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hpdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>`).join('')}
@@ -4468,7 +4492,7 @@ function wireHouseCard(root) {
   card.querySelector('details').ontoggle = (e) => { S.houseOpen = e.target.open; };
   const grab = () => {
     st.kids.forEach((k, i) => { k.avatar = card.querySelector(`[data-hkav="${i}"]`).value; k.name = card.querySelector(`[data-hknm="${i}"]`).value; k.role = card.querySelector(`[data-hkrole="${i}"]`).value; k.grade = +card.querySelector(`[data-hkgr="${i}"]`).value; k.school = card.querySelector(`[data-hksc="${i}"]`).value;
-      const ticks = [...card.querySelectorAll(`[data-hksk="${i}"]`)]; if (ticks.length) k.skip = ticks.filter(c => !c.checked).map(c => c.value); const x = card.querySelector(`[data-hkx="${i}"]`); if (x) k.extra = x.value; });
+      ticksToSel(k, [...card.querySelectorAll(`[data-hksk="${i}"]`)], k.grade, st.tickMain); const x = card.querySelector(`[data-hkx="${i}"]`); if (x) k.extra = x.value; });
     const hl = card.querySelector('#hLang'); if (hl) st.lang = hl.value;
     st.parents.forEach((p, i) => { p.avatar = card.querySelector(`[data-hpav="${i}"]`).value; p.name = card.querySelector(`[data-hpnm="${i}"]`).value; p.circleName = card.querySelector(`[data-hpci="${i}"]`).value; });
   };
@@ -4477,7 +4501,8 @@ function wireHouseCard(root) {
   $('#hAddKid', card).onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ id: null, name: '', avatar: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '' }); redraw(); };
   $('#hAddPar', card).onclick = () => { grab(); st.parents.push({ id: null, name: '', circleName: '', avatar: AV_PAR[st.parents.length % AV_PAR.length] }); redraw(); };
   card.querySelectorAll('[data-hkdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.hkdel, 1); redraw(); });
-  card.querySelectorAll('[data-hkgr], [data-hkrole]').forEach(x => x.onchange = () => { grab(); if (x.dataset.hkgr !== undefined) st.kids[+x.dataset.hkgr].skip = []; redraw(); });
+  card.querySelectorAll('[data-hkgr], [data-hkrole]').forEach(x => x.onchange = () => { grab(); if (x.dataset.hkgr !== undefined) { st.kids[+x.dataset.hkgr].skip = []; st.kids[+x.dataset.hkgr].take = []; } redraw(); });
+  { const hl = card.querySelector('#hLang'); if (hl) hl.onchange = () => { grab(); redraw(); }; }
   card.querySelectorAll('[data-hpdel]').forEach(b => b.onclick = () => { grab(); st.parents.splice(+b.dataset.hpdel, 1); redraw(); });
   $('#hSave', card).onclick = async () => {
     grab();
@@ -4487,8 +4512,8 @@ function wireHouseCard(root) {
     if (!HOUSE.legacy) ['pa', 'ma', 'diaan', 'stefan'].forEach(x => taken.add(x));
     const prof = Object.assign({}, S.houseProf || { v: 1, legacy: HOUSE.legacy }, {
       name: (S.houseProf && S.houseProf.name) || HOUSE.name,
-      kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 7, list = gradeSubjList(g).map(x => x.id), skip = learner && Array.isArray(k.skip) ? k.skip.filter(x => list.includes(x)) : [], extra = learner ? extraOf(k.extra) : [];
-        return Object.assign({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, skip.length ? { skip } : {}, extra.length ? { extra } : {}); }),
+      kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 7, list = gradeSubjList(g).map(x => x.id), sel = learner ? selOf(k, list) : {}, extra = learner ? extraOf(k.extra) : [];
+        return Object.assign({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, sel, extra.length ? { extra } : {}); }),
       parents: parents.map(p => Object.assign({}, p, { id: p.id || uniqId('p' + slugId(p.circleName || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circleName || '').trim().slice(0, 30) })),
     }, langOf(st.lang || langCodeOf(S.houseProf)));
     try {
@@ -4550,7 +4575,7 @@ async function boot() {
 /* ------------------------------------------------------------------ v10.3 texts */
 Object.assign(UI.af, {
   suLang: 'Taal van die app', suLangAf: 'Afrikaans (Engels as keuse)', suLangEn2: 'Engels (Afrikaans as keuse)', suLangEn: 'Net Engels',
-  suSubj: 'Vakke: {n} van {m} gekies', suSubjHelp: 'Haal die regmerkie af by vakke wat die kind nie neem nie.',
+  suSubj: 'Vakke: {n} van {m} gekies', suSubjHelp: 'Merk die vakke wat die kind neem en haal die regmerkie af by dié wat hy of sy nie neem nie. Keusevakke (soos ’n derde taal) is nie vooraf gemerk nie.',
   suNoContent: 'Graad {g}-inhoud word nog gebou. Tot dan kan die kind foto’s van sy of haar notas laai en oefenvrae daaruit maak.',
   suExtra: 'Ander vakke wat nie hierbo is nie (opsioneel)', suExtraP: 'bv. Duits, Lewenswetenskappe – komma tussen',
   setupSubSep: 'Stel julle gesin op – dit vat 2 minute. Leerhoek is net vir julle gesin: julle kinders se vordering, die klets en die speletjies bly binne julle gesin.',
@@ -4566,7 +4591,7 @@ Object.assign(UI.af, {
 });
 Object.assign(UI.en, {
   suLang: 'App language', suLangAf: 'Afrikaans (English as an option)', suLangEn2: 'English (Afrikaans as an option)', suLangEn: 'English only',
-  suSubj: 'Subjects: {n} of {m} chosen', suSubjHelp: "Untick the subjects this child doesn't take.",
+  suSubj: 'Subjects: {n} of {m} chosen', suSubjHelp: "Tick the subjects this child takes and untick the ones they don't. Optional subjects (like a third language) are not ticked in advance.",
   suNoContent: 'Grade {g} content is still being built. Until then, the child can photograph their notes and turn them into practice questions.',
   suExtra: "Other subjects that aren't listed (optional)", suExtraP: 'e.g. German, Life Sciences – separate with commas',
   setupSubSep: "Set up your family – it takes 2 minutes. Leerhoek is just for your family: your children's progress, the chat and the games stay within your family.",
