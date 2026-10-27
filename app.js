@@ -286,17 +286,17 @@ function notify(kid, ev) {
   // own-website mode only: built-in Web Push (Supabase function lh-notify) and/or the ntfy app; simple requests (no preflight)
   const st = S.settings || {}; if (S.storeKind !== 'supa' || !ev || !kid) return;
   if ((ev.type === 'login' || ev.type === 'logout') && (KIDS.find(k => k.id === kid.id) || {}).role === 'player') return;
-  const A = UI.af, hm = new Date().toTimeString().slice(0, 5); let title, message, tags, tag = '', log = null;
+  const EN = pushLang() === 'en', A = EN ? UI.en : UI.af, hm = new Date().toTimeString().slice(0, 5); let title, message, tags, tag = '', log = null;
   if (['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) {
     title = `${kid.name}: ${A.ev[ev.type]} ${ev.score}%`; message = `${ev.label || ''}\n${ev.correct}/${ev.total} · +${ev.xp} XP · ${Math.max(1, Math.round((ev.secs || 0) / 60))} min`;
     tags = [ev.score >= 80 ? 'tada' : ev.score >= 50 ? 'books' : 'warning'];
   } else if (ev.type === 'coach') {
     const key = 'lh.ntfy.coach.' + kid.id + '.' + today(); try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
-    title = `${kid.name} vra die afrigter`; message = (ev.label || '') + '\nKyk in die ouerpaneel → Afrigter-gesprekke'; tags = ['robot'];
+    title = EN ? `${kid.name} asked the coach` : `${kid.name} vra die afrigter`; message = (ev.label || '') + (EN ? '\nSee the parent panel → Coach chats' : '\nKyk in die ouerpaneel → Afrigter-gesprekke'); tags = ['robot'];
   } else if (ev.type === 'login') {
-    title = `🟢 ${kid.name} het Leerhoek oopgemaak`; message = `Begin leer · ${hm}`; tags = ['green_circle'];
+    title = EN ? `🟢 ${kid.name} opened Leerhoek` : `🟢 ${kid.name} het Leerhoek oopgemaak`; message = EN ? `Started learning · ${hm}` : `Begin leer · ${hm}`; tags = ['green_circle'];
   } else if (ev.type === 'logout') {
-    title = `⚪ ${kid.name} het Leerhoek toegemaak`; message = `${ev.mins < 1 ? '<1' : ev.mins} min · ${ev.tests} ${ev.tests === 1 ? 'toets' : 'toetse'} · +${ev.xp} XP · ${hm}`; tags = ['white_circle'];
+    title = EN ? `⚪ ${kid.name} closed Leerhoek` : `⚪ ${kid.name} het Leerhoek toegemaak`; message = `${ev.mins < 1 ? '<1' : ev.mins} min · ${ev.tests} ${EN ? (ev.tests === 1 ? 'test' : 'tests') : (ev.tests === 1 ? 'toets' : 'toetse')} · +${ev.xp} XP · ${hm}`; tags = ['white_circle'];
     log = { type: 'logout', mins: ev.mins, tests: ev.tests, xp: ev.xp };
   } else return;
   const beacon = ev.type === 'logout';
@@ -378,6 +378,7 @@ function applyHousehold(me, prof, circle) {
   KIDS.splice(0, KIDS.length, ...kids.map(k => Object.assign({ role: 'learner', grade: 7, avatar: '🙂', school: '' }, k)));
   PARENTS.splice(0, PARENTS.length, ...pars.map(p => Object.assign({ avatar: '🙂' }, p)));
   HOUSE = { id: (me && me.id) || null, name: (me && me.name) || (prof && prof.name) || '', circle: (me && me.circle) || null, owner: !!(me && me.owner), legacy: !prof || !!prof.legacy };
+  applyLangs(prof);
   CIRCLE.splice(0, CIRCLE.length);
   (circle || []).forEach(hh => {
     if (!hh || hh.me || !hh.profile) return; const p = hh.profile;
@@ -386,6 +387,33 @@ function applyHousehold(me, prof, circle) {
   });
   rebuildFamily();
   personalizeUi();
+}
+/* v10.3: the household's languages (profile.lang = start language, profile.langs = what the AF/EN switch offers) */
+function houseLangs(prof) { const ls = prof && Array.isArray(prof.langs) ? prof.langs.filter(x => x === 'af' || x === 'en') : []; return ls.length ? ls : ['af', 'en']; }
+function setLangQuiet(l) { L = l; try { localStorage.setItem('lh.lang', l); } catch (e) {} document.documentElement.lang = l; const box = document.getElementById('lang'); if (box) box.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.l === l)); }
+function applyLangs(prof) {
+  const langs = houseLangs(prof); S.langs = langs;
+  let saved = null; try { saved = localStorage.getItem('lh.lang'); } catch (e) {}
+  const want = saved && langs.includes(saved) ? saved : (prof && langs.includes(prof.lang) ? prof.lang : (langs.includes(L) ? L : langs[0]));
+  if (want !== L) { L = want; document.documentElement.lang = L; }
+  const box = document.getElementById('lang');
+  if (box) { box.style.display = langs.length < 2 ? 'none' : ''; box.querySelectorAll('button').forEach(b => { b.style.display = langs.includes(b.dataset.l) ? '' : 'none'; b.classList.toggle('on', b.dataset.l === L); }); }
+}
+const pushLang = () => (S.houseProf && S.houseProf.lang === 'en') ? 'en' : 'af';
+const langCodeOf = (prof) => { const ls = houseLangs(prof); return ls.length === 1 && ls[0] === 'en' ? 'en' : (prof && prof.lang === 'en') ? 'en2' : 'af'; };
+const langOf = (v) => v === 'en' ? { lang: 'en', langs: ['en'] } : v === 'en2' ? { lang: 'en', langs: ['af', 'en'] } : { lang: 'af', langs: ['af', 'en'] };
+function setupLangOpts(cur) { return [['af', t('suLangAf')], ['en2', t('suLangEn2')], ['en', t('suLangEn')]].map(([v, l]) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${esc(l)}</option>`).join(''); }
+/* the subjects a parent can tick for a grade: real content, or the placeholders for a grade without content */
+function gradeSubjList(g) {
+  const C = S.content; if (!C) return [];
+  const e = C.grades.find(x => +x.grade === +g);
+  if (!e) return phaseStubIds(g).map(id => ({ id, name: stubSubj(id, null, g).name }));
+  return e.subjects.map(s => ({ id: s.id, name: s.name || ((C.byGrade[+g] || {})[s.id] || {}).name || s.id }));
+}
+function subjTicks(list, skip, attr, idx) {
+  if (!list.length) return '';
+  const n = list.filter(x => !skip.includes(x.id)).length;
+  return `<details class="subjticks" style="margin-top:8px;width:100%"><summary class="small">📚 ${esc(tf('suSubj', { n, m: list.length }))}</summary><div class="row" style="gap:6px 14px;flex-wrap:wrap;margin-top:6px">${list.map(x => `<label class="small" style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" ${attr}="${idx}" value="${esc(x.id)}" ${skip.includes(x.id) ? '' : 'checked'}> ${esc(tx(x.name))}</label>`).join('')}</div><div class="small muted" style="margin-top:4px">${esc(t('suSubjHelp'))}</div></details>`;
 }
 /* other households: their own names instead of Diaan/Stefan/Unika in the texts (h1 keeps the original texts) */
 function personalizeUi() {
@@ -467,8 +495,41 @@ function gradeSubjects(g, school) {
   return _strip7.out;
 }
 function setActiveGrade(g, school) { S.grade = +g || 7; S.gradeSchool = school || ''; if (S.content) S.content.subjects = gradeSubjects(S.grade, school); }
-const subjectsOfGrade = (grade) => { grade = +grade || 7; const g = S.content.grades.find(x => +x.grade === grade); if (!g) return []; const map = grade === +S.grade ? S.content.subjects : gradeSubjects(grade, (KIDS.find(k => +k.grade === grade) || {}).school); return g.subjects.map(s => map[s.id]).filter(Boolean); };
-const subjById = (id) => (S.content.subjects || {})[id] || Object.values(S.content.byGrade || {}).map(m => m[id]).find(Boolean) || null;
+const subjectsOfGrade = (grade, kidId) => { grade = +grade || 7; const g = S.content.grades.find(x => +x.grade === grade); if (!g) return []; const map = grade === +S.grade ? S.content.subjects : gradeSubjects(grade, (KIDS.find(k => +k.grade === grade) || {}).school); const all = g.subjects.map(s => map[s.id]).filter(Boolean); const sk = skipSet(grade, kidId); const out = sk.size ? all.filter(s => !sk.has(s.id)) : all; return out.length ? out : all; };
+/* v10.3: which subjects a learner doesn't take (profile kid.skip); in a parent view only what EVERY learner in the grade skips */
+function skipSet(grade, kidId) {
+  const me = kidId ? KIDS.find(k => k.id === kidId) : (S.kid && !(S.route && S.route.s === 'parent') ? KIDS.find(k => k.id === S.kid.id) : null);
+  if (me && (+me.grade || 7) === +grade) return new Set(Array.isArray(me.skip) ? me.skip : []);
+  const ls = KIDS.filter(k => k.role !== 'player' && (+k.grade || 7) === +grade).map(k => Array.isArray(k.skip) ? k.skip : []);
+  return ls.length ? new Set(ls.reduce((a, b) => a.filter(x => b.includes(x)))) : new Set();
+}
+/* placeholder subjects (photos + notes questions only) for grades whose content isn't built yet; ids are the ones the real content will use */
+const STUB_NAMES = { english: ['English', 'English'], afrikaans: ['Afrikaans', 'Afrikaans'], wiskunde: ['Wiskunde', 'Mathematics'], nwt: ['Natuurwetenskappe en Tegnologie', 'Natural Sciences and Technology'],
+  'sosiale-wetenskappe': ['Sosiale Wetenskappe', 'Social Sciences'], lewensvaardighede: ['Lewensvaardighede', 'Life Skills'], natuurwetenskappe: ['Natuurwetenskappe', 'Natural Sciences'],
+  ebw: ['EBW', 'EMS'], tegnologie: ['Tegnologie', 'Technology'], lewensorientering: ['Lewensoriëntering', 'Life Orientation'], 'kreatiewe-kunste': ['Kreatiewe Kunste', 'Creative Arts'] };
+const STUB_ICON = { english: '🇬🇧', afrikaans: '🇿🇦', wiskunde: '📐', nwt: '🔬', 'sosiale-wetenskappe': '🌍', lewensvaardighede: '🌱', natuurwetenskappe: '🔬', ebw: '💼', tegnologie: '⚙️', lewensorientering: '🧭', 'kreatiewe-kunste': '🎨' };
+function phaseStubIds(g) { g = +g; if (g <= 3) return ['english', 'afrikaans', 'wiskunde', 'lewensvaardighede']; if (g <= 6) return ['english', 'afrikaans', 'wiskunde', 'nwt', 'sosiale-wetenskappe', 'lewensvaardighede']; if (g <= 9) return ['wiskunde', 'natuurwetenskappe', 'sosiale-wetenskappe', 'ebw', 'tegnologie', 'lewensorientering', 'kreatiewe-kunste', 'afrikaans', 'english']; return ['english', 'afrikaans', 'wiskunde', 'lewensorientering']; }
+const STUBS = {};
+function stubSubj(id, name, grade) {
+  const k = grade + ':' + id; if (STUBS[k]) return STUBS[k];
+  const nm = STUB_NAMES[id] ? { af: STUB_NAMES[id][0], en: STUB_NAMES[id][1] } : { af: name || id, en: name || id };
+  return (STUBS[k] = { id, grade: +grade, name: nm, short: nm, icon: STUB_ICON[id] || '📒', color: '#7c5cff', terms: [], stub: true, intro: { af: '', en: '' } });
+}
+const gradeHasContent = (g) => !!(S.content && S.content.grades.some(x => +x.grade === +g));
+/* the placeholder + own extra subjects for a learner (or, in a parent view, for every learner in the grade) */
+function stubSubjects(grade, kidId) {
+  grade = +grade || 7;
+  const me = kidId ? KIDS.find(k => k.id === kidId) : (S.kid && !(S.route && S.route.s === 'parent') ? KIDS.find(k => k.id === S.kid.id) : null);
+  const ks = me ? [me] : KIDS.filter(k => k.role !== 'player' && (+k.grade || 7) === grade);
+  const out = [], seen = new Set();
+  if (!gradeHasContent(grade)) { const sk = skipSet(grade, kidId); phaseStubIds(grade).filter(id => !sk.has(id)).forEach(id => { seen.add(id); out.push(stubSubj(id, null, grade)); }); }
+  ks.forEach(k => (Array.isArray(k.extra) ? k.extra : []).forEach(x => { if (x && x.id && !seen.has(x.id)) { seen.add(x.id); out.push(stubSubj(x.id, x.name, grade)); } }));
+  return out;
+}
+function stubById(id) { for (const k in STUBS) if (STUBS[k].id === id && +STUBS[k].grade === curGrade()) return STUBS[k]; return stubSubjects(curGrade()).find(x => x.id === id) || null; }
+const extraOf = (txt) => { const seen = new Set(); return String(txt || '').split(/[,;\n]/).map(x => x.trim()).filter(Boolean).slice(0, 8).map(n => ({ id: 'x-' + (String(n).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'vak'), name: n.slice(0, 40) })).filter(x => !seen.has(x.id) && seen.add(x.id)); };
+const extraTxt = (k) => (Array.isArray(k.extra) ? k.extra : []).map(x => x.name).join(', ');
+const subjById = (id) => (S.content.subjects || {})[id] || Object.values(S.content.byGrade || {}).map(m => m[id]).find(Boolean) || stubById(id) || null;
 const allTopics = (subj) => subj.terms.flatMap(tm => tm.topics.map(tp => ({ tp, term: tm.term })));
 function findTopic(topicId) { const maps = [S.content.subjects].concat(Object.values(S.content.byGrade || {})); for (const m of maps) for (const id in m) { const subj = m[id]; for (const tm of subj.terms) for (const tp of tm.topics) if (tp.id === topicId) return { subj, tp, term: tm.term }; } return null; }
 
@@ -525,12 +586,13 @@ async function award(kid, xp, ev) {
   if (ev && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) { if (!kid.day || kid.day.d !== d) kid.day = { d, tests: 0 }; kid.day.tests++; if (S.sess && S.sess.kid === kid.id) S.sess.tests++; }
   if (S.sess && S.sess.kid === kid.id) S.sess.xp += xp;
   if (ev) { const m = missionOf(kid); if (!m.done) { if (m.k === 'tests' && ['quiz', 'exam', 'paper', 'scope', 'redo', 'challenge'].includes(ev.type)) m.p++; if (m.k === 'games' && ev.type === 'game') m.p++; if (m.p >= m.n) missionComplete(kid); } }
-  if (!has('subject') && ev && ev.subject) { const subj = subjById(ev.subject); if (subj && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
+  if (!has('subject') && ev && ev.subject) { const subj = subjById(ev.subject); if (subj && !subj.stub && allTopics(subj).every(x => (tprog(kid, x.tp.id).best || 0) >= 70)) kid.badges.push('subject'); }
   if (ev) {
     ev.t = Date.now(); ev.xp = xp;
     const s = ev.subject ? subjById(ev.subject) : null, f = ev.topic ? findTopic(ev.topic) : null;
     const pe = ev.paper ? findPaper(ev.paper) : null;
-    if (!ev.label) ev.label = [s ? (s.short.af || s.short.en) : null, f ? (f.tp.title.af || f.tp.title.en) : null, pe ? (pe.ex.title.af || pe.ex.title.en) : null].filter(Boolean).join(' · ');
+    const pl = pushLang(), po = pl === 'en' ? 'af' : 'en';
+    if (!ev.label) ev.label = [s ? (s.short[pl] || s.short[po]) : null, f ? (f.tp.title[pl] || f.tp.title[po]) : null, pe ? (pe.ex.title[pl] || pe.ex.title[po]) : null].filter(Boolean).join(' · ');
   }
   await S.store.saveKid(kid);
   if (ev) { S.store.appendLog(kid.id, ev).catch(() => {}); notify(kid, ev); }
@@ -576,7 +638,7 @@ function go(hash) { location.hash = hash; }
 function parseRoute() {
   const h = (location.hash || '').replace(/^#/, '');
   if (!h || h === 'home' || h === 'tuis') return { s: 'home' };
-  if (/^s=[A-Za-z0-9]+$/.test(h)) return { s: 'setup', code: h.slice(2) };
+  { const sm = h.match(/^s=([A-Za-z0-9]+)((?:~[a-z]+)*)$/); if (sm) { const fl = sm[2].split('~').filter(Boolean); return { s: 'setup', code: sm[1], lang: fl.includes('en') ? 'en' : fl.includes('af') ? 'af' : null, sep: fl.includes('sep') }; } }
   if (KIDS.some(k => k.id === h)) return { s: 'home', kid: h };
   if (h === 'ouer' || h === 'parent') return { s: 'parent' };
   if (h === 'vakke') return { s: 'subjects' };
@@ -600,6 +662,7 @@ function parseRoute() {
   if ((m = h.match(/^vak-(.+)$/))) return { s: 'subject', id: m[1] };
   if ((m = h.match(/^onderwerp-(.+)$/))) return { s: 'topic', id: m[1] };
   if ((m = h.match(/^toets-(.+)$/))) return { s: 'quiz', id: m[1] };
+  if ((m = h.match(/^notas-([a-z0-9]+)$/))) return { s: 'notes', id: m[1] };
   if ((m = h.match(/^eksamen-(.+)$/))) return { s: 'exam', id: m[1] };
   if ((m = h.match(/^vraestel-(.+)$/))) return { s: 'paper', id: m[1] };
   return { s: 'home' };
@@ -641,7 +704,7 @@ async function render() {
   if (lockedKid() && (!S.kid || !kidAllowed(S.kid.id)) && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(lockedKid());
   nav(); renderWho();
   if (!S.content) { main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`; return; }
-  if (r.s === 'setup') return renderSetup(main, r.code);
+  if (r.s === 'setup') return renderSetup(main, r.code, r);
   if (r.s === 'parent') return renderParent(main);
   if (r.s === 'resources') return renderResources(main);
   if (window.LH_CONFIG && (S.keyProblem === 'missing' || S.keyProblem === 'bad')) return renderGate(main);
@@ -659,6 +722,7 @@ async function render() {
     case 'scope': return renderQuiz(main, r.id, 'scope');
     case 'redo': return renderQuiz(main, r.id, 'redo');
     case 'week': return renderQuiz(main, 'week', 'week');
+    case 'notes': return renderNotesQuiz(main, r.id);
     case 'exams': return renderExams(main);
     case 'rooster': return renderRooster(main);
     case 'mistakes': return renderMistakes(main);
@@ -772,11 +836,27 @@ function subjectCard(s, kid, i) {
 function wireSubjectCards(root) { root.querySelectorAll('[data-subj]').forEach(b => b.onclick = () => go('vak-' + b.dataset.subj)); }
 function renderSubjects(main) {
   const subjects = subjectsOfGrade(curGrade());
-  main.innerHTML = `<div class="row" style="justify-content:space-between"><h1>${esc(t('subjects'))}</h1><button class="btn sm" data-go="hulpbronne">🔗 ${esc(t('resources'))}</button></div><p class="muted" style="margin:4px 0 16px">${esc(t('chooseGrade'))} ${curGrade()} · CAPS · ${esc(t('termNow'))} ${curTerm()}</p><div class="subjects">${subjects.map((s, i) => subjectCard(s, S.kid, i)).join('')}</div>`;
+  main.innerHTML = `<div class="row" style="justify-content:space-between"><h1>${esc(t('subjects'))}</h1><button class="btn sm" data-go="hulpbronne">🔗 ${esc(t('resources'))}</button></div><p class="muted" style="margin:4px 0 16px">${esc(t('chooseGrade'))} ${curGrade()} · CAPS · ${esc(t('termNow'))} ${curTerm()}</p><div class="subjects">${subjects.map((s, i) => subjectCard(s, S.kid, i)).join('')}</div>${stubList(curGrade())}`;
   wireSubjectCards(main); $('[data-go]', main).onclick = () => go('hulpbronne');
+  main.querySelectorAll('[data-stub]').forEach(b => b.onclick = () => go('vak-' + b.dataset.stub));
+}
+function stubList(g) {
+  const st = stubSubjects(g); if (!st.length) return '';
+  const real = subjectsOfGrade(g).length;
+  return `<h3 style="margin:${real ? '22px' : '6px'} 0 6px">📒 ${esc(t(real ? 'stubMore' : 'stubT'))}</h3><p class="small muted" style="margin:0 0 10px">${esc(t(gradeHasContent(g) ? 'stubSubX' : 'stubSub'))}</p>
+    <div class="stack" style="gap:8px">${st.map(s => `<button type="button" class="card row" data-stub="${esc(s.id)}" style="gap:12px;align-items:center;text-align:left;cursor:pointer;width:100%"><span style="font-size:26px">${s.icon}</span><span style="flex:1"><b>${esc(tx(s.name))}</b><br><span class="small muted">${esc(t('stubCard'))}</span></span><span>›</span></button>`).join('')}</div>`;
+}
+function renderStubSubject(main, s) {
+  setSubjectColor(s.color);
+  main.innerHTML = `<button class="back" data-go="vakke">← ${esc(t('subjects'))}</button>
+    <div class="subhead"><span class="ic">${s.icon}</span><div class="t"><h1>${esc(tx(s.name))}</h1><p class="small muted">${esc(t(gradeHasContent(curGrade()) ? 'stubIntroX' : 'stubIntro'))}</p></div></div>
+    ${photoCard(s) || `<div class="card" style="margin-top:10px"><p class="small muted">${esc(t('phOffline'))}</p></div>`}`;
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  wireSubjectPhotos(main, s);
 }
 function renderSubject(main, id) {
-  const s = S.content.subjects[id]; if (!s) return go('vakke');
+  const s = S.content.subjects[id] || stubById(id); if (!s) return go('vakke');
+  if (s.stub) return renderStubSubject(main, s);
   setSubjectColor(s.color);
   const kid = S.kid, pct = subjectPct(kid, s);
   const ct = curTerm(), scope = new Set(scopeOf(s).topics);
@@ -856,6 +936,11 @@ function renderResources(main) {
 
 /* ------------------------------------------------------------------ quiz engine */
 function buildQuestions(id, mode) {
+  if (mode === 'notes') {
+    const set = NOTES.byId[id]; if (!set || !Array.isArray(set.qs) || !set.qs.length) return null;
+    const nm = set.title || t('nqT'), topic = { id: 'notes-' + id, title: nm };
+    return { subj: subjById(set.subj), title: '📒 ' + nm, label: '📒 ' + nm, qs: shuffle(set.qs.map(q => ({ q, topic, term: null }))), topicId: null };
+  }
   if (mode === 'exam') {
     const s = S.content.subjects[id]; if (!s) return null;
     const pool = allTopics(s).filter(x => inPool(s, x.tp)).flatMap(x => x.tp.quiz.map(q => ({ q, topic: x.tp, term: x.term })));
@@ -937,16 +1022,16 @@ function mountQuestion(q, body, act, finishCb, opt) {
     $('#checkM').onclick = () => { let all = true; body.querySelectorAll('.mitem').forEach(el => el.disabled = true); Object.keys(pairs).forEach(l => { const ok = pairs[l] === +l; if (!ok) all = false; body.querySelector(`[data-l="${l}"]`).classList.add(ok ? 'right' : 'wrong'); body.querySelector(`[data-r="${pairs[l]}"]`).classList.add(ok ? 'right' : 'wrong'); }); finish(all, all ? '' : q.pairs.map(p => `${esc(tx(p.l))} → ${esc(tx(p.r))}`).join('<br>')); };
   }
 }
-const QEV = { topic: 'quiz', exam: 'exam', scope: 'scope', redo: 'redo', week: 'challenge' };
+const QEV = { topic: 'quiz', exam: 'exam', scope: 'scope', redo: 'redo', week: 'challenge', notes: 'quiz' };
 function renderQuiz(main, id, mode) {
   if (mode === true) mode = 'exam'; if (!mode) mode = 'topic';
   const built = buildQuestions(id, mode);
   if (!built) return go(mode === 'redo' ? 'foute' : mode === 'scope' ? 'eksamens' : mode === 'week' ? 'speel' : 'vakke');
   const bs = built.subj || { id: null, color: '#2f6df6', name: { af: 'Leerhoek', en: 'Leerhoek' }, short: { af: '', en: '' } };
   setSubjectColor(bs.color);
-  const kid = S.kid, qs = built.qs, multi = mode !== 'topic';
-  const backHash = { topic: 'onderwerp-' + id, exam: 'vak-' + bs.id, scope: 'eksamens', redo: 'foute', week: 'speel' }[mode];
-  const backName = { topic: t('summary'), exam: tx(bs.name), scope: t('exT'), redo: t('mistakesT'), week: t('playT') }[mode];
+  const kid = S.kid, qs = built.qs, multi = mode !== 'topic' && mode !== 'notes';
+  const backHash = { topic: 'onderwerp-' + id, exam: 'vak-' + bs.id, notes: bs.id ? 'vak-' + bs.id : 'vakke', scope: 'eksamens', redo: 'foute', week: 'speel' }[mode];
+  const backName = { topic: t('summary'), exam: tx(bs.name), notes: tx(bs.name), scope: t('exT'), redo: t('mistakesT'), week: t('playT') }[mode];
   const Q = { i: 0, answered: 0, correct: 0, fixed: 0, results: [], start: Date.now() };
   S.quiz = Q; S.combo = 0; S.life = 3;
   const drawQ = () => {
@@ -992,7 +1077,7 @@ function renderQuiz(main, id, mode) {
     $('#again').onclick = () => renderQuiz(main, id, mode);
     $('[data-go]', main).onclick = () => go(backHash);
     if (score >= 80) confetti(score === 100 ? 200 : 120);
-    await award(kid, xp, { type: QEV[mode], subject: bs.id, topic: built.topicId, score, correct: Q.correct, total: qs.length, secs });
+    await award(kid, xp, { type: QEV[mode], subject: bs.id, topic: built.topicId, label: built.label, score, correct: Q.correct, total: qs.length, secs });
   };
   drawQ();
 }
@@ -1097,7 +1182,7 @@ async function renderParent(main) {
   wireInstall(); wireScopeEditor(main); wireTestsEditor(main, subjects); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main); wireHouseCard(main); wireCircleCard(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
-    const subjects = subjectsOfGrade(kidGrade(kid.id));
+    const subjects = subjectsOfGrade(kidGrade(kid.id), kid.id);
     const events = log.flatMap(d => (d.events || []).map(e => ({ ...e, date: d.date }))).sort((a, b) => b.t - a.t);
     const week = events.filter(e => e.t >= weekAgo), quizzesWeek = week.filter(e => ['quiz', 'exam', 'scope', 'redo', 'challenge'].includes(e.type));
     const avgWeek = quizzesWeek.length ? Math.round(quizzesWeek.reduce((a, e) => a + e.score, 0) / quizzesWeek.length) : 0;
@@ -1113,7 +1198,7 @@ async function renderParent(main) {
       <div class="row" style="margin-top:12px"><button class="btn sm" data-report="${kid.id}">📋 ${esc(t('copyReport'))}</button></div></div>`;
   };
   cards.innerHTML = kids.map((k, i) => drawKid(k, logs[i])).join('');
-  const wire = () => cards.querySelectorAll('[data-report]').forEach(b => b.onclick = async () => { const kid = kids.find(k => k.id === b.dataset.report); if (await copyText(reportText(kid, subjectsOfGrade(kidGrade(kid.id))))) toast(t('copied')); });
+  const wire = () => cards.querySelectorAll('[data-report]').forEach(b => b.onclick = async () => { const kid = kids.find(k => k.id === b.dataset.report); if (await copyText(reportText(kid, subjectsOfGrade(kidGrade(kid.id), kid.id)))) toast(t('copied')); });
   wire();
   // live updates
   if (S._unsubParent) S._unsubParent.forEach(u => u());
@@ -2140,6 +2225,7 @@ function wireScopeEditor(root) {
 Object.assign(UI.af, {
   phT: "Foto's van skoolwerk", phSub: 'Neem ’n foto van die afbakening, ’n toetskennisgewing of klasnotas. Net julle huishouding kan dit sien.',
   phAdd: 'Foto', phUpload: 'Laai op', phCancel: 'Kanselleer', phNoteP: 'Nota (opsioneel), bv. bl. 40–62', phLoading: 'Laai foto’s …',
+  phSubAi: 'Neem ’n foto van jou klasnotas, ’n werkkaart of ’n handboekblad – die app maak oefenvrae daaruit. Ook die afbakening of ’n toetskennisgewing. Net julle huishouding kan dit sien.',
   phNone: 'Nog geen foto’s nie.', phShrink: 'Maak foto kleiner …', phSending: 'Laai op …', phDone: 'Foto gestoor', phDel: 'Verwyder', phDelSure: 'Seker?',
   phDeleted: 'Foto verwyder', phOpen: 'Maak oop', phClose: 'Maak toe', phOffline: 'Foto’s werk net as die toestel aanlyn en gekoppel is.',
   phNet: 'Kon nie oplaai nie – probeer weer.', phFull: 'Julle het die maksimum van 300 foto’s bereik. Verwyder ou foto’s eers.',
@@ -2152,6 +2238,7 @@ Object.assign(UI.af, {
 Object.assign(UI.en, {
   phT: 'Photos of schoolwork', phSub: 'Take a photo of the exam scope, a test notice or class notes. Only your household can see it.',
   phAdd: 'Photo', phUpload: 'Upload', phCancel: 'Cancel', phNoteP: 'Note (optional), e.g. p. 40–62', phLoading: 'Loading photos …',
+  phSubAi: 'Take a photo of your class notes, a worksheet or a textbook page – the app turns it into practice questions. Or the exam scope or a test notice. Only your household can see it.',
   phNone: 'No photos yet.', phShrink: 'Making the photo smaller …', phSending: 'Uploading …', phDone: 'Photo saved', phDel: 'Delete', phDelSure: 'Sure?',
   phDeleted: 'Photo deleted', phOpen: 'Open', phClose: 'Close', phOffline: 'Photos only work when this device is online and linked.',
   phNet: 'Could not upload – try again.', phFull: 'You have reached the maximum of 300 photos. Delete old photos first.',
@@ -2264,16 +2351,16 @@ function wirePhotoBox(box, o) {
     const list = all.filter(o.filter);
     if (o.onCount) o.onCount(list.length);
     if (!list.length) { grid.innerHTML = `<span class="small muted" style="grid-column:1/-1">${esc(t('phNone'))}</span>`; return; }
-    grid.classList.toggle('phrows', !!(o.read && FILES.ai));
+    grid.classList.toggle('phrows', !!((o.read || o.quiz) && FILES.ai));
     grid.innerHTML = list.map(f => `<div class="phit" data-phid="${esc(f.id)}"><div class="phthw"><button type="button" class="phth" data-phview="${esc(f.id)}" aria-label="${esc(t('phOpen'))}">${f.url ? `<img src="${esc(f.url)}" alt="" loading="lazy">` : ''}</button>
       ${phCanDel(f) ? `<button type="button" class="phdel" data-phdel="${esc(f.id)}" aria-label="${esc(t('phDel'))}">✕</button>` : ''}</div>
       <div class="phmeta"><div class="phcap">${PH_ICON[f.kind] || '📷'} ${esc(phDay(f.at))}${f.note ? ' · ' + esc(f.note) : ''}</div>
-      ${o.read && FILES.ai ? `<button type="button" class="btn sm hi" data-phread="${esc(f.id)}">🤖 ${esc(t('phRead'))}</button>` : ''}</div></div>`).join('');
+      ${o.read && FILES.ai ? `<button type="button" class="btn sm hi" data-phread="${esc(f.id)}">🤖 ${esc(t('phRead'))}</button>` : ''}${o.quiz && FILES.ai && (f.kind === 'notes' || f.kind === 'other') ? (o.quiz.sets()[f.id] ? `<button type="button" class="btn sm subject" data-phplay="notas-${esc(f.id)}">▶️ ${esc(t('nqPlay'))}</button>` : `<button type="button" class="btn sm hi" data-phquiz="${esc(f.id)}">📒 ${esc(t('nqMake'))}</button>`) : ''}</div></div>`).join('');
     grid.querySelectorAll('[data-phview]').forEach(b => b.onclick = () => { const f = list.find(x => x.id === b.dataset.phview); if (f && f.url) photoView(f); });
     grid.querySelectorAll('[data-phdel]').forEach(b => b.onclick = async () => {
       if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = t('phDelSure'); setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = '✕'; } }, 4000); return; }
       b.disabled = true;
-      try { await filesApi('del', { id: b.dataset.phdel }); await photoList(true); toast(t('phDeleted')); } catch (e) { toast(t('phNet')); }
+      try { await filesApi('del', { id: b.dataset.phdel }); await photoList(true); toast(t('phDeleted')); if (o.quiz) { delete NOTES.byId[b.dataset.phdel]; NOTES.list = NOTES.list.filter(x => x.id !== b.dataset.phdel); o.quiz.redraw(); } } catch (e) { toast(t('phNet')); }
       load();
     });
     grid.querySelectorAll('[data-phread]').forEach(b => b.onclick = async () => {
@@ -2282,10 +2369,19 @@ function wirePhotoBox(box, o) {
       catch (e) { msg.textContent = e.code === 'ai_limit' ? t('phAiLimit') : t('phNet'); }
       b.disabled = false;
     });
+    grid.querySelectorAll('[data-phplay]').forEach(b => b.onclick = () => go(b.dataset.phplay));
+    grid.querySelectorAll('[data-phquiz]').forEach(b => b.onclick = async () => {
+      const msg = box.querySelector('[data-phai]'); msg.hidden = false; msg.textContent = '📒 ' + t('nqMaking'); grid.querySelectorAll('[data-phquiz]').forEach(x => { x.disabled = true; });
+      try {
+        const res = await filesApi('quiz', Object.assign({ id: b.dataset.phquiz, today: today() }, o.quiz.args()));
+        if (!res.ai) msg.textContent = t('phAiOff'); else if (!res.set) msg.textContent = t('nqNone'); else { msg.hidden = true; o.quiz.done(res.set); return; }
+      } catch (e) { msg.textContent = e.code === 'ai_limit' ? t('phAiLimit') : t('phNet'); }
+      grid.querySelectorAll('[data-phquiz]').forEach(x => { x.disabled = false; });
+    });
   };
   const load = async (force) => {
     if (!navigator.onLine) { grid.innerHTML = `<span class="small muted">${esc(t('phOffline'))}</span>`; return; }
-    try { draw(await photoList(force)); } catch (e) { grid.innerHTML = `<span class="small muted">${esc(t('phOffline'))}</span>`; }
+    try { const pre = o.before ? o.before().catch(() => null) : null; const list = await photoList(force); await pre; draw(list); } catch (e) { grid.innerHTML = `<span class="small muted">${esc(t('phOffline'))}</span>`; }
   };
   const showForm = (file) => {
     const u = URL.createObjectURL(file);
@@ -2311,12 +2407,37 @@ function photoCard(s) {
   const k = KIDS.find(x => x.id === S.kid.id); if (k && k.role === 'player') return '';
   return `<div class="card" id="phCard" style="margin-top:10px"><div class="row" style="justify-content:space-between;gap:8px;align-items:center"><h3 style="margin:0">📷 ${esc(t('phT'))}</h3>
     <label class="btn sm subject phpick">＋ ${esc(t('phAdd'))}<input type="file" accept="image/*" data-phfile hidden></label></div>
-    <p class="small muted" style="margin:4px 0 6px">${esc(t('phSub'))}</p>${photoBoxHtml()}</div>`;
+    <p class="small muted" style="margin:4px 0 6px">${esc(t(FILES.ai ? 'phSubAi' : 'phSub'))}</p>${photoBoxHtml()}<div data-nqlist></div></div>`;
 }
 function wireSubjectPhotos(main, s) {
   const box = $('#phCard', main); if (!box || !S.kid) return;
-  const kid = S.kid.id, g = curGrade();
-  wirePhotoBox(box, { kinds: PH_KINDS, kind: 'scope', filter: f => f.kid === kid && f.subj === s.id, meta: () => ({ kid, subj: s.id, grade: g }) });
+  const kid = S.kid.id, g = curGrade(), nq = box.querySelector('[data-nqlist]');
+  const drawSets = () => {
+    if (!nq || !nq.isConnected) return;
+    const sets = NOTES.kid === kid ? NOTES.list.filter(x => x.subj === s.id) : [];
+    nq.innerHTML = sets.length ? `<h3 style="margin:16px 0 6px">📒 ${esc(t('nqT'))}</h3><div class="stack" style="gap:8px">${sets.map(x => `<div class="card" style="padding:10px 12px"><div class="row" style="justify-content:space-between;gap:8px;align-items:center"><span class="small"><b>${esc(x.title || t('nqT'))}</b> <span class="muted">· ${x.qs.length} ${esc(t('nqQs'))}${x.at ? ' · ' + esc(phDay(new Date(x.at).toISOString())) : ''}</span></span><button type="button" class="btn sm subject" data-nqgo="notas-${esc(x.id)}">▶️ ${esc(t('nqPlay'))}</button></div>${x.summary ? `<details class="small" style="margin-top:6px"><summary>${esc(t('nqSum'))}</summary><div class="prose" style="margin-top:4px">${md(x.summary)}</div></details>` : ''}</div>`).join('')}</div>` : '';
+    nq.querySelectorAll('[data-nqgo]').forEach(b => b.onclick = () => go(b.dataset.nqgo));
+  };
+  wirePhotoBox(box, { kinds: PH_KINDS, kind: 'notes', filter: f => f.kid === kid && f.subj === s.id, meta: () => ({ kid, subj: s.id, grade: g }),
+    before: () => notesLoad(kid).then(drawSets),
+    quiz: { sets: () => (NOTES.kid === kid ? NOTES.byId : {}), args: () => ({ kid, subj: s.id, grade: g, subject: tx(s.name), lang: L }),
+      done: (set) => { NOTES.byId[set.id] = set; NOTES.list = [set].concat(NOTES.list.filter(x => x.id !== set.id)); go('notas-' + set.id); }, redraw: drawSets } });
+}
+/* notes → practice questions: the household's sets (kv notesq/<kid>/<subj>/<photo id>) */
+const NOTES = { kid: null, at: 0, byId: {}, list: [] };
+async function notesLoad(kid, force) {
+  if (!force && NOTES.kid === kid && Date.now() - NOTES.at < 120000) return NOTES.list;
+  if (!S.store || !S.store.loadPrefix) return [];
+  const rows = await S.store.loadPrefix('notesq/' + kid + '/', 200);
+  const list = (rows || []).map(r => r.value).filter(v => v && v.id && Array.isArray(v.qs) && v.qs.length && !v.deleted).sort((a, b) => (b.at || 0) - (a.at || 0));
+  NOTES.kid = kid; NOTES.at = Date.now(); NOTES.list = list; NOTES.byId = {}; list.forEach(v => { NOTES.byId[v.id] = v; });
+  return list;
+}
+async function renderNotesQuiz(main, id) {
+  if (NOTES.kid === S.kid.id && NOTES.byId[id]) return renderQuiz(main, id, 'notes');
+  main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`;
+  try { await notesLoad(S.kid.id, true); } catch (e) {}
+  if (S.route && S.route.s === 'notes' && S.route.id === id) { if (NOTES.byId[id]) renderQuiz(main, id, 'notes'); else go('vakke'); }
 }
 /* parent's scope editor: scope / test photos of this subject and grade */
 function scopePhotoBox(s) {
@@ -2335,13 +2456,13 @@ function wireScopePhotos(row, upd) {
     filter: f => f.subj === sid && +f.grade === g && (f.kind === 'scope' || f.kind === 'test'),
     meta: () => ({ kid, subj: sid, grade: g }),
     onCount: (n) => { if (cnt) { cnt.hidden = !n; cnt.textContent = '📷 ' + n; } },
-    readArgs: () => ({ subject: tx(s.name), grade: g, topics: s.terms.flatMap(tm => tm.topics.map(tp => ({ id: tp.id, title: tx(tp.title) }))) }),
+    readArgs: () => ({ subject: tx(s.name), grade: g, lang: L, topics: s.terms.flatMap(tm => tm.topics.map(tp => ({ id: tp.id, title: tx(tp.title) }))) }),
     read: (res, msg) => {
       const set = new Set(res.topics || []);
       if (set.size) row.querySelectorAll('[data-tid]').forEach(c => { c.checked = set.has(c.dataset.tid); });
       if (res.date) row.querySelector('[data-date]').value = res.date;
       if (set.size || res.date) upd();
-      msg.innerHTML = `🤖 <b>${set.size} ${esc(t('topics'))}${res.date ? ' · ' + esc(fmtDate(res.date)) : ''}</b>${res.summary_af && L === 'af' ? ' – ' + esc(res.summary_af) : ''}<br>${esc(set.size ? t('phAiCheck') : t('phAiNone'))}`;
+      msg.innerHTML = `🤖 <b>${set.size} ${esc(t('topics'))}${res.date ? ' · ' + esc(fmtDate(res.date)) : ''}</b>${(res.summary || (L === 'af' ? res.summary_af : '')) ? ' – ' + esc(res.summary || res.summary_af) : ''}<br>${esc(set.size ? t('phAiCheck') : t('phAiNone'))}`;
       const det = row.querySelector('details'); if (det) det.open = true;
     },
   });
@@ -2404,7 +2525,7 @@ function checkForUpdate() {
     let done = null; try { done = sessionStorage.getItem('lh.upd'); } catch (e) {}
     if (done === j.v) return; // already tried once for this version
     const reload = () => { try { sessionStorage.setItem('lh.upd', j.v); } catch (e) {} const p = new URLSearchParams(location.search); p.set('u', j.v); location.replace(location.pathname + '?' + p.toString() + location.hash); };
-    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'game', 'coach', 'chess', 'chessGame', 'chat'].includes(S.route.s)) {
+    if (['quiz', 'exam', 'paper', 'scope', 'redo', 'week', 'notes', 'setup', 'game', 'coach', 'chess', 'chessGame', 'chat'].includes(S.route.s)) {
       if (document.getElementById('updBar')) return;
       const bar = document.createElement('button'); bar.id = 'updBar'; bar.className = 'toast show'; bar.style.pointerEvents = 'auto'; bar.style.cursor = 'pointer';
       bar.textContent = L === 'af' ? '✨ Nuwe weergawe – tik om op te dateer' : '✨ New version – tap to update'; bar.onclick = reload; document.body.appendChild(bar);
@@ -4066,7 +4187,7 @@ const remindCfg = () => Object.assign({}, REMIND_DEFAULT, (S.settings || {}).rem
 function schedItems(kidId) {
   const st = S.settings || {}, td = today(), rc = remindCfg(), out = [];
   (st.tests || []).forEach(x => { if (!x || !x.date || !(x.kid === 'both' || x.kid === kidId)) return; const s = subjById(x.subj); out.push({ kind: 'test', s, subj: x.subj, date: x.date, title: x.title || '', topics: x.topics || [], id: x.id }); });
-  subjectsOfGrade(kidGrade(kidId)).forEach(s => { const e = examsFor(s.grade)[s.id]; if (e && e.date) out.push({ kind: 'exam', s, subj: s.id, date: e.date, title: e.note || '', topics: e.topics || null }); });
+  subjectsOfGrade(kidGrade(kidId), kidId).forEach(s => { const e = examsFor(s.grade)[s.id]; if (e && e.date) out.push({ kind: 'exam', s, subj: s.id, date: e.date, title: e.note || '', topics: e.topics || null }); });
   return out.map(x => Object.assign(x, { days: daysBetween(td, x.date), lead: x.kind === 'test' ? rc.testDays : rc.examDays }))
     .filter(x => x.days >= 0).sort((a, b) => a.days - b.days || (a.kind === 'test' ? -1 : 1));
 }
@@ -4134,19 +4255,27 @@ const ROUTE_WORDS = ['ouer', 'parent', 'home', 'tuis', 'vakke', 'kentekens', 'hu
 function slugId(s) { const x = String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '').slice(0, 12); return x.length >= 2 ? x : (x + 'kind').slice(0, 6); }
 function uniqId(base, taken) { let id = base, n = 2; while (taken.has(id)) id = base + (n++); taken.add(id); return id; }
 function setupGradeNote() { const gs = (S.content && S.content.grades) || []; return gs.map(g => `${t('chooseGrade')} ${g.grade}${g.subjects.length < 5 ? ' (' + g.subjects.map(s => s.name ? tx(s.name) : s.id).join(', ') + ')' : ''}`).join(' · '); }
-function renderSetup(main, code) {
+function renderSetup(main, code, r) {
+  r = r || S.route || {};
   if (S.setupDone) return renderSetupDone(main, S.setupDone);
-  const st = S.setupState || (S.setupState = { house: '', parents: [{ name: 'Pa', circle: '', av: '👨' }, { name: 'Ma', circle: '', av: '👩' }], kids: [{ name: '', av: '🦁', role: 'learner', grade: 8, school: '' }] });
+  if (!S.setupState) {
+    const sep = !!r.sep;
+    if (r.lang && r.lang !== L) setLangQuiet(r.lang);
+    S.setupState = { sep, lang: r.lang === 'en' ? (sep ? 'en' : 'en2') : 'af', house: '', parents: [{ name: L === 'en' ? 'Dad' : 'Pa', circle: '', av: '👨' }, { name: L === 'en' ? 'Mom' : 'Ma', circle: '', av: '👩' }], kids: [{ name: '', av: '🦁', role: 'learner', grade: 8, school: '', skip: [], extra: '' }] };
+  }
+  const st = S.setupState;
   const gopts = (sel) => Array.from({ length: 12 }, (_, i) => i + 1).map(g => `<option value="${g}" ${+sel === g ? 'selected' : ''}>${g}</option>`).join('');
   const avSel = (list, cur, attr) => `<select ${attr} aria-label="Avatar" style="font-size:20px">${list.map(a => `<option ${a === cur ? 'selected' : ''}>${a}</option>`).join('')}</select>`;
-  main.innerHTML = `<div class="card pad-lg" style="max-width:720px;margin:12px auto;text-align:left"><div style="text-align:center">${mascot()}</div><h1 style="margin-top:8px">👋 ${esc(t('setupT'))}</h1><p class="small muted" style="margin:6px 0 14px">${esc(t('setupSub'))}</p>
+  main.innerHTML = `<div class="card pad-lg" style="max-width:720px;margin:12px auto;text-align:left"><div style="text-align:center">${mascot()}</div><h1 style="margin-top:8px">👋 ${esc(t('setupT'))}</h1><p class="small muted" style="margin:6px 0 14px">${esc(t(st.sep ? 'setupSubSep' : 'setupSub'))}</p>
   <form id="setupF" class="stack" style="gap:14px" autocomplete="off">
+    <div class="form-row"><label for="suLang">🌐 ${esc(t('suLang'))}</label><select id="suLang">${setupLangOpts(st.lang)}</select></div>
     <div class="form-row"><label for="suHouse">${esc(t('setupHouse'))}</label><input id="suHouse" maxlength="60" placeholder="${esc(t('setupHouseP'))}" value="${esc(st.house)}"></div>
     <h3>${esc(t('setupParents'))}</h3>
-    ${st.parents.map((p, i) => `<div class="card" style="padding:12px"><div class="small muted" style="margin-bottom:6px">${esc(i ? t('setupParent2') : t('setupParent1'))}</div><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_PAR, p.av, `data-pav="${i}"`)}<input data-pnm="${i}" maxlength="24" placeholder="${esc(t('setupParentNmP'))}" value="${esc(p.name)}" aria-label="${esc(t('setupParentNm'))}" style="flex:1;min-width:110px"><input data-pci="${i}" maxlength="30" placeholder="${esc(t('setupParentCircP'))}" value="${esc(p.circle)}" aria-label="${esc(t('setupParentCirc'))}" style="flex:1;min-width:140px"></div><div class="small muted" style="margin-top:4px">${esc(t('setupParentHelp'))}</div></div>`).join('')}
+    ${st.parents.map((p, i) => `<div class="card" style="padding:12px"><div class="small muted" style="margin-bottom:6px">${esc(i ? t('setupParent2') : t('setupParent1'))}</div><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_PAR, p.av, `data-pav="${i}"`)}<input data-pnm="${i}" maxlength="24" placeholder="${esc(t('setupParentNmP'))}" value="${esc(p.name)}" aria-label="${esc(t('setupParentNm'))}" style="flex:1;min-width:110px">${st.sep ? '' : `<input data-pci="${i}" maxlength="30" placeholder="${esc(t('setupParentCircP'))}" value="${esc(p.circle)}" aria-label="${esc(t('setupParentCirc'))}" style="flex:1;min-width:140px">`}</div>${st.sep ? '' : `<div class="small muted" style="margin-top:4px">${esc(t('setupParentHelp'))}</div>`}</div>`).join('')}
     <h3>${esc(t('setupKids'))}</h3>
-    ${st.kids.map((k, i) => `<div class="card" style="padding:12px"><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_KIDS, k.av, `data-kav="${i}"`)}<input data-knm="${i}" maxlength="24" placeholder="${esc(t('setupKidNm'))}" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:110px"><select data-krole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select></div>
-      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><label class="small">${esc(k.role === 'player' ? t('setupLevel') : t('setupGrade'))} <select data-kgr="${i}">${gopts(k.grade)}</select></label>${k.role === 'player' ? '' : `<input data-ksc="${i}" maxlength="50" placeholder="${esc(t('setupSchool'))}" value="${esc(k.school)}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:160px">`}${st.kids.length > 1 ? `<button type="button" class="btn sm ghost" data-kdel="${i}">✕ ${esc(t('setupDel'))}</button>` : ''}</div></div>`).join('')}
+    ${st.kids.map((k, i) => { const list = gradeSubjList(k.grade); return `<div class="card" style="padding:12px"><div class="row" style="gap:8px;flex-wrap:wrap">${avSel(AV_KIDS, k.av, `data-kav="${i}"`)}<input data-knm="${i}" maxlength="24" placeholder="${esc(t('setupKidNm'))}" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:110px"><select data-krole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><label class="small">${esc(k.role === 'player' ? t('setupLevel') : t('setupGrade'))} <select data-kgr="${i}">${gopts(k.grade)}</select></label>${k.role === 'player' ? '' : `<input data-ksc="${i}" maxlength="50" placeholder="${esc(t('setupSchool'))}" value="${esc(k.school)}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:160px">`}${st.kids.length > 1 ? `<button type="button" class="btn sm ghost" data-kdel="${i}">✕ ${esc(t('setupDel'))}</button>` : ''}</div>
+      ${k.role === 'player' ? '' : `${gradeHasContent(k.grade) ? '' : `<div class="small muted" style="margin-top:8px">ℹ️ ${esc(tf('suNoContent', { g: k.grade }))}</div>`}${subjTicks(list, k.skip || [], 'data-ksk', i)}<div class="form-row" style="margin-top:8px"><label class="small" for="suX${i}">${esc(t('suExtra'))}</label><input id="suX${i}" data-kx="${i}" maxlength="200" placeholder="${esc(t('suExtraP'))}" value="${esc(k.extra || '')}"></div>`}</div>`; }).join('')}
     <div><button type="button" class="btn sm" id="suAdd">${esc(t('setupAddKid'))}</button></div>
     <p class="small muted">${esc(tf('setupGradeNote', { g: setupGradeNote() }))}</p>
     <h3>🔐 ${esc(t('setupPin'))}</h3><p class="small muted" style="margin-top:-8px">${esc(t('setupPinHint'))}</p>
@@ -4156,13 +4285,21 @@ function renderSetup(main, code) {
   </form></div>`;
   const F = $('#setupF');
   const grab = () => {
-    st.house = $('#suHouse').value;
-    st.parents.forEach((p, i) => { p.name = F.querySelector(`[data-pnm="${i}"]`).value; p.circle = F.querySelector(`[data-pci="${i}"]`).value; p.av = F.querySelector(`[data-pav="${i}"]`).value; });
-    st.kids.forEach((k, i) => { k.name = F.querySelector(`[data-knm="${i}"]`).value; k.av = F.querySelector(`[data-kav="${i}"]`).value; k.role = F.querySelector(`[data-krole="${i}"]`).value; k.grade = +F.querySelector(`[data-kgr="${i}"]`).value; const sc = F.querySelector(`[data-ksc="${i}"]`); if (sc) k.school = sc.value; });
+    st.house = $('#suHouse').value; st.lang = $('#suLang').value;
+    st.parents.forEach((p, i) => { p.name = F.querySelector(`[data-pnm="${i}"]`).value; const ci = F.querySelector(`[data-pci="${i}"]`); p.circle = ci ? ci.value : ''; p.av = F.querySelector(`[data-pav="${i}"]`).value; });
+    st.kids.forEach((k, i) => {
+      k.name = F.querySelector(`[data-knm="${i}"]`).value; k.av = F.querySelector(`[data-kav="${i}"]`).value; k.role = F.querySelector(`[data-krole="${i}"]`).value; k.grade = +F.querySelector(`[data-kgr="${i}"]`).value;
+      const sc = F.querySelector(`[data-ksc="${i}"]`); if (sc) k.school = sc.value;
+      const ticks = [...F.querySelectorAll(`[data-ksk="${i}"]`)]; if (ticks.length) k.skip = ticks.filter(c => !c.checked).map(c => c.value);
+      const x = F.querySelector(`[data-kx="${i}"]`); if (x) k.extra = x.value;
+    });
   };
-  F.querySelectorAll('[data-krole]').forEach(s => s.onchange = () => { grab(); renderSetup(main, code); });
-  $('#suAdd').onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ name: '', av: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '' }); renderSetup(main, code); };
-  F.querySelectorAll('[data-kdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.kdel, 1); renderSetup(main, code); });
+  const again = () => renderSetup(main, code, r);
+  $('#suLang').onchange = () => { grab(); setLangQuiet(langOf(st.lang).lang); again(); };
+  F.querySelectorAll('[data-krole]').forEach(x => x.onchange = () => { grab(); again(); });
+  F.querySelectorAll('[data-kgr]').forEach(x => x.onchange = () => { grab(); st.kids[+x.dataset.kgr].skip = []; again(); });
+  $('#suAdd').onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ name: '', av: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '', skip: [], extra: '' }); again(); };
+  F.querySelectorAll('[data-kdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.kdel, 1); again(); });
   F.onsubmit = async (e) => {
     e.preventDefault(); grab(); const err = (k) => { $('#suErr').textContent = t(k); };
     const parents = st.parents.filter(p => p.name.trim()), kids = st.kids.filter(k => k.name.trim());
@@ -4170,11 +4307,12 @@ function renderSetup(main, code) {
     if (!kids.length) return err('setupErrKid');
     const pin = $('#suPin').value.trim(); if (!/^\d{4,6}$/.test(pin) || pin !== $('#suPin2').value.trim()) return err('setupErrPin');
     const btn = $('#suGo'); btn.disabled = true; btn.textContent = t('setupBusy');
-    try { S.setupDone = await doSetup(code, st.house.trim(), parents, kids, pin); S.setupState = null; renderSetup(main, code); }
+    try { S.setupDone = await doSetup(code, st.house.trim(), parents, kids, pin, st); S.setupState = null; renderSetup(main, code, r); }
     catch (ex) { btn.disabled = false; btn.textContent = t('setupGo'); err(ex && ex.message === 'invite' ? 'setupErrInv' : 'setupErrNet'); }
   };
 }
-async function doSetup(code, house, parents, kids, pin) {
+async function doSetup(code, house, parents, kids, pin, opt) {
+  opt = opt || {};
   const cfg = window.LH_CONFIG; if (!cfg || !cfg.supabaseUrl) throw new Error('net');
   const h = { apikey: cfg.supabaseKey, 'Content-Type': 'application/json' }; if (/^eyJ/.test(cfg.supabaseKey)) h.Authorization = 'Bearer ' + cfg.supabaseKey;
   const r = await fetch(cfg.supabaseUrl.replace(/\/$/, '') + '/rest/v1/rpc/lh_setup', { method: 'POST', headers: h, body: JSON.stringify({ code, hname: house }) });
@@ -4183,12 +4321,14 @@ async function doSetup(code, house, parents, kids, pin) {
   const st = new SupaStore(cfg.supabaseUrl, cfg.supabaseKey, key);
   const taken = new Set(ROUTE_WORDS.concat(['pa', 'ma', 'diaan', 'stefan']));
   try { ((await st.rpc('lh_circle')) || []).forEach(hh => { const p = hh.profile || {}; (p.kids || []).concat(p.parents || []).forEach(m => taken.add(m.id)); }); } catch (e) {}
-  const prof = { v: 1, name: house,
-    kids: kids.map(k => ({ id: uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.av, role: k.role === 'player' ? 'player' : 'learner', grade: +k.grade || 8, school: k.role === 'player' ? '' : String(k.school || '').trim().slice(0, 50) })),
-    parents: parents.map(p => ({ id: uniqId('p' + slugId(p.circle || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circle || p.name).trim().slice(0, 30), avatar: p.av })) };
+  const lg = langOf(opt.lang || 'af');
+  const prof = Object.assign({ v: 1, name: house }, lg, {
+    kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 8, list = gradeSubjList(g).map(x => x.id), skip = learner && Array.isArray(k.skip) ? k.skip.filter(x => list.includes(x)) : [], extra = learner ? extraOf(k.extra) : [];
+      return Object.assign({ id: uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.av, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, skip.length ? { skip } : {}, extra.length ? { extra } : {}); }),
+    parents: parents.map(p => ({ id: uniqId('p' + slugId(p.circle || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circle || p.name).trim().slice(0, 30), avatar: p.av })) });
   await st.put('household/profile', prof);
   await st.put('settings/main', { pinHash: await sha(pin), examDate: null, examTitle: '', currentTerm: null });
-  try { localStorage.setItem('lh.fk', key); localStorage.setItem('lh.lock', 'ouer'); localStorage.removeItem('lh.kid'); } catch (e) {}
+  try { localStorage.setItem('lh.fk', key); localStorage.setItem('lh.lock', 'ouer'); localStorage.removeItem('lh.kid'); localStorage.setItem('lh.lang', lg.lang); } catch (e) {}
   return { key, prof };
 }
 function renderSetupDone(main, d) {
@@ -4207,6 +4347,7 @@ function circleCard() {
   if (!online() || !HOUSE.owner) return '';
   return `<div class="card" style="margin-top:14px" id="circleCard"><h3>${esc(t('invT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('invSub'))}</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><input id="invLabel" maxlength="40" placeholder="${esc(t('invLabelP'))}" style="flex:1;min-width:160px"><button class="btn primary" id="invMake">${esc(t('invMake'))}</button></div>
+    ${HOUSE.id === 'h1' ? `<div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><select id="invKind" aria-label="${esc(t('invKindL'))}"><option value="fam">👪 ${esc(t('invKindFam'))}</option><option value="sep">🔒 ${esc(t('invKindSep'))}</option></select><select id="invLang" aria-label="${esc(t('suLang'))}"><option value="af">🌐 Afrikaans</option><option value="en">🌐 English</option></select></div><p class="small muted" id="invHelp" style="margin:6px 0 0">${esc(t('invHelpFam'))}</p>` : ''}
     <div id="invOut" style="margin-top:10px"></div>
     <details style="margin-top:10px"><summary class="small">${esc(t('invList'))}</summary><div id="invList" class="small" style="margin-top:6px">…</div></details>
     ${(S.houseCircle || []).filter(x => !x.me).length ? `<h3 style="margin-top:16px">${esc(t('kringHouses'))}</h3><div class="stack" style="gap:6px;margin-top:6px">${(S.houseCircle || []).filter(x => !x.me).map(x => `<div class="row" style="justify-content:space-between;gap:8px"><span class="small">🏠 ${esc(x.name || '—')} <span class="muted">· ${((x.profile || {}).kids || []).map(k => esc(k.avatar || '') + ' ' + esc(k.name)).join(', ')}</span></span><button type="button" class="btn sm ghost" data-kick="${esc(x.hid)}">${esc(t('kringKick'))}</button></div>`).join('')}</div>` : ''}
@@ -4215,12 +4356,15 @@ function circleCard() {
 function wireCircleCard(root) {
   const card = $('#circleCard', root); if (!card) return;
   const base = location.origin + location.pathname;
-  const loadInv = async () => { const box = $('#invList', card); try { const l = (await S.store.rpc('lh_invites')) || []; box.innerHTML = l.length ? l.map(x => `<div>• ${esc(x.label || '—')} – ${x.used ? esc(tf('invUsed', { n: x.by || '?' })) : new Date(x.expires) < new Date() ? esc(t('invExpired')) : esc(tf('invOpen', { d: fmtDate(String(x.expires).slice(0, 10)) }))}</div>`).join('') : '<span class="muted">—</span>'; } catch (e) { box.textContent = '—'; } };
+  const loadInv = async () => { const box = $('#invList', card); try { const l = (await S.store.rpc('lh_invites')) || []; box.innerHTML = l.length ? l.map(x => `<div>• ${x.sep ? '🔒 ' : ''}${esc(x.label || '—')} – ${x.used ? esc(tf('invUsed', { n: x.by || '?' })) : new Date(x.expires) < new Date() ? esc(t('invExpired')) : esc(tf('invOpen', { d: fmtDate(String(x.expires).slice(0, 10)) }))}</div>`).join('') : '<span class="muted">—</span>'; } catch (e) { box.textContent = '—'; } };
+  const kindSel = $('#invKind', card), langSel = $('#invLang', card);
+  if (kindSel) kindSel.onchange = () => { $('#invHelp', card).textContent = t(kindSel.value === 'sep' ? 'invHelpSep' : 'invHelpFam'); if (kindSel.value === 'sep' && langSel) langSel.value = 'en'; };
   $('#invMake', card).onclick = async () => {
-    const lb = $('#invLabel', card).value.trim();
+    const lb = $('#invLabel', card).value.trim(), sep = !!kindSel && kindSel.value === 'sep', lg = langSel ? langSel.value : 'af';
     try {
-      const code = await S.store.rpc('lh_invite', { label: lb }), u = `${base}#s=${code}`;
-      $('#invOut', card).innerHTML = `<div class="card" style="padding:12px"><div class="small" style="word-break:break-all" id="invUrl">${esc(u)}</div><div class="row" style="gap:6px;margin-top:8px"><button class="btn sm" id="invCopy">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('invMsg', { u }))}">💬 WhatsApp</a></div></div>`;
+      const code = await S.store.rpc('lh_invite', sep ? { label: lb, sep: true } : { label: lb }), u = `${base}#s=${code}${lg === 'en' ? '~en' : ''}${sep ? '~sep' : ''}`;
+      const wa = String((lg === 'en' ? UI.en : UI.af).invMsg).replace('{u}', u);
+      $('#invOut', card).innerHTML = `<div class="card" style="padding:12px">${sep ? `<div class="small" style="margin-bottom:6px"><b>🔒 ${esc(t('invKindSep'))}</b></div>` : ''}<div class="small" style="word-break:break-all" id="invUrl">${esc(u)}</div><div class="row" style="gap:6px;margin-top:8px"><button class="btn sm" id="invCopy">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(wa)}">💬 WhatsApp</a></div></div>`;
       $('#invCopy', card).onclick = async () => { if (await copyText(u)) toast(t('copied')); };
       $('#invLabel', card).value = ''; loadInv();
     } catch (e) { toast(t('setupErrNet')); }
@@ -4234,7 +4378,7 @@ function wireCircleCard(root) {
     const box = $('#kringUse', card);
     try {
       const rows = (await S.store.rpc('lh_circle_usage')) || []; const cols = t('kringCols');
-      box.innerHTML = rows.length ? `<div class="tbl"><table class="marks"><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${rows.map(r => { const tt = r.totals || {}; return `<tr><td>${esc(r.avatar || '🙂')} ${esc(r.name || '')} <span class="muted">(${esc(r.house || '')})</span></td><td class="num">${r.role === 'player' ? '🎲' : esc(String(r.grade || ''))}</td><td class="num">${+r.xp || 0}</td><td class="num">${+tt.quizzes || 0}</td><td class="num">${Math.round((+tt.secs || 0) / 60)}</td><td>${r.updated ? esc(fmtDay(new Date(+r.updated).toISOString().slice(0, 10))) : '—'}</td></tr>`; }).join('')}</table></div>` : `<span class="muted">${esc(t('kringNone'))}</span>`;
+      box.innerHTML = rows.length ? `<div class="tbl"><table class="marks"><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${rows.map(r => { const tt = r.totals || {}; return `<tr><td>${esc(r.avatar || '🙂')} ${esc(r.name || '')} <span class="muted">(${r.sep ? '🔒 ' : ''}${esc(r.house || '')})</span></td><td class="num">${r.role === 'player' ? '🎲' : esc(String(r.grade || ''))}</td><td class="num">${+r.xp || 0}</td><td class="num">${+tt.quizzes || 0}</td><td class="num">${Math.round((+tt.secs || 0) / 60)}</td><td>${r.updated ? esc(fmtDay(new Date(+r.updated).toISOString().slice(0, 10))) : '—'}</td></tr>`; }).join('')}</table></div>` : `<span class="muted">${esc(t('kringNone'))}</span>`;
     } catch (e) { box.textContent = '—'; }
   })();
 }
@@ -4285,18 +4429,19 @@ Object.assign(UI.en, {
 /* ---------- v10: the parents edit their household (people, grades, schools) and see everyone's link ---------- */
 function houseCard() {
   if (S.storeKind !== 'supa') return '';
-  const st = S.houseEdit || (S.houseEdit = { kids: KIDS.map(k => Object.assign({}, k)), parents: PARENTS.map(p => Object.assign({}, p)) });
+  const st = S.houseEdit || (S.houseEdit = { kids: KIDS.map(k => Object.assign({}, k, { extra: extraTxt(k) })), parents: PARENTS.map(p => Object.assign({}, p)), lang: langCodeOf(S.houseProf) });
   const gopts = (sel) => Array.from({ length: 12 }, (_, i) => i + 1).map(g => `<option value="${g}" ${+sel === g ? 'selected' : ''}>${g}</option>`).join('');
   const avSel = (list, cur, attr) => `<select ${attr} aria-label="Avatar">${(list.includes(cur) ? list : [cur].concat(list)).map(a => `<option ${a === cur ? 'selected' : ''}>${a}</option>`).join('')}</select>`;
   const base = location.origin + location.pathname, fk = S.store.fk;
   const linkRow = (av, nm, route) => { const u = `${base}#k=${fk}~${route}`; return `<div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="small">${av} <b>${esc(nm)}</b></span><span class="row" style="gap:6px"><button type="button" class="btn sm" data-hcopy="${esc(u)}">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('setupWaMsg', { n: nm, u }))}">💬</a></span></div>`; };
   return `<div class="card" style="margin-top:14px" id="houseCard"><details ${S.houseOpen ? 'open' : ''}><summary><h3 style="display:inline">${esc(t('houseT'))}</h3></summary><p class="small muted" style="margin:6px 0 10px">${esc(t('houseSub'))}</p>
     <div class="label">${esc(t('setupKids'))}</div>
-    ${st.kids.map((k, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_KIDS, k.avatar, `data-hkav="${i}"`)}<input data-hknm="${i}" maxlength="24" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:100px"><select data-hkrole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select><label class="small">${esc(t('setupGrade'))} <select data-hkgr="${i}">${gopts(k.grade)}</select></label><input data-hksc="${i}" maxlength="50" value="${esc(k.school || '')}" placeholder="${esc(t('setupSchool'))}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hkdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>`).join('')}
+    ${st.kids.map((k, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_KIDS, k.avatar, `data-hkav="${i}"`)}<input data-hknm="${i}" maxlength="24" value="${esc(k.name)}" aria-label="${esc(t('setupKidNm'))}" style="flex:1;min-width:100px"><select data-hkrole="${i}" aria-label="${esc(t('setupKidRole'))}"><option value="learner" ${k.role !== 'player' ? 'selected' : ''}>${esc(t('setupLearner'))}</option><option value="player" ${k.role === 'player' ? 'selected' : ''}>${esc(t('setupPlayer'))}</option></select><label class="small">${esc(t('setupGrade'))} <select data-hkgr="${i}">${gopts(k.grade)}</select></label><input data-hksc="${i}" maxlength="50" value="${esc(k.school || '')}" placeholder="${esc(t('setupSchool'))}" aria-label="${esc(t('setupSchool'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hkdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>${k.role === 'player' ? '' : `<div style="margin:-2px 0 10px 4px">${subjTicks(gradeSubjList(k.grade), Array.isArray(k.skip) ? k.skip : [], 'data-hksk', i)}<input data-hkx="${i}" maxlength="200" value="${esc(k.extra || '')}" placeholder="${esc(t('suExtraP'))}" aria-label="${esc(t('suExtra'))}" style="margin-top:6px;width:100%"></div>`}`).join('')}
     <button type="button" class="btn sm" id="hAddKid">${esc(t('houseAddKid'))}</button>
     <div class="label" style="margin-top:12px">${esc(t('setupParents'))}</div>
     ${st.parents.map((p, i) => `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0;align-items:center">${avSel(AV_PAR, p.avatar, `data-hpav="${i}"`)}<input data-hpnm="${i}" maxlength="24" value="${esc(p.name)}" aria-label="${esc(t('setupParentNm'))}" placeholder="${esc(t('setupParentNmP'))}" style="flex:1;min-width:100px"><input data-hpci="${i}" maxlength="30" value="${esc(p.circleName || '')}" aria-label="${esc(t('setupParentCirc'))}" placeholder="${esc(t('setupParentCircP'))}" style="flex:1;min-width:120px"><button type="button" class="btn sm ghost" data-hpdel="${i}" aria-label="${esc(t('setupDel'))}">✕</button></div>`).join('')}
     <button type="button" class="btn sm" id="hAddPar">${esc(t('houseAddPar'))}</button>
+    <div class="label" style="margin-top:12px">🌐 ${esc(t('suLang'))}</div><select id="hLang">${setupLangOpts(st.lang || 'af')}</select>
     <div id="hErr" class="small" style="color:var(--bad);min-height:18px;margin-top:8px"></div>
     <button type="button" class="btn primary" id="hSave">💾 ${esc(t('houseSave'))}</button>
     <div class="label" style="margin-top:14px">🔗 ${esc(t('houseLinks'))}</div><p class="small muted" style="margin:2px 0 6px">${esc(t('houseLinksSub'))}</p>
@@ -4308,7 +4453,9 @@ function wireHouseCard(root) {
   const st = S.houseEdit;
   card.querySelector('details').ontoggle = (e) => { S.houseOpen = e.target.open; };
   const grab = () => {
-    st.kids.forEach((k, i) => { k.avatar = card.querySelector(`[data-hkav="${i}"]`).value; k.name = card.querySelector(`[data-hknm="${i}"]`).value; k.role = card.querySelector(`[data-hkrole="${i}"]`).value; k.grade = +card.querySelector(`[data-hkgr="${i}"]`).value; k.school = card.querySelector(`[data-hksc="${i}"]`).value; });
+    st.kids.forEach((k, i) => { k.avatar = card.querySelector(`[data-hkav="${i}"]`).value; k.name = card.querySelector(`[data-hknm="${i}"]`).value; k.role = card.querySelector(`[data-hkrole="${i}"]`).value; k.grade = +card.querySelector(`[data-hkgr="${i}"]`).value; k.school = card.querySelector(`[data-hksc="${i}"]`).value;
+      const ticks = [...card.querySelectorAll(`[data-hksk="${i}"]`)]; if (ticks.length) k.skip = ticks.filter(c => !c.checked).map(c => c.value); const x = card.querySelector(`[data-hkx="${i}"]`); if (x) k.extra = x.value; });
+    const hl = card.querySelector('#hLang'); if (hl) st.lang = hl.value;
     st.parents.forEach((p, i) => { p.avatar = card.querySelector(`[data-hpav="${i}"]`).value; p.name = card.querySelector(`[data-hpnm="${i}"]`).value; p.circleName = card.querySelector(`[data-hpci="${i}"]`).value; });
   };
   const redraw = () => { S.houseOpen = true; card.outerHTML = houseCard(); wireHouseCard(root); };
@@ -4316,6 +4463,7 @@ function wireHouseCard(root) {
   $('#hAddKid', card).onclick = () => { grab(); const last = st.kids[st.kids.length - 1] || {}; st.kids.push({ id: null, name: '', avatar: AV_KIDS[st.kids.length % AV_KIDS.length], role: 'learner', grade: last.grade || 8, school: last.school || '' }); redraw(); };
   $('#hAddPar', card).onclick = () => { grab(); st.parents.push({ id: null, name: '', circleName: '', avatar: AV_PAR[st.parents.length % AV_PAR.length] }); redraw(); };
   card.querySelectorAll('[data-hkdel]').forEach(b => b.onclick = () => { grab(); st.kids.splice(+b.dataset.hkdel, 1); redraw(); });
+  card.querySelectorAll('[data-hkgr], [data-hkrole]').forEach(x => x.onchange = () => { grab(); if (x.dataset.hkgr !== undefined) st.kids[+x.dataset.hkgr].skip = []; redraw(); });
   card.querySelectorAll('[data-hpdel]').forEach(b => b.onclick = () => { grab(); st.parents.splice(+b.dataset.hpdel, 1); redraw(); });
   $('#hSave', card).onclick = async () => {
     grab();
@@ -4325,9 +4473,10 @@ function wireHouseCard(root) {
     if (!HOUSE.legacy) ['pa', 'ma', 'diaan', 'stefan'].forEach(x => taken.add(x));
     const prof = Object.assign({}, S.houseProf || { v: 1, legacy: HOUSE.legacy }, {
       name: (S.houseProf && S.houseProf.name) || HOUSE.name,
-      kids: kids.map(k => ({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: k.role === 'player' ? 'player' : 'learner', grade: +k.grade || 7, school: k.role === 'player' ? '' : String(k.school || '').trim().slice(0, 50) })),
+      kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 7, list = gradeSubjList(g).map(x => x.id), skip = learner && Array.isArray(k.skip) ? k.skip.filter(x => list.includes(x)) : [], extra = learner ? extraOf(k.extra) : [];
+        return Object.assign({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, skip.length ? { skip } : {}, extra.length ? { extra } : {}); }),
       parents: parents.map(p => Object.assign({}, p, { id: p.id || uniqId('p' + slugId(p.circleName || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circleName || '').trim().slice(0, 30) })),
-    });
+    }, langOf(st.lang || langCodeOf(S.houseProf)));
     try {
       await S.store.put('household/profile', prof);
       S.houseProf = prof; S.houseEdit = null; applyHousehold(S.houseMe, prof, S.houseCircle);
@@ -4384,5 +4533,39 @@ async function boot() {
   if (window.LH_VERSION && 'serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (window.LH_VERSION) { setTimeout(checkForUpdate, 4000); setInterval(checkForUpdate, 15 * 60000); document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); }); }
 }
+/* ------------------------------------------------------------------ v10.3 texts */
+Object.assign(UI.af, {
+  suLang: 'Taal van die app', suLangAf: 'Afrikaans (Engels as keuse)', suLangEn2: 'Engels (Afrikaans as keuse)', suLangEn: 'Net Engels',
+  suSubj: 'Vakke: {n} van {m} gekies', suSubjHelp: 'Haal die regmerkie af by vakke wat die kind nie neem nie.',
+  suNoContent: 'Graad {g}-inhoud word nog gebou. Tot dan kan die kind foto’s van sy of haar notas laai en oefenvrae daaruit maak.',
+  suExtra: 'Ander vakke wat nie hierbo is nie (opsioneel)', suExtraP: 'bv. Duits, Lewenswetenskappe – komma tussen',
+  setupSubSep: 'Stel julle gesin op – dit vat 2 minute. Leerhoek is net vir julle gesin: julle kinders se vordering, die klets en die speletjies bly binne julle gesin.',
+  invKindL: 'Soort uitnodiging', invKindFam: 'In ons familiekring', invKindSep: 'Aparte gesin (eie spasie)',
+  invHelpFam: 'Hul vordering bly privaat; die speletjies en die familiekring-klets word met julle gedeel.',
+  invHelpSep: 'Hulle kry hul eie spasie: eie klets, speletjies en ranglys – niks word met julle gedeel nie. Jy sien net hul gebruik-totale.',
+  nqT: 'Vrae uit my notas', nqMake: 'Maak vrae', nqPlay: 'Oefen', nqQs: 'vrae', nqSum: 'Kort opsomming',
+  nqMaking: 'Lees jou notas en maak vrae … (±20 sekondes)', nqNone: 'Kon nie genoeg op die foto lees om vrae te maak nie. Probeer ’n skerper foto van naby.',
+  stubT: 'Jou vakke', stubMore: 'Ander vakke', stubSub: 'Leerhoek se inhoud vir hierdie graad word nog gebou. Laai solank foto’s van jou notas – die app maak oefenvrae daaruit.',
+  stubSubX: 'Vakke wat nog nie in Leerhoek is nie: laai foto’s van jou notas en oefen met vrae daaruit.', stubCard: 'Foto’s van notas → oefenvrae',
+  stubIntro: 'Leerhoek se opsommings en toetse vir hierdie vak kom nog. Neem solank foto’s van jou notas of ’n werkkaart – die app maak oefenvrae daaruit.',
+  stubIntroX: 'Hierdie vak is nog nie in Leerhoek nie. Neem foto’s van jou notas of ’n werkkaart – die app maak oefenvrae daaruit.',
+});
+Object.assign(UI.en, {
+  suLang: 'App language', suLangAf: 'Afrikaans (English as an option)', suLangEn2: 'English (Afrikaans as an option)', suLangEn: 'English only',
+  suSubj: 'Subjects: {n} of {m} chosen', suSubjHelp: "Untick the subjects this child doesn't take.",
+  suNoContent: 'Grade {g} content is still being built. Until then, the child can photograph their notes and turn them into practice questions.',
+  suExtra: "Other subjects that aren't listed (optional)", suExtraP: 'e.g. German, Life Sciences – separate with commas',
+  setupSubSep: "Set up your family – it takes 2 minutes. Leerhoek is just for your family: your children's progress, the chat and the games stay within your family.",
+  invKindL: 'Kind of invite', invKindFam: 'In our family circle', invKindSep: 'Separate family (own space)',
+  invHelpFam: 'Their progress stays private; the games and the family-circle chat are shared with you.',
+  invHelpSep: 'They get their own space: own chat, games and leaderboard – nothing is shared with you. You only see their usage totals.',
+  nqT: 'Questions from my notes', nqMake: 'Make questions', nqPlay: 'Practise', nqQs: 'questions', nqSum: 'Short summary',
+  nqMaking: 'Reading your notes and making questions … (about 20 seconds)', nqNone: "Couldn't read enough on the photo to make questions. Try a sharper photo from closer.",
+  stubT: 'Your subjects', stubMore: 'Other subjects', stubSub: "Leerhoek's content for this grade is still being built. Meanwhile, upload photos of your notes – the app turns them into practice questions.",
+  stubSubX: "Subjects that aren't in Leerhoek yet: upload photos of your notes and practise with questions made from them.", stubCard: 'Photos of notes → practice questions',
+  stubIntro: "Leerhoek's summaries and tests for this subject are still coming. Meanwhile, take photos of your notes or a worksheet – the app turns them into practice questions.",
+  stubIntroX: "This subject isn't in Leerhoek yet. Take photos of your notes or a worksheet – the app turns them into practice questions.",
+});
+
 boot();
 })();
