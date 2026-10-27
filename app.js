@@ -374,15 +374,16 @@ async function loadHousehold() {
 }
 function applyHousehold(me, prof, circle) {
   const kids = prof && Array.isArray(prof.kids) && prof.kids.length ? prof.kids : LEGACY_KIDS;
-  const pars = prof && Array.isArray(prof.parents) && prof.parents.length ? prof.parents : LEGACY_PARENTS;
+  const pars = prof && prof.guest ? [] : (prof && Array.isArray(prof.parents) && prof.parents.length ? prof.parents : LEGACY_PARENTS);
   KIDS.splice(0, KIDS.length, ...kids.map(k => Object.assign({ role: 'learner', grade: 7, avatar: '🙂', school: '' }, k)));
   PARENTS.splice(0, PARENTS.length, ...pars.map(p => Object.assign({ avatar: '🙂' }, p)));
-  HOUSE = { id: (me && me.id) || null, name: (me && me.name) || (prof && prof.name) || '', circle: (me && me.circle) || null, owner: !!(me && me.owner), legacy: !prof || !!prof.legacy };
+  HOUSE = { id: (me && me.id) || null, name: (me && me.name) || (prof && prof.name) || '', circle: (me && me.circle) || null, owner: !!(me && me.owner), legacy: !prof || !!prof.legacy, guest: !!(prof && prof.guest) || !!(me && me.kind === 'guest'), nochat: !!((me && me.nochat) || (prof && prof.nochat)) };
+  if (HOUSE.guest && !HOUSE.nochat) CHAT_SCOPE = 'kring';
   applyLangs(prof);
   CIRCLE.splice(0, CIRCLE.length);
   (circle || []).forEach(hh => {
     if (!hh || hh.me || !hh.profile) return; const p = hh.profile;
-    (p.kids || []).forEach(k => CIRCLE.push({ id: k.id, name: k.name, avatar: k.avatar || '🙂', kid: true, role: k.role || 'learner', grade: k.grade, hid: hh.hid, house: hh.name }));
+    (p.kids || []).forEach(k => CIRCLE.push({ id: k.id, name: k.name, avatar: k.avatar || '🙂', kid: true, role: k.role || 'learner', grade: k.grade, hid: hh.hid, house: hh.name, guest: !!p.guest || hh.kind === 'guest', nochat: !!(hh.nochat || p.nochat) }));
     (p.parents || []).forEach(x => CIRCLE.push({ id: x.id, name: x.circleName || x.name, avatar: x.avatar || '🙂', kid: false, hid: hh.hid, house: hh.name }));
   });
   rebuildFamily();
@@ -459,6 +460,7 @@ function personalizeUi() {
   UI.af.roNone = 'Nog geen toetse of eksamens op die rooster nie. Jou ouers sit dit by in die ouerpaneel.';
   UI.en.roNone = 'No tests or exams on the schedule yet. Your parents add them in the parent panel.';
   UI.af.reParents = `Stuur ’n kopie aan ${pAf}`; UI.en.reParents = `Send a copy to ${pEn}`;
+  if (HOUSE.guest) { const n = (KIDS[0] || {}).name || 'Leerhoek'; UI.af.tagline = n + ' se Leerhoek'; UI.en.tagline = n + "'s Leerhoek"; }
 }
 const kidGrade = (id) => +((KIDS.find(k => k.id === id) || {}).grade) || 7;
 function curGrade() { const k = S.kid && KIDS.find(x => x.id === S.kid.id); return +(k && k.grade) || +S.grade || +((KIDS[0] || {}).grade) || 7; }
@@ -704,7 +706,7 @@ function go(hash) { location.hash = hash; }
 function parseRoute() {
   const h = (location.hash || '').replace(/^#/, '');
   if (!h || h === 'home' || h === 'tuis') return { s: 'home' };
-  { const sm = h.match(/^s=([A-Za-z0-9]+)((?:~[a-z]+)*)$/); if (sm) { const fl = sm[2].split('~').filter(Boolean); return { s: 'setup', code: sm[1], lang: fl.includes('en') ? 'en' : fl.includes('af') ? 'af' : null, sep: fl.includes('sep') }; } }
+  { const sm = h.match(/^s=([A-Za-z0-9]+)((?:~[a-z]+)*)$/); if (sm) { const fl = sm[2].split('~').filter(Boolean); return { s: 'setup', code: sm[1], lang: fl.includes('en') ? 'en' : fl.includes('af') ? 'af' : null, sep: fl.includes('sep'), guest: fl.includes('gast'), nochat: fl.includes('geenklets') }; } }
   if (KIDS.some(k => k.id === h)) return { s: 'home', kid: h };
   if (h === 'ouer' || h === 'parent') return { s: 'parent' };
   if (h === 'vakke') return { s: 'subjects' };
@@ -737,7 +739,7 @@ function nav() {
   const r = parseRoute();
   if (r.s === 'setup') { $('#bottomnav').innerHTML = ''; $('#desknav').innerHTML = ''; return; }
   const parentDev = deviceLock() === 'ouer';
-  const items = parentDev && !S.kid ? [['parent', '👪', t('parent')], ['chess', '♟️', t('navChess')], ['chat', '💬', t('navChat')]] : [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
+  const items = playerMode() && S.kid ? [['home', '🏠', t('home')], ['chess', '♟️', t('navChess')], ['games', '🧠', t('guNavBrain')]].concat(HOUSE.nochat ? [] : [['chat', '💬', t('navChat')]]) : parentDev && !S.kid ? [['parent', '👪', t('parent')], ['chess', '♟️', t('navChess')], ['chat', '💬', t('navChat')]] : [['home', '🏠', t('home')], ['subjects', '📚', t('subjects')], ['exams', '🎯', t('navExams')], ['games', '🎮', t('navPlay')], ['dict', '📖', t('navDict')], ['parent', '👪', t('parent')]];
   const hashes = { home: 'home', subjects: 'vakke', exams: 'eksamens', games: 'speel', dict: 'woordeboek', parent: 'ouer', badges: 'kentekens', resources: 'hulpbronne', chess: 'skaak', chat: 'klets' };
   const groups = { subjects: ['subject', 'topic', 'quiz', 'exam', 'paper', 'resources'], exams: ['scope', 'mistakes', 'redo', 'rooster'], games: ['game', 'week', 'badges', 'chess', 'chessGame'], chess: ['chessGame'] };
   const on = (k) => (r.s === k || (groups[k] || []).includes(r.s)) ? 'on' : '';
@@ -769,6 +771,8 @@ async function render() {
   if (r.kid && r.kid !== S.kidId && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(r.kid);
   if (lockedKid() && (!S.kid || !kidAllowed(S.kid.id)) && S.store && !(window.LH_CONFIG && S.keyProblem)) await selectKid(lockedKid());
   nav(); renderWho();
+  if (S.kid && playerMode() && r.s !== 'setup' && !['home', 'games', 'game', 'week', 'badges', 'chess', 'chessGame', 'chat', 'gate'].concat(HOUSE.guest ? [] : ['parent']).includes(r.s)) { go('home'); return; }
+  if (HOUSE.guest && HOUSE.nochat && r.s === 'chat') { go('home'); return; }
   if (!S.content) { main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`; return; }
   if (r.s === 'setup') return renderSetup(main, r.code, r);
   if (r.s === 'parent') return renderParent(main);
@@ -837,6 +841,7 @@ function renderGate(main) {
   });
 }
 function renderHome(main) {
+  if (playerMode()) return renderPlayerHome(main);
   const kid = S.kid, subjects = subjectsOfGrade(curGrade());
   const lv = levelOf(kid.xp), next = xpForLevel(lv + 1), cur = xpForLevel(lv), pct = clamp(Math.round(100 * (kid.xp - cur) / (next - cur)), 0, 100);
   const acc = kid.totals.answered ? Math.round(100 * kid.totals.correct / kid.totals.answered) : 0;
@@ -1244,8 +1249,8 @@ async function renderParent(main) {
   <div class="grid two" style="margin-top:14px">
     <div class="card"><h3>⚙️ ${esc(t('settings'))}</h3><form id="setf" class="stack" style="margin-top:10px"><div class="form-row"><label for="exd">${esc(t('examDate'))}</label><input type="date" id="exd" value="${esc(S.settings.examDate || '')}"></div><div class="form-row"><label for="ext">${esc(t('examTitle'))}</label><input id="ext" value="${esc(S.settings.examTitle || '')}" placeholder="Graad 7 Novembereksamen"></div><div class="form-row"><label for="npin">${esc(t('changePin'))}</label><input id="npin" inputmode="numeric" maxlength="6" placeholder="••••"></div><button class="btn primary" type="submit">${esc(t('save'))}</button></form></div>
     <div class="card"><h3>📥 ${esc(t('importCode'))}</h3><p class="small muted" style="margin:6px 0 10px">${esc(t('importHint'))}</p><textarea id="impcode"></textarea><button class="btn" id="impbtn" style="margin-top:8px">${esc(t('importBtn'))}</button></div>
-  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${houseCard()}${circleCard()}${coachParentCard()}${scopeEditor(subjectsOfGrade(scopeGrade()))}${testsEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
-  wireInstall(); wireScopeEditor(main); wireTestsEditor(main, subjects); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main); wireHouseCard(main); wireCircleCard(main);
+  </div>${notifyCard()}${socialParentCard()}${deviceCard()}${houseCard()}${guestCard()}${circleCard()}${coachParentCard()}${scopeEditor(subjectsOfGrade(scopeGrade()))}${testsEditor(subjects)}${marksEditor(subjects)}${goalsEditor(subjects)}`;
+  wireInstall(); wireScopeEditor(main); wireTestsEditor(main, subjects); wireMarksEditor(main, kids); wireGoalsEditor(main, kids); wireCoachParent(main); wireNotifyCard(main); wireSocialParent(main); wireDeviceCard(main); wireHouseCard(main); wireGuestCard(main); wireCircleCard(main);
   const cards = $('#kidcards');
   const drawKid = (kid, log) => {
     const subjects = subjectsOfGrade(kidGrade(kid.id), kid.id);
@@ -3121,7 +3126,9 @@ const tfa = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, x) => (o && o[x] !== u
 const FAMILY = KIDS.map(k => ({ id: k.id, avatar: k.avatar, kid: true })).concat(PARENTS.map(p => ({ id: p.id, avatar: p.avatar })));
 function rebuildFamily() { FAMILY.splice(0, FAMILY.length, ...KIDS.map(k => ({ id: k.id, avatar: k.avatar, kid: true })), ...PARENTS.map(p => ({ id: p.id, avatar: p.avatar }))); }
 /* v10: games and the circle chat include the other households of the family circle */
-const SOCIAL_ALL = () => FAMILY.concat(CIRCLE.map(c => ({ id: c.id, avatar: c.avatar, kid: c.kid, hid: c.hid })));
+const SOCIAL_ALL = () => FAMILY.concat(CIRCLE.map(c => ({ id: c.id, avatar: c.avatar, kid: c.kid, hid: c.hid, nochat: c.nochat })));
+/* v10.8: guests, and people added through "invite family & friends" (kid.visitor), get the simple app (play + chat, no schoolwork) */
+const playerMode = () => HOUSE.guest || !!(S.kid && (KIDS.find(k => k.id === S.kid.id) || {}).visitor);
 const isFam = (id) => FAMILY.some(f => f.id === id) || CIRCLE.some(c => c.id === id);
 const isKidAny = (id) => KIDS.some(k => k.id === id) || CIRCLE.some(c => c.id === id && c.kid);
 function famName(id, lang) {
@@ -4070,8 +4077,8 @@ function chatPost(ev) { return S.store.rpc('lh_log', { k: chatPrefix() + today()
 let CHAT_SCOPE = 'fam';
 const chatKring = () => CHAT_SCOPE === 'kring' && CIRCLE.length > 0;
 const chatPrefix = () => chatKring() ? 'kring/chat/d/' : 'chat/fam/d/';
-const chatMembers = () => chatKring() ? SOCIAL_ALL() : FAMILY;
-const chatTabs = () => CIRCLE.length ? `<div class="row chipsel" style="gap:6px;margin-bottom:8px"><button type="button" class="chip ${chatKring() ? '' : 'on'}" data-cs="fam">🏠 ${esc(t('chatFam'))}</button><button type="button" class="chip ${chatKring() ? 'on' : ''}" data-cs="kring">👨‍👩‍👧‍👦 ${esc(t('chatKring'))}</button></div>` : '';
+const chatMembers = () => chatKring() ? SOCIAL_ALL().filter(x => !x.nochat) : FAMILY;
+const chatTabs = () => CIRCLE.length && !HOUSE.guest ? `<div class="row chipsel" style="gap:6px;margin-bottom:8px"><button type="button" class="chip ${chatKring() ? '' : 'on'}" data-cs="fam">🏠 ${esc(t('chatFam'))}</button><button type="button" class="chip ${chatKring() ? 'on' : ''}" data-cs="kring">👨‍👩‍👧‍👦 ${esc(t('chatKring'))}</button></div>` : '';
 function chatSys(o) { if (!online()) return; const who = me(); chatPost(Object.assign({ id: rid(), by: who ? who.id : 'sys', at: Date.now() }, o)).catch(() => {}); }
 const seenKey = () => { const w = me(); return 'lh.chatSeen.' + (w ? w.id : 'x'); };
 function chatMsgHtml(m, myId, prev) {
@@ -4100,7 +4107,7 @@ function chatUI(root, compact) {
     const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
     list.innerHTML = msgs.length ? msgs.map((m, i) => chatMsgHtml(m, who.id, msgs[i - 1])).join('') : `<p class="muted center small" style="margin-top:20px">${esc(t('chatEmpty'))}</p>`;
     if (atBottom || !draw.once) list.scrollTop = list.scrollHeight; draw.once = true;
-    if (msgs.length) lsSet(seenKey() + (chatKring() ? '.k' : ''), msgs[msgs.length - 1].at);
+    if (msgs.length) { lsSet(seenKey() + (chatKring() ? '.k' : ''), msgs[msgs.length - 1].at); if (HOUSE.guest) lsSet(seenKey(), msgs[msgs.length - 1].at); }
     S.badges = Object.assign(S.badges || {}, { chat: 0 }); updateSocialUi();
   };
   const load = async () => { try { const m = await chatLoad(7); msgs = m; draw(); } catch (e) {} };
@@ -4110,7 +4117,7 @@ function chatUI(root, compact) {
     msgs.push(Object.assign({ pending: true }, ev)); draw(); sfx('tap');
     try { await chatPost(ev); } catch (e) { msgs = msgs.filter(x => x.id !== ev.id); lastSig = ''; draw(); toast(t('chSendFail')); return; }
     // everyone else in the family gets it on their phone (the boys too, if their notifications are on)
-    pushTo(chatMembers().map(f => f.id).filter(id => id !== who.id), { title: `💬 ${who.name} in die ${chatKring() ? 'familiekring' : 'familie'}-klets`, body: txt, url: './#klets' });
+    pushTo(chatMembers().map(f => f.id).filter(id => id !== who.id), { title: pushLang() === 'en' ? `💬 ${who.name} in the ${chatKring() ? 'family-circle' : 'family'} chat` : `💬 ${who.name} in die ${chatKring() ? 'familiekring' : 'familie'}-klets`, body: txt, url: './#klets' });
   };
   root.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => { CHAT_SCOPE = b.dataset.cs; render(); });
   $('#cForm', root).onsubmit = (e) => { e.preventDefault(); const inp = $('#cIn', root); const v = inp.value; inp.value = ''; send(v); };
@@ -4119,6 +4126,7 @@ function chatUI(root, compact) {
   return { load, stop: null };
 }
 function renderChat(main) {
+  if (HOUSE.guest) CHAT_SCOPE = 'kring';
   const who = me();
   if (!CIRCLE.length) refreshCircle(true);
   if (!online()) { main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="card pad-lg center"><div style="font-size:48px">💬</div><p class="muted">${esc(t('chOnlineOnly'))}</p></div>`; wireBack(main); return; }
@@ -4191,7 +4199,7 @@ async function socialTick() {
   if (!online() || !me() || document.hidden) return;
   refreshCircle();
   try {
-    const [games, chatRows] = await Promise.all([chessList(), S.store.loadPrefix('chat/fam/d/', 2)]);
+    const [games, chatRows] = await Promise.all([chessList(), (HOUSE.guest ? (HOUSE.nochat ? Promise.resolve([]) : S.store.loadPrefix('kring/chat/d/', 2)) : S.store.loadPrefix('chat/fam/d/', 2))]);
     const chat = chatRows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, z) => a.at - z.at);
     updateBadges(games, chat);
   } catch (e) {}
@@ -4340,6 +4348,7 @@ function uniqId(base, taken) { let id = base, n = 2; while (taken.has(id)) id = 
 function setupGradeNote() { const gs = (S.content && S.content.grades) || []; return gs.map(g => `${t('chooseGrade')} ${g.grade}${g.subjects.length < 5 ? ' (' + g.subjects.map(s => s.name ? tx(s.name) : s.id).join(', ') + ')' : ''}`).join(' · '); }
 function renderSetup(main, code, r) {
   r = r || S.route || {};
+  if (r.guest) return renderGuestSetup(main, code, r);
   if (S.setupDone) return renderSetupDone(main, S.setupDone);
   if (!S.setupState) {
     const sep = !!r.sep;
@@ -4415,6 +4424,154 @@ async function doSetup(code, house, parents, kids, pin, opt) {
   try { localStorage.setItem('lh.fk', key); localStorage.setItem('lh.lock', 'ouer'); localStorage.removeItem('lh.kid'); localStorage.setItem('lh.lang', lg.lang); } catch (e) {}
   return { key, prof };
 }
+/* ---------- v10.8: invite family & friends (guests and players) ---------- */
+const GU_AV = ['👵', '👴', '👩', '👨', '🧓', '👱‍♀️', '🧔', '🧑', '👧', '👦', '🦁', '🦊', '🐼', '🦉', '🐬', '🦄'];
+const guGradeOpts = (sel) => Array.from({ length: 12 }, (_, i) => i + 1).map(g => `<option value="${g}" ${+sel === g ? 'selected' : ''}>${esc(t('chooseGrade'))} ${g}</option>`).join('');
+function guestCard() {
+  if (S.storeKind !== 'supa' || !online() || HOUSE.guest) return '';
+  const own = HOUSE.owner, pl = KIDS.filter(k => k.role === 'player' && k.visitor);
+  const guests = (S.houseCircle || []).filter(x => !x.me && x.profile && x.profile.guest);
+  const opt = (v, ic, l, sub, dis) => `<label class="row guopt" style="gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:12px;${dis ? 'opacity:.5' : 'cursor:pointer'}"><input type="radio" name="guChat" value="${v}" ${v === (own ? 'circle' : 'home') ? 'checked' : ''} ${dis ? 'disabled' : ''} style="margin-top:3px"><span><b>${ic} ${esc(t(l))}</b><br><span class="small muted">${esc(t(sub))}</span></span></label>`;
+  const who = (x) => { const k = ((x.profile || {}).kids || [])[0] || {}; return `${esc(k.avatar || '🙂')} <b>${esc(k.name || x.name || '—')}</b>`; };
+  return `<div class="card" style="margin-top:14px" id="guestCard"><h3>${esc(t('guT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('guSub'))}</p>
+    <input id="guLabel" maxlength="24" placeholder="${esc(t('guLabelP'))}" style="width:100%">
+    <div class="label" style="margin-top:10px">${esc(t('guWhere'))}</div>
+    <div class="stack" style="gap:6px">${opt('circle', '👨‍👩‍👧‍👦', 'guOptCircle', 'guOptCircleS', !own)}${opt('none', '🎲', 'guOptNone', 'guOptNoneS', !own)}${opt('home', '🏠', 'guOptHome', 'guOptHomeS', false)}</div>
+    ${own ? '' : `<p class="small muted" style="margin-top:6px">${esc(t('guOwnerOnly'))}</p>`}
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center" id="guHomeRow"><select id="guAv" aria-label="Avatar">${GU_AV.map(a => `<option>${a}</option>`).join('')}</select><label class="small">${esc(t('setupLevel'))} <select id="guGr">${guGradeOpts(7)}</select></label></div>
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center" id="guLangRow"><select id="guLang" aria-label="${esc(t('suLang'))}"><option value="af">🌐 Afrikaans</option><option value="en">🌐 English</option></select></div>
+    <button class="btn primary" id="guMake" style="margin-top:10px">${esc(t('invMake'))}</button>
+    <div id="guOut" style="margin-top:10px"></div>
+    ${guests.length || pl.length ? `<div class="label" style="margin-top:14px">${esc(t('guList'))}</div><div class="stack" style="gap:6px">${guests.map(x => `<div class="row" style="justify-content:space-between;gap:8px;align-items:center"><span class="small">${who(x)} <span class="muted">· ${x.nochat ? '🎲 ' + esc(t('guOptNone')) : '👨‍👩‍👧‍👦 ' + esc(t('guOptCircle'))}</span></span>${own ? `<button type="button" class="btn sm ghost" data-gkick="${esc(x.hid)}">${esc(t('guRemove'))}</button>` : ''}</div>`).join('')}${pl.map(k => `<div class="row" style="justify-content:space-between;gap:8px"><span class="small">${esc(k.avatar || '🙂')} <b>${esc(k.name)}</b> <span class="muted">· 🏠 ${esc(t('guOptHome'))}</span></span></div>`).join('')}</div>` : ''}
+  </div>`;
+}
+function wireGuestCard(root) {
+  const card = $('#guestCard', root); if (!card) return;
+  const base = location.origin + location.pathname;
+  const sel = () => (card.querySelector('[name="guChat"]:checked') || {}).value || 'home';
+  const sync = () => { const v = sel(); $('#guHomeRow', card).style.display = v === 'home' ? '' : 'none'; $('#guLangRow', card).style.display = v === 'home' ? 'none' : ''; };
+  card.querySelectorAll('[name="guChat"]').forEach(r => r.onchange = sync); sync();
+  $('#guLang', card).value = pushLang();
+  $('#guMake', card).onclick = async () => {
+    const nm = $('#guLabel', card).value.trim(), v = sel();
+    if (!nm) { toast(t('guNeedName')); $('#guLabel', card).focus(); return; }
+    try {
+      let u, lg = $('#guLang', card).value;
+      if (v === 'home') {
+        // a player in this household: sees our home chat and the circle chat
+        const taken = new Set(ROUTE_WORDS.concat(CIRCLE.map(c => c.id), KIDS.map(k => k.id), PARENTS.map(p => p.id), ['pa', 'ma', 'diaan', 'stefan']));
+        const id = uniqId(slugId(nm), taken);
+        const prof = Object.assign({}, S.houseProf || { v: 1, legacy: HOUSE.legacy, name: HOUSE.name }, {
+          kids: KIDS.map(k => Object.assign({}, k)).concat([{ id, name: nm.slice(0, 24), avatar: $('#guAv', card).value, role: 'player', visitor: true, grade: +$('#guGr', card).value || 7, school: '' }]),
+          parents: PARENTS.map(p => Object.assign({}, p)) });
+        await S.store.put('household/profile', prof);
+        S.houseProf = prof; S.houseEdit = null; applyHousehold(S.houseMe, prof, S.houseCircle);
+        u = `${base}#k=${S.store.fk}~${id}`; lg = pushLang();
+      } else {
+        const code = await S.store.rpc('lh_invite', { label: nm, kind: 'guest', chat: v === 'none' ? 'none' : 'circle' });
+        u = `${base}#s=${code}~${lg === 'en' ? 'en' : 'af'}~gast${v === 'none' ? '~geenklets' : ''}`;
+      }
+      const wa = String((lg === 'en' ? UI.en : UI.af).guMsg).replace('{n}', nm).replace('{u}', u);
+      const lab = { circle: '👨‍👩‍👧‍👦 ' + t('guOptCircle'), none: '🎲 ' + t('guOptNone'), home: '🏠 ' + t('guOptHome') }[v];
+      $('#guOut', card).innerHTML = `<div class="card" style="padding:12px"><div class="small"><b>${esc(nm)}</b> · ${esc(lab)}</div><div class="small" style="word-break:break-all;margin-top:4px" id="guUrl">${esc(u)}</div><div class="row" style="gap:6px;margin-top:8px"><button class="btn sm" id="guCopy">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(wa)}">💬 WhatsApp</a></div><p class="small muted" style="margin-top:6px">${esc(t(v === 'home' ? 'guHomeNote' : 'guLinkNote'))}</p></div>`;
+      $('#guCopy', card).onclick = async () => { if (await copyText(u)) toast(t('copied')); };
+      $('#guLabel', card).value = '';
+    } catch (e) { toast(t('setupErrNet')); }
+  };
+  card.querySelectorAll('[data-gkick]').forEach(b => b.onclick = async () => {
+    if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = t('kringKickSure'); return; }
+    try { await S.store.rpc('lh_kick', { hid: b.dataset.gkick }); await loadHousehold(); toast(t('guRemoved')); render(); } catch (e) { toast(t('setupErrNet')); }
+  });
+}
+/* the guest's own setup screen: name, picture, game level – no children, no PIN */
+function renderGuestSetup(main, code, r) {
+  if (r.lang && r.lang !== L) setLangQuiet(r.lang);
+  const st = S.guestState || (S.guestState = { name: '', av: '👵', grade: 7 });
+  const draw = () => {
+    main.innerHTML = `<div class="card pad-lg" style="max-width:560px;margin:12px auto;text-align:left"><div style="text-align:center">${mascot()}</div><h1>👋 ${esc(t('guWelcome'))}</h1><p class="small muted" style="margin:6px 0 14px">${esc(t(r.nochat ? 'guSetupSubNo' : 'guSetupSub'))}</p>
+      <label class="label" for="guName">${esc(t('guName'))}</label><input id="guName" maxlength="24" value="${esc(st.name)}" placeholder="${esc(t('guNameP'))}" style="width:100%">
+      <div class="label" style="margin-top:12px">${esc(t('guAv'))}</div><div class="row" style="gap:6px;flex-wrap:wrap" id="guAvs">${GU_AV.map(a => `<button type="button" class="btn sm ${a === st.av ? 'primary' : ''}" data-av="${a}" style="font-size:20px;min-width:44px">${a}</button>`).join('')}</div>
+      <div class="label" style="margin-top:12px">${esc(t('setupLevel'))}</div><select id="guGr">${guGradeOpts(st.grade)}</select><p class="small muted" style="margin-top:4px">${esc(t('guLevelHelp'))}</p>
+      <div id="guErr" class="small" style="color:var(--bad);min-height:18px;margin-top:8px"></div>
+      <button class="btn primary block" id="guGo">${esc(t('guGo'))}</button></div>`;
+    $('#guName').oninput = (e) => { st.name = e.target.value; };
+    $('#guGr').onchange = (e) => { st.grade = +e.target.value || 7; };
+    main.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { st.av = b.dataset.av; draw(); });
+    $('#guGo').onclick = async () => {
+      const nm = st.name.trim(); if (!nm) { $('#guErr').textContent = t('guNeedName'); return; }
+      $('#guGo').disabled = true;
+      try {
+        const d = await doGuestSetup(code, nm, st.av, st.grade, r.lang || L, !!r.nochat);
+        location.href = location.origin + location.pathname + '?k=' + d.key + '#' + d.id;
+      } catch (e) { $('#guGo').disabled = false; $('#guErr').textContent = t(e.message === 'invite' ? 'setupErrInv' : 'setupErrNet'); }
+    };
+  };
+  draw();
+}
+async function doGuestSetup(code, name, av, grade, lang, nochat) {
+  const cfg = window.LH_CONFIG; if (!cfg || !cfg.supabaseUrl) throw new Error('net');
+  const h = { apikey: cfg.supabaseKey, 'Content-Type': 'application/json' }; if (/^eyJ/.test(cfg.supabaseKey)) h.Authorization = 'Bearer ' + cfg.supabaseKey;
+  const r = await fetch(cfg.supabaseUrl.replace(/\/$/, '') + '/rest/v1/rpc/lh_setup', { method: 'POST', headers: h, body: JSON.stringify({ code, hname: name }) });
+  if (!r.ok) { const txt = await r.text().catch(() => ''); throw new Error(/invite invalid/.test(txt) ? 'invite' : 'net'); }
+  const key = JSON.parse(await r.text());
+  const st = new SupaStore(cfg.supabaseUrl, cfg.supabaseKey, key);
+  const taken = new Set(ROUTE_WORDS.concat(['pa', 'ma', 'diaan', 'stefan']));
+  try { ((await st.rpc('lh_circle')) || []).forEach(hh => { const p = hh.profile || {}; (p.kids || []).concat(p.parents || []).forEach(m => taken.add(m.id)); }); } catch (e) {}
+  const id = uniqId(slugId(name), taken), lg = langOf(lang === 'en' ? 'en' : 'af');
+  await st.put('household/profile', Object.assign({ v: 1, legacy: false, guest: true, name: name.slice(0, 60) }, nochat ? { nochat: true } : {}, lg,
+    { parents: [], kids: [{ id, name: name.trim().slice(0, 24), avatar: av, role: 'player', visitor: true, grade: +grade || 7, school: '' }] }));
+  try { localStorage.setItem('lh.fk', key); localStorage.setItem('lh.lock', id); localStorage.setItem('lh.kid', id); localStorage.setItem('lh.lang', lg.lang); } catch (e) {}
+  return { key, id };
+}
+/* guests and players: a simple home – play, question games, chat */
+function renderPlayerHome(main) {
+  const kid = S.kid, chat = !HOUSE.nochat;
+  main.innerHTML = `<div class="card pad-lg"><h1>${esc(t('hello'))}, ${esc(kid.name)}! 👋</h1><p class="small muted" style="margin-top:6px">${esc(t(chat ? 'guHomeSub' : 'guHomeSubNo'))}</p></div>
+    <div id="kpHome" style="margin-top:12px"></div>
+    <div class="tiles" style="margin-top:12px">
+      <button class="card tile" data-go="skaak"><span class="ti">♟️</span><b>${esc(t('guChess'))}</b><span class="small muted">${esc(t('guChessS'))}</span></button>
+      <button class="card tile" data-go="speel"><span class="ti">🧠</span><b>${esc(t('guPlayS'))}</b><span class="small muted">${esc(t('guPlaySS'))}</span></button>
+      ${chat ? `<button class="card tile" data-go="klets"><span class="ti">💬</span><b>${esc(t('navChat'))}</b><span class="small muted">${esc(t(HOUSE.guest ? 'guChatS' : 'guChatHomeS'))}</span></button>` : ''}
+      <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
+    </div>
+    <div style="margin-top:14px">${instSlot()}</div>`;
+  main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  wireInstall(); kidPushCard($('#kpHome')); fillTwin($('#twinMini'), true);
+}
+Object.assign(UI.af, {
+  guT: '✉️ Nooi familie & vriende', guSub: 'Ouma en Oupa, tantes en ooms, ouer broers of susters en maats kan saam speel – elkeen met sy of haar eie skakel. Hulle sien nooit die kinders se vordering nie.',
+  guLabelP: 'Naam, bv. Ouma Sannie', guWhere: 'Watter klets?',
+  guOptCircle: 'Groot familie-klets', guOptCircleS: 'Speel en klets saam met die hele familiekring. Sien nie julle huis se eie klets nie.',
+  guOptNone: 'Net speletjies – geen klets', guOptNoneS: 'Bv. maats: hulle kan speel en uitdaag, maar nie klets of die klets lees nie.',
+  guOptHome: 'Ook ons huis se klets', guOptHomeS: 'Vir iemand wat soos deel van julle huis is: sien julle huis se klets én die groot familie-klets.',
+  guOwnerOnly: 'Net die familiekring se eienaar kan mense na die groot familie-klets of net vir speletjies nooi.',
+  guList: 'Reeds genooi', guRemove: 'Verwyder', guRemoved: 'Verwyder ✔', guNeedName: 'Tik eers ’n naam.',
+  guMsg: 'Hallo {n}! 👋 Hier is jou eie skakel om saam met die familie op Leerhoek te speel: {u}\nMaak dit op jou foon oop.',
+  guLinkNote: 'Die skakel werk een keer en verval oor 14 dae. Hy of sy kies self ’n naam en prentjie.',
+  guHomeNote: 'By julle gesin gevoeg. Hierdie skakel bly werk – stuur dit net aan hom of haar.',
+  guWelcome: 'Welkom by Leerhoek!', guSetupSub: 'Jy is genooi om saam met die familie te speel en te klets. Kies jou naam en ’n prentjie – dit vat ’n minuut.',
+  guSetupSubNo: 'Jy is genooi om saam met die familie te speel. Kies jou naam en ’n prentjie – dit vat ’n minuut.',
+  guName: 'Jou naam (soos die kinders jou ken)', guNameP: 'bv. Ouma Sannie', guAv: 'Jou prentjie', guLevelHelp: 'Die vraag-speletjies vra vrae op hierdie graad-vlak.', guGo: 'Begin speel →',
+  guHomeSub: 'Speel saam met die familie en klets in die familiekring.', guHomeSubNo: 'Speel saam en daag die kinders uit!',
+  guNavBrain: 'Brein', guChess: 'Vraag-speletjies', guChessS: 'Skaak, dambord, vier-op-’n-ry … daag iemand uit', guPlayS: 'Breinspeletjies', guPlaySS: 'Vinnige vrae, geheue, raai die woord …', guChatS: 'Klets met die hele familie', guChatHomeS: 'Ons huis en die familiekring',
+});
+Object.assign(UI.en, {
+  guT: '✉️ Invite family & friends', guSub: "Grandparents, aunts and uncles, older brothers or sisters and friends can play along – each with their own link. They never see the children's progress.",
+  guLabelP: 'Name, e.g. Granny Sue', guWhere: 'Which chat?',
+  guOptCircle: 'Whole-family chat', guOptCircleS: 'Plays and chats with the whole family circle. Does not see your own home chat.',
+  guOptNone: 'Games only – no chat', guOptNoneS: "E.g. friends: they can play and challenge, but can't chat or read the chat.",
+  guOptHome: 'Our home chat too', guOptHomeS: "For someone who's like part of your home: sees your home chat and the whole-family chat.",
+  guOwnerOnly: 'Only the owner of the family circle can invite people into the whole-family chat or for games only.',
+  guList: 'Already invited', guRemove: 'Remove', guRemoved: 'Removed ✔', guNeedName: 'Type a name first.',
+  guMsg: 'Hi {n}! 👋 Here is your own link to play along with the family on Leerhoek: {u}\nOpen it on your phone.',
+  guLinkNote: 'The link works once and expires in 14 days. They choose their own name and picture.',
+  guHomeNote: 'Added to your household. This link keeps working – only send it to them.',
+  guWelcome: 'Welcome to Leerhoek!', guSetupSub: "You've been invited to play and chat with the family. Choose your name and a picture – it takes a minute.",
+  guSetupSubNo: "You've been invited to play along with the family. Choose your name and a picture – it takes a minute.",
+  guName: 'Your name (as the children know you)', guNameP: 'e.g. Granny Sue', guAv: 'Your picture', guLevelHelp: 'The question games ask questions at this grade level.', guGo: 'Start playing →',
+  guHomeSub: 'Play along with the family and chat in the family circle.', guHomeSubNo: 'Play along and challenge the children!',
+  guNavBrain: 'Brain', guChess: 'Question games', guChessS: 'Chess, draughts, four-in-a-row … challenge someone', guPlayS: 'Brain games', guPlaySS: 'Quick questions, memory, guess the word …', guChatS: 'Chat with the whole family', guChatHomeS: 'Our home and the family circle',
+});
 function renderSetupDone(main, d) {
   const base = location.origin + location.pathname, link = (route) => `${base}#k=${d.key}~${route}`;
   const row = (av, nm, route, who) => { const u = link(route); return `<div class="card" style="padding:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${av} ${esc(nm)}</b><span class="row" style="gap:6px"><button class="btn sm" data-copy="${esc(u)}">📋 ${esc(t('setupCopy'))}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(tf('setupWaMsg', { n: who, u }))}">💬 WhatsApp</a></span></div><div class="small muted" style="word-break:break-all;margin-top:6px">${esc(u)}</div></div>`; };
@@ -4434,7 +4591,7 @@ function circleCard() {
     ${HOUSE.id === 'h1' ? `<div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><select id="invKind" aria-label="${esc(t('invKindL'))}"><option value="fam">👪 ${esc(t('invKindFam'))}</option><option value="sep">🔒 ${esc(t('invKindSep'))}</option></select><select id="invLang" aria-label="${esc(t('suLang'))}"><option value="af">🌐 Afrikaans</option><option value="en">🌐 English</option></select></div><p class="small muted" id="invHelp" style="margin:6px 0 0">${esc(t('invHelpFam'))}</p>` : ''}
     <div id="invOut" style="margin-top:10px"></div>
     <details style="margin-top:10px"><summary class="small">${esc(t('invList'))}</summary><div id="invList" class="small" style="margin-top:6px">…</div></details>
-    ${(S.houseCircle || []).filter(x => !x.me).length ? `<h3 style="margin-top:16px">${esc(t('kringHouses'))}</h3><div class="stack" style="gap:6px;margin-top:6px">${(S.houseCircle || []).filter(x => !x.me).map(x => `<div class="row" style="justify-content:space-between;gap:8px"><span class="small">🏠 ${esc(x.name || '—')} <span class="muted">· ${((x.profile || {}).kids || []).map(k => esc(k.avatar || '') + ' ' + esc(k.name)).join(', ')}</span></span><button type="button" class="btn sm ghost" data-kick="${esc(x.hid)}">${esc(t('kringKick'))}</button></div>`).join('')}</div>` : ''}
+    ${(S.houseCircle || []).filter(x => !x.me && !(x.profile && x.profile.guest)).length ? `<h3 style="margin-top:16px">${esc(t('kringHouses'))}</h3><div class="stack" style="gap:6px;margin-top:6px">${(S.houseCircle || []).filter(x => !x.me && !(x.profile && x.profile.guest)).map(x => `<div class="row" style="justify-content:space-between;gap:8px"><span class="small">🏠 ${esc(x.name || '—')} <span class="muted">· ${((x.profile || {}).kids || []).map(k => esc(k.avatar || '') + ' ' + esc(k.name)).join(', ')}</span></span><button type="button" class="btn sm ghost" data-kick="${esc(x.hid)}">${esc(t('kringKick'))}</button></div>`).join('')}</div>` : ''}
     <h3 style="margin-top:16px">${esc(t('kringT'))}</h3><p class="small muted" style="margin:4px 0 8px">${esc(t('kringSub'))}</p><div id="kringUse" class="small">…</div></div>`;
 }
 function wireCircleCard(root) {
@@ -4560,7 +4717,7 @@ function wireHouseCard(root) {
     const prof = Object.assign({}, S.houseProf || { v: 1, legacy: HOUSE.legacy }, {
       name: (S.houseProf && S.houseProf.name) || HOUSE.name,
       kids: kids.map(k => { const learner = k.role !== 'player', g = +k.grade || 7, list = gradeSubjList(g).map(x => x.id), sel = learner ? selOf(k, list) : {}, extra = learner ? extraOf(k.extra) : [];
-        return Object.assign({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, sel, extra.length ? { extra } : {}); }),
+        return Object.assign({ id: k.id || uniqId(slugId(k.name), taken), name: k.name.trim().slice(0, 24), avatar: k.avatar, role: learner ? 'learner' : 'player', grade: g, school: learner ? String(k.school || '').trim().slice(0, 50) : '' }, sel, extra.length ? { extra } : {}, k.visitor && !learner ? { visitor: true } : {}); }),
       parents: parents.map(p => Object.assign({}, p, { id: p.id || uniqId('p' + slugId(p.circleName || p.name).slice(0, 10), taken), name: p.name.trim().slice(0, 24), circleName: String(p.circleName || '').trim().slice(0, 30) })),
     }, langOf(st.lang || langCodeOf(S.houseProf)));
     try {
