@@ -851,7 +851,7 @@ function renderHome(main) {
   const exam = nx ? nx.days : (S.settings.examDate ? daysBetween(today(), S.settings.examDate) : null);
   const examLabel = nx ? `${nx.s.icon} ${tx(nx.s.name)} · ${fmtDate(nx.sc.date)}` : (S.settings.examTitle || '');
   const term = curTerm(), chest = chestState(kid), mc = mistakeCount(kid), wd = wordOfDay();
-  main.innerHTML = `${adminBanner()}${instSlot()}
+  main.innerHTML = `${adminBanner()}${instSlot()}<div data-here></div>
   <div class="hero">
     <div class="greet"><h1>${esc(t('hello'))}, <span style="--subject:var(--brand)">${esc(kid.name)}</span>! 👋</h1>
       <p class="muted" style="margin-top:6px">${esc(t('tagline'))}</p>
@@ -896,7 +896,7 @@ function renderHome(main) {
   const cc = $('#copyCode'); if (cc) cc.onclick = async () => { const code = S.store.exportCode(); if (code && await copyText(code)) toast(t('copied')); };
   $('#share').onclick = async () => { if (await copyText(reportText(kid, subjects))) toast(t('shareDone')); };
   fillTwin($('#twinMini'), true);
-  kidPushCard($('#kpHome'));
+  kidPushCard($('#kpHome')); presNow();
   const misEl = $('#misC'); if (misEl) misEl.onclick = () => go(kid.mission && kid.mission.k === 'games' ? 'speel' : 'eksamens');
   maybeWelcome();
 }
@@ -3714,7 +3714,7 @@ async function renderChessLobby(main) {
     const colorSeg = () => `<div class="label" style="margin:14px 0 6px">${esc(G.startsLabel ? t('qgWho1') : t('chColor'))}</div>${seg('color', su.color, [['w', (G.startsLabel ? '' : G.colors.w + ' ') + G.colorLabel('w')], ['b', (G.startsLabel ? '' : G.colors.b + ' ') + G.colorLabel('b')], ['r', '🎲 ' + t('chRand')]])}`;
     let h = '';
     if (su.mode === 'app') h = `<div class="label" style="margin:14px 0 6px">${esc(G.luck ? t('qgAppSmart') : t('chLevel'))}</div>${seg('lvl', su.lvl, [['easy', '🙂 ' + t('chLvl').easy], ['med', '😎 ' + t('chLvl').med], ['hard', '🔥 ' + t('chLvl').hard]])}${G.luck ? `<p class="small muted" style="margin-top:6px">${esc(t('qgAppSmartHint'))}</p>` : ''}${colorSeg()}`;
-    else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}</div>${colorSeg()}`;
+    else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}" data-pid="${pidOf(f)}"><span>${f.avatar}</span>${esc(famName(f.id))}<i class="pdot" style="display:none"></i><small class="pseen"></small></button>`).join('')}</div>${colorSeg()}`;
     else h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOppPhone'))}</div><div class="whos">${famOpp.filter(f => FAMILY.some(x => x.id === f.id)).map(f => `<button class="${su.popp === f.id ? 'on' : ''}" data-popp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}<button class="${su.popp === 'friend' ? 'on' : ''}" data-popp="friend"><span>🙂</span>${esc(t('chFriend'))}</button></div>
       ${su.popp === 'friend' ? `<input id="chFriendIn" maxlength="20" placeholder="${esc(t('chFriendName'))}" value="${esc(su.friend || '')}" style="margin-top:8px;width:100%">` : ''}${colorSeg()}`;
     $('#chOpts').innerHTML = h;
@@ -3722,7 +3722,7 @@ async function renderChessLobby(main) {
     $('#chGo').disabled = !quickPool(su.subj).length;
     $('#chOpts').querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { su.lvl = b.dataset.lvl; saveSetup(su); opts(); });
     $('#chOpts').querySelectorAll('[data-color]').forEach(b => b.onclick = () => { su.color = b.dataset.color; saveSetup(su); opts(); });
-    $('#chOpts').querySelectorAll('[data-opp]').forEach(b => b.onclick = () => { su.opp = b.dataset.opp; saveSetup(su); opts(); });
+    $('#chOpts').querySelectorAll('[data-opp]').forEach(b => b.onclick = () => { su.opp = b.dataset.opp; saveSetup(su); opts(); }); presNow();
     $('#chOpts').querySelectorAll('[data-popp]').forEach(b => b.onclick = () => { su.popp = b.dataset.popp; saveSetup(su); opts(); });
     const fi = $('#chFriendIn'); if (fi) fi.oninput = () => { su.friend = fi.value.trim().slice(0, 20); saveSetup(su); };
     drawRec();
@@ -4095,7 +4095,7 @@ function chatMsgHtml(m, myId, prev) {
 }
 function chatUI(root, compact) {
   const who = me();
-  root.innerHTML = `${chatTabs()}<div class="chat ${compact ? 'compact' : ''}"><div class="cmembers">${chatMembers().map(f => `<span class="${f.id === who.id ? 'me' : ''}" title="${esc(famName(f.id))}">${f.avatar}<small>${esc(famName(f.id))}</small></span>`).join('')}</div>
+  root.innerHTML = `${chatTabs()}<div class="chat ${compact ? 'compact' : ''}"><div class="cmembers">${chatMembers().map(f => `<span class="${f.id === who.id ? 'me' : ''}" title="${esc(famName(f.id))}" data-pid="${pidOf(f)}">${f.avatar}<i class="pdot" style="display:none"></i><small>${esc(famName(f.id))}</small></span>`).join('')}</div>
     <div class="clist" id="cList" aria-live="polite"><p class="muted center small" style="margin-top:20px">…</p></div>
     <div class="cquick">${t('chatQuick').map(q => `<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
     <form class="cform" id="cForm"><input id="cIn" maxlength="300" autocomplete="off" placeholder="${esc(t('chatPh'))}" aria-label="${esc(t('chatPh'))}"><button class="btn primary" type="submit">${esc(t('chatSend'))}</button></form></div>`;
@@ -4132,7 +4132,7 @@ function renderChat(main) {
   if (!online()) { main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="card pad-lg center"><div style="font-size:48px">💬</div><p class="muted">${esc(t('chOnlineOnly'))}</p></div>`; wireBack(main); return; }
   main.innerHTML = `<button class="back" data-go="${who.kid ? 'home' : 'ouer'}">← ${esc(t('back'))}</button><div class="row" style="justify-content:space-between"><h1>💬 ${esc(t('chatT'))}</h1><button class="btn sm" data-go="skaak">♟️ ${esc(t('chessT'))}</button></div><p class="small muted chatsub" style="margin:4px 0 10px">🔒 ${esc(chatKring() ? t('chatSubK') : t('chatSub'))}</p><div id="chatRoot" style="margin-top:8px"></div>`;
   wireBack(main);
-  const c = chatUI($('#chatRoot'));
+  const c = chatUI($('#chatRoot')); presNow();
   // size the message list so the input stays above the bottom bar on every phone
   const fit = () => { const list = $('#cList'); if (!list || S.route.s !== 'chat') { removeEventListener('resize', fit); return; } const nav = $('#bottomnav'), navH = nav && getComputedStyle(nav).display !== 'none' ? nav.offsetHeight : 0; const below = $('.cquick').offsetHeight + $('#cForm').offsetHeight + 28 + navH; list.style.height = Math.max(150, innerHeight - list.getBoundingClientRect().top - below) + 'px'; };
   fit(); addEventListener('resize', fit);
@@ -4195,9 +4195,73 @@ async function refreshCircle(force) {
     if (sig !== S._circleSig) { S._circleSig = sig; S.houseCircle = c; applyHousehold(S.houseMe, S.houseProf, c); updateSocialUi(); if (S.route && ['chat', 'chess'].includes(S.route.s)) render(); }
   } catch (e) {}
 }
+/* ---------- v10.9: who is online (family circle only) ---------- */
+S.presence = {}; S._presOff = null;
+let _presAt = 0, _presBeatAt = 0, _presCheckAt = 0;
+const presKey = (hid, id) => 'kring/here/' + hid + '/' + id;
+const pidOf = (f) => (f.hid || HOUSE.id) + '/' + f.id;
+const presOn = () => S.storeKind === 'supa' && online() && !!HOUSE.id;
+const isOnlineAt = (at) => !!at && Date.now() - at < 150000;
+const joinNames = (a) => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + (L === 'af' ? ' en ' : ' and ') + a[a.length - 1];
+async function presenceBeat(force) {
+  if (!presOn() || adminViewing() || document.hidden) return; const w = me(); if (!w) return;
+  const now = Date.now();
+  if (S._presOff === null || now - _presCheckAt > 55000) { _presCheckAt = now; try { const st = await S.store.get('settings/main'); S._presOff = !!(st && st.presenceOff); } catch (e) { if (S._presOff === null) S._presOff = false; } }
+  if (S._presOff) return;
+  if (!force && now - _presBeatAt < 55000) return; _presBeatAt = now;
+  try { await S.store.put(presKey(HOUSE.id, w.id), { at: now }); S.presence[HOUSE.id + '/' + w.id] = now; } catch (e) {}
+}
+async function presenceLoad() {
+  if (!presOn()) return;
+  try {
+    const rows = (await S.store.rpc('lh_list', { prefix: 'kring/here/', lim: 200 })) || [], m = {};
+    rows.forEach(r => { const k = String(r.key || '').replace(/^kring\/here\//, ''), v = r.value || {}; if (k && !v.off && +v.at) m[k] = +v.at; });
+    S.presence = m; _presAt = Date.now();
+  } catch (e) {}
+  paintPresence();
+}
+function presNow() { paintPresence(); if (Date.now() - _presAt > 20000) presenceLoad(); }
+function seenTxt(at) {
+  if (!at) return ''; const d = Date.now() - at; if (d < 150000) return t('pNow');
+  const m = Math.round(d / 60000); if (m < 60) return tf('pMin', { n: m });
+  const h = Math.round(m / 60); if (h < 24) return tf('pHour', { n: h });
+  const dd = Math.round(h / 24); return dd <= 1 ? t('pDay') : tf('pDays', { n: dd });
+}
+function onlineOthers() {
+  const w = me(); return SOCIAL_ALL().filter(f => !(w && f.id === w.id && !f.hid) && isOnlineAt(S.presence[pidOf(f)]));
+}
+function paintPresence() {
+  document.querySelectorAll('[data-pid]').forEach(el => {
+    const at = S.presence[el.dataset.pid], on = isOnlineAt(at);
+    el.classList.toggle('ponline', on);
+    const dot = el.querySelector('.pdot'); if (dot) dot.style.display = on ? '' : 'none';
+    const sn = el.querySelector('.pseen'); if (sn) { sn.textContent = seenTxt(at); sn.classList.toggle('on', on); }
+    if (at) el.title = famName(el.dataset.pid.split('/')[1]) + ' · ' + seenTxt(at);
+  });
+  document.querySelectorAll('[data-here]').forEach(el => {
+    const o = onlineOthers(); if (!o.length) { el.innerHTML = ''; return; }
+    const names = o.map(f => famName(f.id));
+    const nm = names.length <= 3 ? joinNames(names) : names.slice(0, 2).join(', ') + (L === 'af' ? ` en ${names.length - 2} ander` : ` and ${names.length - 2} others`);
+    el.innerHTML = `<button class="card hereline" data-go="skaak"><span class="hav">${o.slice(0, 4).map(f => f.avatar).join('')}</span><span class="small"><b>${esc(tf(o.length === 1 ? 'pHere1' : 'pHereN', { n: nm }))}</b></span><span class="small hgo">${esc(t('pHereGo'))}</span></button>`;
+    el.querySelector('[data-go]').onclick = () => go('skaak');
+  });
+}
+(function () { try { const st = document.createElement('style'); st.textContent = '.pdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#1f9d55;margin-left:3px;vertical-align:top;box-shadow:0 0 0 2px var(--surface)}.pseen{display:block;font-size:11px;line-height:1.2;color:var(--muted);font-weight:500}.pseen.on{color:#1f9d55;font-weight:700}.hereline{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 14px;margin:0 0 12px;border:1px solid rgba(31,157,85,.35);background:rgba(31,157,85,.08);cursor:pointer}.hereline .hav{font-size:20px;letter-spacing:-2px}.hereline .hgo{margin-left:auto;font-weight:800;color:#1f9d55;white-space:nowrap}'; document.head.appendChild(st); } catch (e) {} })();
+Object.assign(UI.af, {
+  pNow: 'nou aanlyn', pMin: '{n} min gelede', pHour: '{n} uur gelede', pDay: 'gister', pDays: '{n} dae gelede',
+  pHere1: '🟢 {n} is nou op Leerhoek', pHereN: '🟢 {n} is nou op Leerhoek', pHereGo: 'Daag uit →',
+  pShowL: 'Wys wanneer ons gesin aanlyn is', pShowS: 'Die familiekring sien ’n groen kolletjie by julle name terwyl julle die app oop het. Skakel af as julle dit nie wil hê nie.',
+  kpSubGuest: 'Kry ’n boodskap as iemand jou uitdaag, as dit jou beurt is, of as iemand in die familie-klets skryf.', kpSubGuestNo: 'Kry ’n boodskap as iemand jou uitdaag of as dit jou beurt is.',
+});
+Object.assign(UI.en, {
+  pNow: 'online now', pMin: '{n} min ago', pHour: '{n} h ago', pDay: 'yesterday', pDays: '{n} days ago',
+  pHere1: '🟢 {n} is on Leerhoek now', pHereN: '🟢 {n} are on Leerhoek now', pHereGo: 'Challenge →',
+  pShowL: 'Show when our family is online', pShowS: "The family circle sees a green dot by your names while you have the app open. Switch it off if you'd rather not.",
+  kpSubGuest: 'Get a message when someone challenges you, when it’s your turn, or when someone writes in the family chat.', kpSubGuestNo: 'Get a message when someone challenges you or when it’s your turn.',
+});
 async function socialTick() {
   if (!online() || !me() || document.hidden) return;
-  refreshCircle();
+  refreshCircle(); presenceBeat(); presenceLoad();
   try {
     const [games, chatRows] = await Promise.all([chessList(), (HOUSE.guest ? (HOUSE.nochat ? Promise.resolve([]) : S.store.loadPrefix('kring/chat/d/', 2)) : S.store.loadPrefix('chat/fam/d/', 2))]);
     const chat = chatRows.map(r => r.value).reverse().flatMap(d => (d && d.events) || []).sort((a, z) => a.at - z.at);
@@ -4216,7 +4280,8 @@ function socialParentCard() {
   const p = parentMe();
   return `<div class="card" style="margin-top:14px" id="socialCard"><h3>${esc(t('chParentT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('chParentSub'))}</p>
     <div class="row" style="gap:8px"><span class="small"><b>${esc(t('chIAmL'))}</b></span><div class="seg">${PARENTS.map(p => p.id).map(x => `<button class="${p === x ? 'on' : ''}" data-pme="${x}">${famAv(x)} ${esc(famName(x))}</button>`).join('')}</div></div>
-    <div class="row" style="margin-top:12px"><button class="btn subject" id="pChess" ${p ? '' : 'disabled'}>${esc(t('chPlay'))}</button><button class="btn" id="pChat" ${p && online() ? '' : 'disabled'}>${esc(t('chChat'))}</button></div></div>`;
+    <div class="row" style="margin-top:12px"><button class="btn subject" id="pChess" ${p ? '' : 'disabled'}>${esc(t('chPlay'))}</button><button class="btn" id="pChat" ${p && online() ? '' : 'disabled'}>${esc(t('chChat'))}</button></div>
+    ${S.storeKind === 'supa' && HOUSE.id ? `<label class="row small" style="gap:8px;margin-top:12px;align-items:flex-start"><input type="checkbox" id="presOn" ${(S.settings || {}).presenceOff ? '' : 'checked'} style="margin-top:3px"><span><b>🟢 ${esc(t('pShowL'))}</b><br><span class="muted">${esc(t('pShowS'))}</span></span></label>` : ''}</div>`;
 }
 function wireSocialParent(root) {
   const card = $('#socialCard', root); if (!card) return;
@@ -4224,6 +4289,16 @@ function wireSocialParent(root) {
   const pc = $('#pChess', root), pt = $('#pChat', root);
   if (pc) pc.onclick = () => { setAsParent(true); go('skaak'); };
   if (pt) pt.onclick = () => { setAsParent(true); go('klets'); };
+  const po = $('#presOn', root);
+  if (po) po.onchange = async () => {
+    S.settings.presenceOff = !po.checked; S._presOff = S.settings.presenceOff; _presCheckAt = Date.now();
+    try {
+      await S.store.saveSettings(S.settings);
+      if (S.settings.presenceOff) await Promise.all(KIDS.map(k => k.id).concat(PARENTS.map(x => x.id)).map(id => S.store.put(presKey(HOUSE.id, id), { at: 0, off: true }).catch(() => {})));
+      else presenceBeat(true);
+      toast(t('saved'));
+    } catch (e) { toast(t('setupErrNet')); }
+  };
 }
 
 /* ---------- notifications for the boys (lh-notify v2: each device says who it belongs to) ---------- */
@@ -4247,7 +4322,7 @@ function kidPushCard(slot, opts) {
       return;
     }
     const note = state === 'ios-home' ? t('kpIos') : state === 'denied' ? t('kpDenied') : state === 'ios-old' ? t('kpIos') : state === 'none' ? t('kpNo') : '';
-    slot.innerHTML = `<div class="card kpcard"><div class="kp-ic">🔔</div><div class="kp-t"><b>${esc(t('kpT'))}</b><span class="small muted">${esc(t('kpSub'))}</span>${note ? `<span class="small kp-note">${esc(note)}</span>` : ''}
+    slot.innerHTML = `<div class="card kpcard"><div class="kp-ic">🔔</div><div class="kp-t"><b>${esc(t('kpT'))}</b><span class="small muted">${esc(t(playerMode() ? (HOUSE.nochat ? 'kpSubGuestNo' : 'kpSubGuest') : 'kpSub'))}</span>${note ? `<span class="small kp-note">${esc(note)}</span>` : ''}
       <span class="row" style="gap:6px;margin-top:8px">${state === 'off' ? `<button class="btn hi sm" id="kpOnB">🔔 ${esc(t('kpOn'))}</button>` : ''}${opts.always ? '' : `<button class="btn ghost sm" id="kpLater">${esc(t('kpLater'))}</button>`}</span></div></div>`;
     const lt = $('#kpLater', slot); if (lt) lt.onclick = () => { lsSet('lh.kpLater', today()); slot.innerHTML = ''; };
     const on = $('#kpOnB', slot);
@@ -4527,6 +4602,7 @@ async function doGuestSetup(code, name, av, grade, lang, nochat) {
 function renderPlayerHome(main) {
   const kid = S.kid, chat = !HOUSE.nochat;
   main.innerHTML = `<div class="card pad-lg"><h1>${esc(t('hello'))}, ${esc(kid.name)}! 👋</h1><p class="small muted" style="margin-top:6px">${esc(t(chat ? 'guHomeSub' : 'guHomeSubNo'))}</p></div>
+    <div data-here style="margin-top:12px"></div>
     <div id="kpHome" style="margin-top:12px"></div>
     <div class="tiles" style="margin-top:12px">
       <button class="card tile" data-go="skaak"><span class="ti">♟️</span><b>${esc(t('guChess'))}</b><span class="small muted">${esc(t('guChessS'))}</span></button>
@@ -4534,9 +4610,12 @@ function renderPlayerHome(main) {
       ${chat ? `<button class="card tile" data-go="klets"><span class="ti">💬</span><b>${esc(t('navChat'))}</b><span class="small muted">${esc(t(HOUSE.guest ? 'guChatS' : 'guChatHomeS'))}</span></button>` : ''}
       <button class="card tile" data-go="speel"><span class="ti">🏆</span><b>${esc(t('weekT'))}</b><span class="small" id="twinMini">…</span><span class="small muted">${esc(t('weekXpShort'))}</span></button>
     </div>
+    <div id="kpSlot3" style="margin-top:12px"></div>
     <div style="margin-top:14px">${instSlot()}</div>`;
   main.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
-  wireInstall(); kidPushCard($('#kpHome')); fillTwin($('#twinMini'), true);
+  wireInstall(); kidPushCard($('#kpHome')); fillTwin($('#twinMini'), true); presNow();
+  // once notifications are on, guests keep a card to test or switch them off
+  kidPushState().then(st => { if (st === 'on') kidPushCard($('#kpSlot3'), { always: true }); });
 }
 Object.assign(UI.af, {
   guT: '✉️ Nooi familie & vriende', guSub: 'Ouma en Oupa, tantes en ooms, ouer broers of susters en maats kan saam speel – elkeen met sy of haar eie skakel. Hulle sien nooit die kinders se vordering nie.',
