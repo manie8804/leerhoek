@@ -2231,7 +2231,7 @@ Object.assign(UI.af, {
   phNet: 'Kon nie oplaai nie – probeer weer.', phFull: 'Julle het die maksimum van 300 foto’s bereik. Verwyder ou foto’s eers.',
   phBig: 'Die foto is te groot.', phDecode: 'Hierdie foto kan nie hier oopgemaak word nie (bv. ’n HEIC-foto op ’n rekenaar). Stuur dit as JPG of neem dit met die foon.',
   phNotImg: 'Kies ’n foto (JPG of PNG).', phKinds: { scope: 'Afbakening / eksamenrooster', test: 'Toetskennisgewing', notes: 'Klasnotas / werkkaart', other: 'Ander' },
-  phScopeL: 'Foto’s van die afbakening of toetskennisgewing', phRead: 'Lees die foto en merk onderwerpe', phReading: 'Lees die foto …',
+  phScopeL: 'Foto van die afbakening, ’n toets of ’n werkkaart: 🤖 merk die onderwerpe · 📒 maak oefenvrae vir die kinders', phRead: 'Lees die foto en merk onderwerpe', phReading: 'Lees die foto …',
   phAiCheck: 'Kontroleer die merkies en die datum, en druk dan Stoor afbakening.', phAiNone: 'Geen bekende onderwerpe op die foto gevind nie – merk self.',
   phAiOff: 'Die outomatiese lees van foto’s is nog nie aangeskakel nie.', phAiLimit: 'Die daaglikse limiet vir foto-lees is bereik. Probeer môre weer.', phNoKid: 'Voeg eers ’n leerder in hierdie graad by.',
 });
@@ -2244,7 +2244,7 @@ Object.assign(UI.en, {
   phNet: 'Could not upload – try again.', phFull: 'You have reached the maximum of 300 photos. Delete old photos first.',
   phBig: 'The photo is too large.', phDecode: 'This photo cannot be opened here (e.g. a HEIC photo on a computer). Send it as JPG or take it with the phone.',
   phNotImg: 'Choose a photo (JPG or PNG).', phKinds: { scope: 'Exam scope / timetable', test: 'Test notice', notes: 'Class notes / worksheet', other: 'Other' },
-  phScopeL: 'Photos of the exam scope or test notice', phRead: 'Read the photo and tick topics', phReading: 'Reading the photo …',
+  phScopeL: 'Photo of the exam scope, a test or a worksheet: 🤖 ticks the topics · 📒 makes practice questions for the children', phRead: 'Read the photo and tick topics', phReading: 'Reading the photo …',
   phAiCheck: 'Check the ticks and the date, then press Save scope.', phAiNone: 'No known topics found on the photo – tick them yourself.',
   phAiOff: 'Automatic photo reading is not switched on yet.', phAiLimit: 'The daily limit for photo reading has been reached. Try again tomorrow.', phNoKid: 'Add a learner in this grade first.',
 });
@@ -2355,7 +2355,7 @@ function wirePhotoBox(box, o) {
     grid.innerHTML = list.map(f => `<div class="phit" data-phid="${esc(f.id)}"><div class="phthw"><button type="button" class="phth" data-phview="${esc(f.id)}" aria-label="${esc(t('phOpen'))}">${f.url ? `<img src="${esc(f.url)}" alt="" loading="lazy">` : ''}</button>
       ${phCanDel(f) ? `<button type="button" class="phdel" data-phdel="${esc(f.id)}" aria-label="${esc(t('phDel'))}">✕</button>` : ''}</div>
       <div class="phmeta"><div class="phcap">${PH_ICON[f.kind] || '📷'} ${esc(phDay(f.at))}${f.note ? ' · ' + esc(f.note) : ''}</div>
-      ${o.read && FILES.ai ? `<button type="button" class="btn sm hi" data-phread="${esc(f.id)}">🤖 ${esc(t('phRead'))}</button>` : ''}${o.quiz && FILES.ai && (f.kind === 'notes' || f.kind === 'other') ? (o.quiz.sets()[f.id] ? `<button type="button" class="btn sm subject" data-phplay="notas-${esc(f.id)}">▶️ ${esc(t('nqPlay'))}</button>` : `<button type="button" class="btn sm hi" data-phquiz="${esc(f.id)}">📒 ${esc(t('nqMake'))}</button>`) : ''}</div></div>`).join('');
+      ${o.read && FILES.ai ? `<button type="button" class="btn sm hi" data-phread="${esc(f.id)}">🤖 ${esc(t('phRead'))}</button>` : ''}${o.quiz && FILES.ai ? (o.quiz.sets()[f.id] ? (o.quiz.parent ? `<span class="chip good">📒 ${o.quiz.sets()[f.id].qs.length} ${esc(t('nqQs'))} ✓</span>` : `<button type="button" class="btn sm subject" data-phplay="notas-${esc(f.id)}">▶️ ${esc(t('nqPlay'))}</button>`) : `<button type="button" class="btn sm hi" data-phquiz="${esc(f.id)}">📒 ${esc(t('nqMake'))}</button>`) : ''}</div></div>`).join('');
     grid.querySelectorAll('[data-phview]').forEach(b => b.onclick = () => { const f = list.find(x => x.id === b.dataset.phview); if (f && f.url) photoView(f); });
     grid.querySelectorAll('[data-phdel]').forEach(b => b.onclick = async () => {
       if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = t('phDelSure'); setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = '✕'; } }, 4000); return; }
@@ -2365,7 +2365,7 @@ function wirePhotoBox(box, o) {
     });
     grid.querySelectorAll('[data-phread]').forEach(b => b.onclick = async () => {
       const msg = box.querySelector('[data-phai]'); msg.hidden = false; msg.textContent = '🤖 ' + t('phReading'); b.disabled = true;
-      try { const res = await filesApi('read', Object.assign({ id: b.dataset.phread, today: today() }, o.readArgs())); if (!res.ai) msg.textContent = t('phAiOff'); else o.read(res, msg); }
+      try { const res = await filesApi('read', Object.assign({ id: b.dataset.phread, today: today() }, o.readArgs())); res.id = b.dataset.phread; if (!res.ai) msg.textContent = t('phAiOff'); else o.read(res, msg); }
       catch (e) { msg.textContent = e.code === 'ai_limit' ? t('phAiLimit') : t('phNet'); }
       b.disabled = false;
     });
@@ -2374,7 +2374,7 @@ function wirePhotoBox(box, o) {
       const msg = box.querySelector('[data-phai]'); msg.hidden = false; msg.textContent = '📒 ' + t('nqMaking'); grid.querySelectorAll('[data-phquiz]').forEach(x => { x.disabled = true; });
       try {
         const res = await filesApi('quiz', Object.assign({ id: b.dataset.phquiz, today: today() }, o.quiz.args()));
-        if (!res.ai) msg.textContent = t('phAiOff'); else if (!res.set) msg.textContent = t('nqNone'); else { msg.hidden = true; o.quiz.done(res.set); return; }
+        if (!res.ai) msg.textContent = t('phAiOff'); else if (!res.set) msg.textContent = t('nqNone'); else { NOTES.byId[res.set.id] = res.set; NOTES.list = [res.set].concat(NOTES.list.filter(x => x.id !== res.set.id)); if (o.quiz.done(res.set, msg) !== 'keep') msg.hidden = true; load(); return; }
       } catch (e) { msg.textContent = e.code === 'ai_limit' ? t('phAiLimit') : t('phNet'); }
       grid.querySelectorAll('[data-phquiz]').forEach(x => { x.disabled = false; });
     });
@@ -2414,32 +2414,34 @@ function wireSubjectPhotos(main, s) {
   const kid = S.kid.id, g = curGrade(), nq = box.querySelector('[data-nqlist]');
   const drawSets = () => {
     if (!nq || !nq.isConnected) return;
-    const sets = NOTES.kid === kid ? NOTES.list.filter(x => x.subj === s.id) : [];
+    const sets = NOTES.at ? NOTES.list.filter(x => x.subj === s.id && (+x.grade || g) === g) : [];
     nq.innerHTML = sets.length ? `<h3 style="margin:16px 0 6px">📒 ${esc(t('nqT'))}</h3><div class="stack" style="gap:8px">${sets.map(x => `<div class="card" style="padding:10px 12px"><div class="row" style="justify-content:space-between;gap:8px;align-items:center"><span class="small"><b>${esc(x.title || t('nqT'))}</b> <span class="muted">· ${x.qs.length} ${esc(t('nqQs'))}${x.at ? ' · ' + esc(phDay(new Date(x.at).toISOString())) : ''}</span></span><button type="button" class="btn sm subject" data-nqgo="notas-${esc(x.id)}">▶️ ${esc(t('nqPlay'))}</button></div>${x.summary ? `<details class="small" style="margin-top:6px"><summary>${esc(t('nqSum'))}</summary><div class="prose" style="margin-top:4px">${md(x.summary)}</div></details>` : ''}</div>`).join('')}</div>` : '';
     nq.querySelectorAll('[data-nqgo]').forEach(b => b.onclick = () => go(b.dataset.nqgo));
   };
   wirePhotoBox(box, { kinds: PH_KINDS, kind: 'notes', filter: f => f.kid === kid && f.subj === s.id, meta: () => ({ kid, subj: s.id, grade: g }),
-    before: () => notesLoad(kid).then(drawSets),
-    quiz: { sets: () => (NOTES.kid === kid ? NOTES.byId : {}), args: () => ({ kid, subj: s.id, grade: g, subject: tx(s.name), lang: L }),
-      done: (set) => { NOTES.byId[set.id] = set; NOTES.list = [set].concat(NOTES.list.filter(x => x.id !== set.id)); go('notas-' + set.id); }, redraw: drawSets } });
+    before: () => notesLoad().then(drawSets),
+    quiz: { sets: () => NOTES.byId, args: () => ({ kid, subj: s.id, grade: g, subject: tx(s.name), lang: L }),
+      done: (set) => { go('notas-' + set.id); }, redraw: drawSets } });
 }
-/* notes → practice questions: the household's sets (kv notesq/<kid>/<subj>/<photo id>) */
-const NOTES = { kid: null, at: 0, byId: {}, list: [] };
-async function notesLoad(kid, force) {
-  if (!force && NOTES.kid === kid && Date.now() - NOTES.at < 120000) return NOTES.list;
+/* notes → practice questions: the household's sets (kv notesq/<kid>/<subj>/<photo id>); every learner in the same grade sees them */
+const NOTES = { at: 0, byId: {}, list: [] };
+async function notesLoad(force) {
+  if (!force && NOTES.at && Date.now() - NOTES.at < 120000) return NOTES.list;
   if (!S.store || !S.store.loadPrefix) return [];
-  const rows = await S.store.loadPrefix('notesq/' + kid + '/', 200);
+  const rows = await S.store.loadPrefix('notesq/', 200);
   const list = (rows || []).map(r => r.value).filter(v => v && v.id && Array.isArray(v.qs) && v.qs.length && !v.deleted).sort((a, b) => (b.at || 0) - (a.at || 0));
-  NOTES.kid = kid; NOTES.at = Date.now(); NOTES.list = list; NOTES.byId = {}; list.forEach(v => { NOTES.byId[v.id] = v; });
+  NOTES.at = Date.now(); NOTES.list = list; NOTES.byId = {}; list.forEach(v => { NOTES.byId[v.id] = v; });
   return list;
 }
 async function renderNotesQuiz(main, id) {
-  if (NOTES.kid === S.kid.id && NOTES.byId[id]) return renderQuiz(main, id, 'notes');
+  if (NOTES.byId[id]) return renderQuiz(main, id, 'notes');
   main.innerHTML = `<div class="splash"><div>${mascot()}<h2 style="margin-top:12px">${esc(t('loading'))}</h2></div></div>`;
-  try { await notesLoad(S.kid.id, true); } catch (e) {}
+  try { await notesLoad(true); } catch (e) {}
   if (S.route && S.route.s === 'notes' && S.route.id === id) { if (NOTES.byId[id]) renderQuiz(main, id, 'notes'); else go('vakke'); }
 }
-/* parent's scope editor: scope / test photos of this subject and grade */
+/* the learners of a grade by name: "Diaan & Stefan" */
+function gradeKidNames(g) { const n = KIDS.filter(k => k.role !== 'player' && (+k.grade || 7) === +g).map(k => k.name); return n.length <= 1 ? (n[0] || '') : n.slice(0, -1).join(', ') + (L === 'af' ? ' en ' : ' and ') + n[n.length - 1]; }
+/* parent's scope editor: photos of this subject and grade */
 function scopePhotoBox(s) {
   if (!filesOn()) return '';
   const g = scopeGrade(), kid = KIDS.find(k => k.role !== 'player' && (+k.grade || 7) === g);
@@ -2453,7 +2455,10 @@ function wireScopePhotos(row, upd) {
   const cnt = row.querySelector('[data-phcnt]');
   wirePhotoBox(box, {
     kinds: ['scope', 'test', 'notes', 'other'], kind: 'scope',
-    filter: f => f.subj === sid && +f.grade === g && (f.kind === 'scope' || f.kind === 'test'),
+    filter: f => f.subj === sid && +f.grade === g,
+    before: () => notesLoad(),
+    quiz: { parent: true, sets: () => NOTES.byId, args: () => ({ kid, subj: sid, grade: g, subject: tx(s.name), lang: L }),
+      done: (set, msg) => { msg.hidden = false; msg.innerHTML = `📒 <b>${esc(tf('nqParentDone', { n: set.qs.length, t: set.title || tx(s.name) }))}</b><br>${esc(tf('nqParentWhere', { k: gradeKidNames(g), s: tx(s.name) }))}`; return 'keep'; }, redraw: () => {} },
     meta: () => ({ kid, subj: sid, grade: g }),
     onCount: (n) => { if (cnt) { cnt.hidden = !n; cnt.textContent = '📷 ' + n; } },
     readArgs: () => ({ subject: tx(s.name), grade: g, lang: L, topics: s.terms.flatMap(tm => tm.topics.map(tp => ({ id: tp.id, title: tx(tp.title) }))) }),
@@ -2462,7 +2467,16 @@ function wireScopePhotos(row, upd) {
       if (set.size) row.querySelectorAll('[data-tid]').forEach(c => { c.checked = set.has(c.dataset.tid); });
       if (res.date) row.querySelector('[data-date]').value = res.date;
       if (set.size || res.date) upd();
-      msg.innerHTML = `🤖 <b>${set.size} ${esc(t('topics'))}${res.date ? ' · ' + esc(fmtDate(res.date)) : ''}</b>${(res.summary || (L === 'af' ? res.summary_af : '')) ? ' – ' + esc(res.summary || res.summary_af) : ''}<br>${esc(set.size ? t('phAiCheck') : t('phAiNone'))}`;
+      const sum = res.summary || (L === 'af' ? res.summary_af : '');
+      const names = [...set].map(id => { const c = row.querySelector(`[data-tid="${id}"]`); return c ? c.parentElement.textContent.trim() : null; }).filter(Boolean);
+      const kids = gradeKidNames(g);
+      msg.innerHTML = `<div style="font-weight:700;margin-bottom:4px">🤖 ${esc(t('aiSaw'))}</div>${sum ? `<div style="margin-bottom:6px">${esc(sum)}</div>` : ''}`
+        + (set.size ? `<div><b>✅ ${esc(tf('aiTicked', { n: set.size }))}</b></div><ul style="margin:4px 0 6px 18px;padding:0">${names.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : `<div style="margin-bottom:6px">${esc(t('aiNoTopics'))}</div>`)
+        + (res.date ? `<div>📅 <b>${esc(t('aiDate'))}</b> ${esc(fmtDate(res.date))}</div>` : '')
+        + (set.size || res.date ? `<div style="margin-top:8px"><b>${esc(t('aiNext'))}</b></div><ul style="margin:4px 0 8px 18px;padding:0"><li>${esc(tf('aiNext1', { k: kids }))}</li><li>${esc(t('aiNext2'))}</li><li>${esc(t('aiNext3'))}</li></ul>` : '')
+        + `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px">${set.size || res.date ? `<button type="button" class="btn sm primary" data-aisave>💾 ${esc(t('aiSave'))}</button>` : ''}<button type="button" class="btn sm" data-aiquiz>📒 ${esc(t('aiQuiz'))}</button></div><div class="small" style="margin-top:6px;opacity:.85">${esc(t('aiCheck'))}</div>`;
+      const sv = msg.querySelector('[data-aisave]'); if (sv) sv.onclick = () => { const b = document.getElementById('saveScope'); if (b) b.click(); };
+      const qz = msg.querySelector('[data-aiquiz]'); if (qz) qz.onclick = () => { const b = box.querySelector(`[data-phquiz="${res.id || ''}"]`); if (b) b.click(); else msg.innerHTML = `📒 ${esc(tf('nqParentWhere', { k: kids, s: tx(s.name) }))}`; };
       const det = row.querySelector('details'); if (det) det.open = true;
     },
   });
@@ -4567,5 +4581,19 @@ Object.assign(UI.en, {
   stubIntroX: "This subject isn't in Leerhoek yet. Take photos of your notes or a worksheet – the app turns them into practice questions.",
 });
 
+Object.assign(UI.af, {
+  aiSaw: 'Wat ek op die foto sien', aiTicked: '{n} onderwerpe gemerk:', aiNoTopics: 'Ek kon nie onderwerpe uit die lys herken nie. Merk self die onderwerpe hieronder, of maak oefenvrae van die foto.',
+  aiDate: 'Datum:', aiNext: 'As jy stoor:', aiNext1: '{k} sien dié onderwerpe onder 🎯 Wat in die eksamen kom.', aiNext2: 'Die afbakening-toets, die dagplan en die herinneringe oefen net dié onderwerpe.',
+  aiNext3: 'Jy kan die merkies hieronder nog verander voor jy stoor.', aiSave: 'Stoor afbakening nou', aiQuiz: 'Maak oefenvrae vir die kinders',
+  aiCheck: 'Kontroleer altyd: die KI kan foute maak.',
+  nqParentDone: '{n} oefenvrae gemaak: {t}', nqParentWhere: '{k} kry dit onder {s} → 📒 Vrae uit my notas.',
+});
+Object.assign(UI.en, {
+  aiSaw: 'What I see on the photo', aiTicked: '{n} topics ticked:', aiNoTopics: "I couldn't match topics from the list. Tick the topics below yourself, or make practice questions from the photo.",
+  aiDate: 'Date:', aiNext: 'When you save:', aiNext1: '{k} will see these topics under 🎯 What is in the exam.', aiNext2: 'The scope test, the daily plan and the reminders practise only these topics.',
+  aiNext3: 'You can still change the ticks below before you save.', aiSave: 'Save scope now', aiQuiz: 'Make practice questions for the children',
+  aiCheck: 'Always check: the AI can make mistakes.',
+  nqParentDone: '{n} practice questions made: {t}', nqParentWhere: '{k} will find them under {s} → 📒 Questions from my notes.',
+});
 boot();
 })();
