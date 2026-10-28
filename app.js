@@ -1913,7 +1913,10 @@ function renderHangman(main) {
 const fmtN = (n) => n < 0 ? `(−${-n})` : String(n);
 function mathQ() {
   const r = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-  switch (r(0, 7)) {
+  /* v10.10: primary grades get primary sums (no integers or squares below Gr 7; no percentages or order-of-operations below Gr 6) */
+  const g = curGrade(), pool = g <= 5 ? [0, 1, 2, 3, 8] : g <= 6 ? [0, 1, 2, 3, 6, 7, 8] : [0, 1, 2, 3, 4, 5, 6, 7];
+  switch (pool[r(0, pool.length - 1)]) {
+    case 8: { const [d, sym] = [[2, '½'], [3, '⅓'], [4, '¼'], [5, '⅕'], [10, '⅒']][r(0, 4)], n = d * r(2, 12); return { q: `${sym} ${L === 'af' ? 'van' : 'of'} ${n}`, a: n / d }; }
     case 0: { const a = r(2, 12), b = r(2, 12); return { q: `${a} × ${b}`, a: a * b }; }
     case 1: { const b = r(2, 12), c = r(2, 12); return { q: `${b * c} ÷ ${b}`, a: c }; }
     case 2: { const a = r(12, 99), b = r(11, 99); return { q: `${a} + ${b}`, a: a + b }; }
