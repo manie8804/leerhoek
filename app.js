@@ -371,6 +371,7 @@ async function loadHousehold() {
   if (me) { try { circle = (await S.store.rpc('lh_circle')) || []; } catch (e) {} }
   S.houseMe = me; S.houseProf = prof; S.houseCircle = circle; S._circleAt = Date.now(); S._circleSig = JSON.stringify(circle || []);
   applyHousehold(me, prof, circle);
+  S.ownerOk = await ownerDevOk();
 }
 function applyHousehold(me, prof, circle) {
   const kids = prof && Array.isArray(prof.kids) && prof.kids.length ? prof.kids : LEGACY_KIDS;
@@ -4665,19 +4666,33 @@ function renderSetupDone(main, d) {
   main.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => { if (await copyText(b.dataset.copy)) toast(t('copied')); });
   $('#suOpen').onclick = () => { location.href = base + '?k=' + d.key + '#ouer'; };
 }
+/* v10.11: in the h1 circle the circle card (invites, households, usage) opens only on the owner's own devices.
+   The owner code is never in this file – only its hash; each device stores the code in localStorage lh.ownerCode. */
+const OWNER_DEV_HASH = '00ac84f35e5ad08ad57517bd8d30b07433a7fb697b3626e6f40a33a7cd07bbcb';
+const ownerNorm = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+async function ownerDevOk(c) { const v = ownerNorm(c != null ? c : lsGet('lh.ownerCode', '')); return !!v && (await sha('own:' + v)) === OWNER_DEV_HASH; }
+function ownerLockCard() {
+  if (parentMe() && parentMe() !== 'pa') return '';
+  return `<details class="card" style="margin-top:14px" id="ownerLock"><summary class="small">🔑 ${esc(t('ownT'))}</summary><p class="small muted" style="margin:6px 0 8px">${esc(t('ownSub'))}</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><input id="ownCode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LH-…" style="flex:1;min-width:160px"><button class="btn primary" id="ownGo">${esc(t('ownGo'))}</button></div></details>`;
+}
 /* owner household: invite a family + usage totals of the circle */
 function circleCard() {
   if (!online() || !HOUSE.owner) return '';
+  if (HOUSE.id === 'h1' && !S.ownerOk) return ownerLockCard();
   return `<div class="card" style="margin-top:14px" id="circleCard"><h3>${esc(t('invT'))}</h3><p class="small muted" style="margin:4px 0 10px">${esc(t('invSub'))}</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><input id="invLabel" maxlength="40" placeholder="${esc(t('invLabelP'))}" style="flex:1;min-width:160px"><button class="btn primary" id="invMake">${esc(t('invMake'))}</button></div>
     ${HOUSE.id === 'h1' ? `<div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><select id="invKind" aria-label="${esc(t('invKindL'))}"><option value="fam">👪 ${esc(t('invKindFam'))}</option><option value="sep">🔒 ${esc(t('invKindSep'))}</option></select><select id="invLang" aria-label="${esc(t('suLang'))}"><option value="af">🌐 Afrikaans</option><option value="en">🌐 English</option></select></div><p class="small muted" id="invHelp" style="margin:6px 0 0">${esc(t('invHelpFam'))}</p>` : ''}
     <div id="invOut" style="margin-top:10px"></div>
     <details style="margin-top:10px"><summary class="small">${esc(t('invList'))}</summary><div id="invList" class="small" style="margin-top:6px">…</div></details>
     ${(S.houseCircle || []).filter(x => !x.me && !(x.profile && x.profile.guest)).length ? `<h3 style="margin-top:16px">${esc(t('kringHouses'))}</h3><div class="stack" style="gap:6px;margin-top:6px">${(S.houseCircle || []).filter(x => !x.me && !(x.profile && x.profile.guest)).map(x => `<div class="row" style="justify-content:space-between;gap:8px"><span class="small">🏠 ${esc(x.name || '—')} <span class="muted">· ${((x.profile || {}).kids || []).map(k => esc(k.avatar || '') + ' ' + esc(k.name)).join(', ')}</span></span><button type="button" class="btn sm ghost" data-kick="${esc(x.hid)}">${esc(t('kringKick'))}</button></div>`).join('')}</div>` : ''}
-    <h3 style="margin-top:16px">${esc(t('kringT'))}</h3><p class="small muted" style="margin:4px 0 8px">${esc(t('kringSub'))}</p><div id="kringUse" class="small">…</div></div>`;
+    <h3 style="margin-top:16px">${esc(t('kringT'))}</h3><p class="small muted" style="margin:4px 0 8px">${esc(t('kringSub'))}</p><div id="kringUse" class="small">…</div>${HOUSE.id === 'h1' ? `<button type="button" class="btn sm ghost" id="ownOff" style="margin-top:12px">🔒 ${esc(t('ownOff'))}</button>` : ''}</div>`;
 }
 function wireCircleCard(root) {
+  const lock = $('#ownerLock', root);
+  if (lock) $('#ownGo', lock).onclick = async () => { const v = $('#ownCode', lock).value; if (await ownerDevOk(v)) { lsSet('lh.ownerCode', ownerNorm(v)); S.ownerOk = true; toast(t('ownOk')); render(); } else toast(t('ownBad')); };
   const card = $('#circleCard', root); if (!card) return;
+  const off = $('#ownOff', card); if (off) off.onclick = () => { if (!off.dataset.sure) { off.dataset.sure = '1'; off.textContent = t('kringKickSure'); return; } lsSet('lh.ownerCode', null); S.ownerOk = false; render(); };
   const base = location.origin + location.pathname;
   const loadInv = async () => { const box = $('#invList', card); try { const l = (await S.store.rpc('lh_invites')) || []; box.innerHTML = l.length ? l.map(x => `<div>• ${x.sep ? '🔒 ' : ''}${esc(x.label || '—')} – ${x.used ? esc(tf('invUsed', { n: x.by || '?' })) : new Date(x.expires) < new Date() ? esc(t('invExpired')) : esc(tf('invOpen', { d: fmtDate(String(x.expires).slice(0, 10)) }))}</div>`).join('') : '<span class="muted">—</span>'; } catch (e) { box.textContent = '—'; } };
   const kindSel = $('#invKind', card), langSel = $('#invLang', card);
@@ -4705,6 +4720,14 @@ function wireCircleCard(root) {
     } catch (e) { box.textContent = '—'; }
   })();
 }
+Object.assign(UI.af, {
+  ownT: 'Eienaar-toestel', ownSub: 'Die familiekring-oorsig (uitnodigings, gesinne en gebruik) maak net op die eienaar se eie toestelle oop. Plak jou eienaar-kode om hierdie toestel oop te sluit.',
+  ownGo: 'Ontsluit', ownOk: 'Hierdie toestel is nou ’n eienaar-toestel', ownBad: 'Daardie kode werk nie', ownOff: 'Sluit weer op hierdie toestel',
+});
+Object.assign(UI.en, {
+  ownT: 'Owner device', ownSub: 'The family-circle overview (invites, families and usage) opens only on the owner\'s own devices. Paste your owner code to unlock this device.',
+  ownGo: 'Unlock', ownOk: 'This device is now an owner device', ownBad: 'That code doesn\'t work', ownOff: 'Lock again on this device',
+});
 Object.assign(UI.af, {
   setupT: 'Welkom by Leerhoek', setupSub: 'Stel julle gesin op – dit vat 2 minute. Net julle sien julle kinders se vordering. Die speletjies en die familiekring-klets deel julle met die res van die familie.',
   setupHouse: 'Gesinsnaam', setupHouseP: 'bv. Johan en Marietjie', setupParents: '👪 Ouers', setupParent1: 'Ouer 1', setupParent2: 'Ouer 2 (opsioneel – maak leeg as daar net een is)',
