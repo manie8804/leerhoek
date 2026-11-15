@@ -3215,9 +3215,9 @@ Object.assign(UI.af, {
   qgT: 'Vraag-speletjies', qgSub: 'Elke skuif kos ’n vraag! Antwoord reg en binne die tyd, anders is jou beurt verby. Kies ’n speletjie – party is slim-speletjies, ander is meer geluk.',
   qgHow: ['Kies ’n speletjie en teen wie jy speel: die app, iemand in die familie (elkeen op sy eie foon) of op dieselfde foon.', 'Wanneer jy ’n skuif maak, spring ’n vraag op – antwoord voordat die tyd op is.', 'Reg ✅ – jou skuif word gemaak. Verkeerd of te stadig ❌ – jou skuif tel nie en dit is die ander speler se beurt.', 'Skaak: staan jy skaak en antwoord jy verkeerd, mag die ander speler jou koning vang!', 'Slange & Lere is net geluk – die app moet daar ook “antwoord”, en op Maklik mis hy die meeste.', 'Elke spel verdien XP, en verkeerde antwoorde gaan in jou foute-boek.'],
   qgWhich: 'Watter speletjie?',
-  qgN: { chess: 'Skaak', checkers: 'Dambord', four: 'Vier-op-’n-ry', ships: 'Seeslag', snakes: 'Slange & Lere' },
-  qgD: { chess: 'Die koning van slim-speletjies', checkers: 'Spring oor en vang', four: 'Kry vier in ’n ry', ships: 'Soek en sink die vloot', snakes: 'Geluk met die dobbelsteen' },
-  qgCard: ['Vraag-speletjies', 'Skaak, Dambord, Vier-op-’n-ry, Seeslag en Slange & Lere – elke skuif kos ’n vraag!'],
+  qgN: { chess: 'Skaak', checkers: 'Dambord', four: 'Vier-op-’n-ry', ships: 'Seeslag', snakes: 'Slange & Lere', hangman: 'Galgie' },
+  qgD: { chess: 'Die koning van slim-speletjies', checkers: 'Spring oor en vang', four: 'Kry vier in ’n ry', ships: 'Soek en sink die vloot', snakes: 'Geluk met die dobbelsteen', hangman: 'Hou jou mannetjie van die galg af' },
+  qgCard: ['Vraag-speletjies', 'Skaak, Dambord, Vier-op-’n-ry, Seeslag, Slange & Lere en Galgie – elke skuif kos ’n vraag!'],
   qgChallenges: '{n} daag jou uit vir {g}!', qgWho1: 'Wie begin?', qgMeFirst: '🥇 Ek begin', qgThemFirst: '🥈 Hulle begin', qgRed: 'Rooi', qgYellow: 'Geel',
   qgAppSmart: 'Hoe slim is die app?', qgAppSmartHint: 'Die app moet ook “antwoord”: op Maklik mis hy die meeste vrae.', qgAppMissed: '🤖 Die app het sy vraag gemis!',
   qgTapCol: 'Tik op ’n kolom – tik weer om jou skyf te laat val', qgTapCol2: 'Tik weer op die kolom om te laat val (of kies ’n ander een)',
@@ -3239,9 +3239,9 @@ Object.assign(UI.en, {
   qgT: 'Question games', qgSub: 'Every move costs a question! Answer correctly and in time, or your turn is over. Pick a game – some are thinking games, others are more luck.',
   qgHow: ['Choose a game and who you play: the app, someone in the family (each on their own phone) or on the same phone.', 'When you make a move, a question pops up – answer before the time runs out.', 'Right ✅ – your move is made. Wrong or too slow ❌ – your move doesn’t count and it’s the other player’s turn.', 'Chess: if you are in check and answer wrong, the other player may capture your king!', 'Snakes & Ladders is pure luck – the app has to “answer” too, and on Easy it misses the most.', 'Every game earns XP, and wrong answers go into your mistakes book.'],
   qgWhich: 'Which game?',
-  qgN: { chess: 'Chess', checkers: 'Checkers', four: 'Four in a row', ships: 'Battleships', snakes: 'Snakes & Ladders' },
-  qgD: { chess: 'The king of thinking games', checkers: 'Jump over and capture', four: 'Get four in a row', ships: 'Find and sink the fleet', snakes: 'Luck with the dice' },
-  qgCard: ['Question games', 'Chess, Checkers, Four in a row, Battleships and Snakes & Ladders – every move costs a question!'],
+  qgN: { chess: 'Chess', checkers: 'Checkers', four: 'Four in a row', ships: 'Battleships', snakes: 'Snakes & Ladders', hangman: 'Hangman' },
+  qgD: { chess: 'The king of thinking games', checkers: 'Jump over and capture', four: 'Get four in a row', ships: 'Find and sink the fleet', snakes: 'Luck with the dice', hangman: 'Keep your stick figure off the gallows' },
+  qgCard: ['Question games', 'Chess, Checkers, Four in a row, Battleships, Snakes & Ladders and Hangman – every move costs a question!'],
   qgChallenges: '{n} challenges you to {g}!', qgWho1: 'Who starts?', qgMeFirst: '🥇 I start', qgThemFirst: '🥈 They start', qgRed: 'Red', qgYellow: 'Yellow',
   qgAppSmart: 'How smart is the app?', qgAppSmartHint: 'The app has to “answer” too: on Easy it misses the most questions.', qgAppMissed: '🤖 The app missed its question!',
   qgTapCol: 'Tap a column – tap again to drop your disc', qgTapCol2: 'Tap the column again to drop (or pick another one)',
@@ -3271,8 +3271,13 @@ UI.af.ev.remind = 'Leer-herinnering gestuur'; UI.en.ev.remind = 'Study reminder 
 function pname(id, cfg, lang) { if (id === 'app') return (UI[lang || L].chApp); if (id === 'friend') return (cfg && cfg.fn) || UI[lang || L].chFriend; return famName(id, lang); }
 const pav = (id) => id === 'app' ? '🤖' : id === 'friend' ? '🙂' : famAv(id);
 const gname = (g, lang) => (UI[lang || L].qgN || {})[g || 'chess'] || g;
-const GICON = { chess: '♟️', checkers: '⛀', four: '🔴', ships: '🚢', snakes: '🎲' };
-const GORDER = ['chess', 'checkers', 'four', 'ships', 'snakes'];
+const GICON = { chess: '♟️', checkers: '⛀', four: '🔴', ships: '🚢', snakes: '🎲', hangman: '🪢' };
+const GORDER = ['chess', 'checkers', 'four', 'ships', 'snakes', 'hangman'];
+/* v10.12 Galgie (hangman) texts */
+Object.assign(UI.af, { hgAns: 'Hoe antwoord julle?', hgAnsMc: '🔘 Kies die antwoord', hgAnsFill: '✍️ Vul die woord in', hgAnsMcHint: 'Vier keuses, soos by die ander speletjies.', hgAnsFillHint: 'Ons wys party letters of syfers – jy vul die res in.', hgChipMc: '🔘 Kies', hgChipFill: '✍️ Vul in', hgAsk: 'Antwoord jou vraag', hgPrompt: 'Tik op ❓ en antwoord jou vraag.', hgLabel: 'Reg = ⭐ · verkeerd = nog ’n stukkie aan jou mannetjie', hgRule: 'Eerste met {n} ⭐ wen. Ná {p} foute is jou mannetjie klaar geteken.', hgFillHead: 'Vul die ontbrekende letters in', hgFillNum: 'Vul die ontbrekende syfers in', hgCheck: 'Kontroleer', hgGive: 'Gee ’n letter', hgDel: 'Vee uit' });
+Object.assign(UI.en, { hgAns: 'How do you answer?', hgAnsMc: '🔘 Choose the answer', hgAnsFill: '✍️ Fill in the word', hgAnsMcHint: 'Four options, like the other games.', hgAnsFillHint: 'We show some letters or digits – you fill in the rest.', hgChipMc: '🔘 Choose', hgChipFill: '✍️ Fill in', hgAsk: 'Answer your question', hgPrompt: 'Tap ❓ and answer your question.', hgLabel: 'Right = ⭐ · wrong = one more piece on your stick figure', hgRule: 'First to {n} ⭐ wins. After {p} mistakes your stick figure is complete.', hgFillHead: 'Fill in the missing letters', hgFillNum: 'Fill in the missing digits', hgCheck: 'Check', hgGive: 'Give a letter', hgDel: 'Delete' });
+Object.assign(UI.af.chRes, { hgStars: 'Eerste met 6 ⭐', hgHanged: 'Die mannetjie is klaar geteken 🪢' });
+Object.assign(UI.en.chRes, { hgStars: 'First to 6 ⭐', hgHanged: 'The stick figure is complete 🪢' });
 const QG = {}; // game id → module (rules + board UI), filled below
 
 function qgReplay(evs) {
@@ -3622,12 +3627,94 @@ QG.snakes = {
   },
 };
 
+/* ===== 🪢 Galgie (hangman, v10.12): every turn is a question – right = ⭐, wrong = one more piece on your own stick figure.
+   Split screen: both stick figures side by side; the other phone sees every answer (2 s poll). First to 6 ⭐ wins;
+   6 wrong (head, body, arms, legs) and your stick figure is complete – you lose. ===== */
+const HG = { GOAL: 6, PARTS: 6, AIMISS: { easy: 0.45, med: 0.3, hard: 0.15 } };
+function hgSvg() {
+  const pt = (el) => el.replace(/^<(\w+)/, '<$1 class="hgpt" pathLength="100"');
+  return `<svg class="hgsvg" viewBox="0 0 100 118" data-m="0" aria-hidden="true"><g class="gal"><path d="M8 112h58M22 112V8h50M22 27 41 8"/></g><path class="rope" d="M72 8v16"/>`
+    + [`<circle cx="72" cy="33" r="9"/>`, `<path d="M72 42v30"/>`, `<path d="M72 50 59 64"/>`, `<path d="M72 50 85 64"/>`, `<path d="M72 72 61 93"/>`, `<path d="M72 72 83 93"/>`].map(pt).join('')
+    + `<g class="face"><g class="ey n"><circle cx="68.6" cy="31" r="1.3"/><circle cx="75.4" cy="31" r="1.3"/></g><path class="ey x" d="M67.2 29.6l2.8 2.8M70 29.6l-2.8 2.8M74 29.6l2.8 2.8M76.8 29.6l-2.8 2.8"/>`
+    + `<path class="mo m1" d="M68 36q4 3.6 8 0"/><path class="mo m2" d="M68.6 37.2h6.8"/><path class="mo m3" d="M68 38.8q4-3.6 8 0"/></g></svg>`;
+}
+const hgMood = (bad) => bad <= 0 ? 0 : bad <= 2 ? 1 : bad <= 4 ? 2 : bad < HG.PARTS ? 3 : 4;
+/* "Vul in": questions whose right answer is one short word or number (≤ 2 words, ≤ 14 letters/digits) */
+function hgFillPool(pool) {
+  const out = [];
+  (pool || []).forEach(it => {
+    const r = (quickOpts(it.q) || []).find(o => o.ok); if (!r) return;
+    const ans = String(r.txt || '').replace(/\s+/g, ' ').trim(), f = fold(ans);
+    if (!ans || ans.length > 16 || !/^[a-z0-9 '’,.\-\/%]+$/.test(f) || (f.match(/ /g) || []).length > 1) return;
+    const n = (f.match(/[a-z0-9]/g) || []).length; if (n < 1 || n > 14) return;
+    if (n >= 4 && fold(tx(it.q.q)).includes(f)) return; // the answer is already in the question
+    out.push({ it, ans });
+  });
+  return shuffle(out);
+}
+QG.hangman = {
+  id: 'hangman', flip: false, colors: { w: '🔵', b: '🟠' }, colorLabel: (c) => c === 'w' ? t('qgMeFirst') : t('qgThemFirst'), startsLabel: true, luck: true, fillable: true,
+  init: () => ({ t: 'w', ok: { w: 0, b: 0 }, bad: { w: 0, b: 0 } }),
+  turn: (s) => s.t,
+  apply: (s, e) => { const c = s.t, st = { t: CHESS.other(c), ok: Object.assign({}, s.ok), bad: Object.assign({}, s.bad) }; st.ok[c]++; return { st, info: { star: st.ok[c] } }; },
+  pass: (s) => { const c = s.t, st = { t: CHESS.other(c), ok: Object.assign({}, s.ok), bad: Object.assign({}, s.bad) }; st.bad[c]++; return st; },
+  status: (s) => {
+    for (const c of ['w', 'b']) {
+      if (s.bad[c] >= HG.PARTS) return { over: true, res: 'hgHanged', winner: CHESS.other(c) };
+      if (s.ok[c] >= HG.GOAL) return { over: true, res: 'hgStars', winner: c };
+    }
+    return { over: false };
+  },
+  ai: () => ({ q: 1 }), aiMiss: (lvl) => HG.AIMISS[lvl] || 0.3,
+  label() { return { icon: '<span class="qicon">🪢</span>', text: t('hgLabel') }; },
+  logText(h) { return h.miss ? '' : `✅ ⭐ ${h.info.star}/${HG.GOAL}`; },
+  prompt() { return esc(t('hgPrompt')); },
+  board(api) {
+    const kind = api.kind(), leftC = kind === 'phone' ? 'w' : (api.myColor() || 'w'), rightC = CHESS.other(leftC);
+    const panel = (c) => `<div class="hgp" id="hgP${c}"><div class="hgwho"><span class="hgav"></span><b class="hgnm"></b><span class="hgturn"></span></div>
+      <div class="hgfig">${hgSvg()}<span class="hgpop" aria-hidden="true"></span></div><div class="hgstars"></div><div class="hgmeta small muted"></div></div>`;
+    api.el.className = 'hgwrap';
+    api.el.innerHTML = `<div class="hgsplit">${panel(leftC)}${panel(rightC)}</div>
+      <div class="hgact"><button class="btn hi hgbtn" id="hgAsk">❓ ${esc(t('hgAsk'))}</button><span class="small muted center">${esc(tf('hgRule', { n: HG.GOAL, p: HG.PARTS }))}</span></div>`;
+    $('#hgAsk', api.el).onclick = () => { if (!api.canAct()) { api.blocked(); return; } api.attempt({}); };
+    const seen = { w: null, b: null };
+    const pop = (P, txt, cls) => { const el = $('.hgpop', P); el.textContent = txt; el.className = 'hgpop ' + cls; void el.offsetWidth; el.classList.add('go'); P.classList.remove('okf', 'badf'); void P.offsetWidth; P.classList.add(cls === 'ok' ? 'okf' : 'badf'); };
+    return {
+      ui: {},
+      paint(R) {
+        const cfg = R.cfg;
+        ['w', 'b'].forEach(c => {
+          const P = $('#hgP' + c, api.el), id = cfg[c], ok = R.st.ok[c], bad = R.st.bad[c], s = R.stats[c];
+          const mine = kind !== 'phone' && api.myColor() === c, prev = seen[c];
+          const won = R.status === 'over' && R.result && R.result.winner === c, lost = R.status === 'over' && R.result && R.result.winner && !won;
+          P.classList.toggle('on', R.status === 'active' && R.cur === c); P.classList.toggle('win', won); P.classList.toggle('lost', !!lost);
+          $('.hgav', P).textContent = pav(id);
+          $('.hgnm', P).textContent = mine ? t('chYou') : pname(id, cfg);
+          $('.hgturn', P).textContent = won ? '🏆' : (R.status === 'active' && R.cur === c ? '⏳' : '');
+          P.querySelectorAll('.hgpt').forEach((el, i) => {
+            if (i < bad) { if (!el.classList.contains('on')) { el.classList.add('on'); if (prev) el.classList.add('new'); } }
+            else el.classList.remove('on', 'new');
+          });
+          $('.hgsvg', P).dataset.m = hgMood(bad);
+          if (!prev || prev.ok !== ok) $('.hgstars', P).innerHTML = Array.from({ length: HG.GOAL }, (_, i) => `<i class="${i < ok ? 'on' : ''}${prev && i >= prev.ok && i < ok ? ' pop' : ''}">⭐</i>`).join('');
+          $('.hgmeta', P).textContent = `✅ ${s.ok}/${s.n} · ❌ ${bad}/${HG.PARTS}`;
+          if (prev && ok > prev.ok) pop(P, '+⭐', 'ok');
+          else if (prev && bad > prev.bad) pop(P, '❌', 'bad');
+          seen[c] = { ok, bad };
+        });
+        const btn = $('#hgAsk', api.el), can = R.status === 'active' && api.canActQuiet();
+        btn.disabled = !can; btn.classList.toggle('pulse', can); btn.hidden = R.status === 'over';
+      },
+    };
+  },
+};
+
 /* ---------- storage of games ---------- */
 const locKey = (pid) => 'lh.chess.loc.' + pid;
 async function chessList(lim) { if (!online()) return []; const rows = await S.store.loadPrefix('chess/g/', lim || (CIRCLE.length ? 40 : 12)); return (rows || []).map(r => ({ id: r.key.slice(8), events: (r.value && r.value.events) || [] })); }
 async function chessFetch(id) { const v = await S.store.get('chess/g/' + id); return (v && v.events) || null; }
 async function chessAppend(id, ev) { await S.store.rpc('lh_log', { k: 'chess/g/' + id, ev }); }
-function chessSetup() { const d = { game: 'chess', mode: 'app', lvl: 'easy', color: 'w', opp: null, popp: null, friend: '', subj: null, secs: 30 }; const v = Object.assign(d, lsGet('lh.chess.setup', {})); if (!QG[v.game]) v.game = 'chess'; return v; }
+function chessSetup() { const d = { game: 'chess', mode: 'app', lvl: 'easy', color: 'w', opp: null, popp: null, friend: '', subj: null, secs: 30, ans: 'mc' }; const v = Object.assign(d, lsGet('lh.chess.setup', {})); if (!QG[v.game]) v.game = 'chess'; return v; }
 function saveSetup(su) { lsSet('lh.chess.setup', su); }
 function gameStats(kid, game) { if (!kid) return { app: {}, fam: {} }; if (game === 'chess') return kid.chess || { app: {}, fam: {} }; return ((kid.qgames || {})[game]) || { app: {}, fam: {} }; }
 function gameStatsW(kid, game) { // writable bucket
@@ -3721,6 +3808,7 @@ async function renderChessLobby(main) {
     else if (su.mode === 'fam') h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOpp'))}</div><div class="whos">${famOpp.map(f => `<button class="${su.opp === f.id ? 'on' : ''}" data-opp="${f.id}" data-pid="${pidOf(f)}"><span>${f.avatar}</span>${esc(famName(f.id))}<i class="pdot" style="display:none"></i><small class="pseen"></small></button>`).join('')}</div>${colorSeg()}`;
     else h = `<div class="label" style="margin:14px 0 6px">${esc(t('chOppPhone'))}</div><div class="whos">${famOpp.filter(f => FAMILY.some(x => x.id === f.id)).map(f => `<button class="${su.popp === f.id ? 'on' : ''}" data-popp="${f.id}"><span>${f.avatar}</span>${esc(famName(f.id))}</button>`).join('')}<button class="${su.popp === 'friend' ? 'on' : ''}" data-popp="friend"><span>🙂</span>${esc(t('chFriend'))}</button></div>
       ${su.popp === 'friend' ? `<input id="chFriendIn" maxlength="20" placeholder="${esc(t('chFriendName'))}" value="${esc(su.friend || '')}" style="margin-top:8px;width:100%">` : ''}${colorSeg()}`;
+    if (G.fillable) h += `<div class="label" style="margin:14px 0 6px">${esc(t('hgAns'))}</div>${seg('ans', su.ans === 'fill' ? 'fill' : 'mc', [['mc', esc(t('hgAnsMc'))], ['fill', esc(t('hgAnsFill'))]])}<p class="small muted" style="margin-top:6px">${esc(t(su.ans === 'fill' ? 'hgAnsFillHint' : 'hgAnsMcHint'))}</p>`;
     $('#chOpts').innerHTML = h;
     $('#chGo').textContent = su.mode === 'fam' ? t('chInvite') : `${GICON[su.game]} ${t('chStart')}`;
     $('#chGo').disabled = !quickPool(su.subj).length;
@@ -3728,6 +3816,7 @@ async function renderChessLobby(main) {
     $('#chOpts').querySelectorAll('[data-color]').forEach(b => b.onclick = () => { su.color = b.dataset.color; saveSetup(su); opts(); });
     $('#chOpts').querySelectorAll('[data-opp]').forEach(b => b.onclick = () => { su.opp = b.dataset.opp; saveSetup(su); opts(); }); presNow();
     $('#chOpts').querySelectorAll('[data-popp]').forEach(b => b.onclick = () => { su.popp = b.dataset.popp; saveSetup(su); opts(); });
+    $('#chOpts').querySelectorAll('[data-ans]').forEach(b => b.onclick = () => { su.ans = b.dataset.ans; saveSetup(su); sfx('tap'); opts(); });
     const fi = $('#chFriendIn'); if (fi) fi.oninput = () => { su.friend = fi.value.trim().slice(0, 20); saveSetup(su); };
     drawRec();
   };
@@ -3740,6 +3829,7 @@ async function renderChessLobby(main) {
   $('#chGo').onclick = async () => {
     const color = su.color === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : su.color;
     const base = { t: 'new', game: su.game, by: who.id, secs: su.secs, subj: su.subj, at: Date.now() };
+    if (QG[su.game].fillable) base.ans = su.ans === 'fill' ? 'fill' : 'mc';
     if (su.mode === 'fam') {
       const id = rid(), opp = su.opp;
       const ev = Object.assign(base, { id, seed: id, kind: 'online', w: color === 'w' ? who.id : opp, b: color === 'w' ? opp : who.id });
@@ -3825,13 +3915,14 @@ async function renderQGame(main, gid) {
   const G = R0.G, cfg = R0.cfg, kind = cfg.kind;
   const C = S.chess = { gid, local: gid === 'l', events: events.slice(), R: R0, busy: false, pending: 0, flip: false, dead: false, qi: 0, combo: 0, life: lsGet('lh.chess.life.' + cfg.id, {}), anim: null, pend: null };
   C.pool = shuffle(quickPool(cfg.subj)); if (C.pool.length < 4) C.pool = shuffle(quickPool('all'));
+  C.fill = cfg.ans === 'fill' && G.fillable ? hgFillPool(C.pool) : null; if (C.fill && C.fill.length < 4) C.fill = null; C.fi = 0;
   const myColor = kind === 'phone' ? null : R0.colorOf(who.id);
   const spectator = kind === 'online' && !myColor;
   const controls = (id) => kind === 'phone' ? id !== 'app' : id === who.id;
   const bottomColor = () => { if (!G.flip) return 'w'; if (kind === 'phone') { const c = C.R.status === 'active' ? C.R.cur : 'w'; return C.flip ? CHESS.other(c) : c; } const c = myColor || 'w'; return C.flip ? CHESS.other(c) : c; };
   const subjOk = C.pool.length > 0;
   main.innerHTML = `<div class="chead"><button class="back" data-go="skaak">← ${GICON[G.id]} ${esc(gname(G.id))}</button><span class="row" style="gap:6px">${kind === 'online' ? `<button class="btn sm" id="chChatB">💬<span class="bdg-in" id="chChatN" hidden></span></button>` : ''}${muteBtn()}</span></div>
-  <div class="row small muted cchips"><span class="chip subject">${esc(subjLabel(cfg.subj))}</span><span class="chip">⏱️ ${cfg.secs} s</span>${kind === 'app' ? `<span class="chip">🤖 ${esc(t('chLvl')[cfg.lvl])}</span>` : ''}</div>
+  <div class="row small muted cchips"><span class="chip subject">${esc(subjLabel(cfg.subj))}</span><span class="chip">⏱️ ${cfg.secs} s</span>${cfg.ans ? `<span class="chip">${esc(t(cfg.ans === 'fill' ? 'hgChipFill' : 'hgChipMc'))}</span>` : ''}${kind === 'app' ? `<span class="chip">🤖 ${esc(t('chLvl')[cfg.lvl])}</span>` : ''}</div>
   <div class="cwrap qg-${G.id}"><div class="cplay" id="pTop"></div><div id="cBoard"></div><div class="cplay" id="pBot"></div></div>
   <div class="cstatus" id="cStat" aria-live="polite"></div>
   <div class="row" style="justify-content:center;gap:8px;margin-top:10px" id="cActs"></div>
@@ -3903,6 +3994,7 @@ async function renderQGame(main, gid) {
   function nextQ() { if (C.qi >= C.pool.length) { C.pool = shuffle(C.pool); C.qi = 0; } return C.pool[C.qi++]; }
   function ask(m) {
     if (!canAct()) return;
+    if (C.fill) return askFill(m);
     const mover = C.R.toMove, it = nextQ(), q = it.q, opts = quickOpts(q), lab = G.label(m, C.R.st);
     C.busy = true; C.pend = m; paint();
     const lifeLeft = () => (C.life[mover] === undefined ? 2 : C.life[mover]);
@@ -3931,23 +4023,7 @@ async function renderQGame(main, gid) {
       const ok = i >= 0 && opts[i].ok, ri = opts.findIndex(o => o.ok);
       btns.forEach(b => b.disabled = true); $('#cqLL', ov).disabled = true;
       if (i >= 0) btns[i].classList.add(ok ? 'right' : 'wrong'); if (btns[ri]) btns[ri].classList.add('right');
-      const kidRec = S.kid && who.kid && (kind !== 'phone' || mover === who.id) && mover === S.kid.id ? S.kid : null;
-      if (kidRec) { noteMistake(kidRec, it.topic, q, ok); C.combo = ok ? C.combo + 1 : 0; funAnswer(ok, { quiet: true, streak: C.combo }); C.answered = (C.answered || 0) + 1; if (C.answered % 5 === 0) S.store.saveKid(kidRec).catch(() => {}); }
-      else sfx(ok ? 'ok' : 'bad');
-      const mv = G.finalize ? G.finalize(m, C.R.st) : m;
-      const ev = ok ? Object.assign({ t: 'mv', n: C.R.ply, by: mover, q: 1 }, mv) : Object.assign({ t: 'miss', n: C.R.ply, by: mover }, m, { p: lab.piece || m.p });
-      if (ok) {
-        $('#cqRes', ov).innerHTML = `<div class="cq-ok">${esc(t('chRight'))}</div>`;
-        setTimeout(() => { ov.remove(); C.pend = null; C.busy = false; C.anim = mv; commit(ev); }, 650);
-      } else {
-        const nextName = pname(cfg[CHESS.other(C.R.cur)], cfg);
-        $('#cqRes', ov).innerHTML = `<div class="cq-bad"><b>${esc(i < 0 ? t('chTooSlow') : t('chWrong'))}</b> ${esc(tf('chTurnOver', { n: nextName }))}<div class="small" style="margin-top:6px">${esc(t('chRightAns'))} <b>${inline(opts[ri].txt)}</b>${q.explain ? ` – ${inline(tx(q.explain))}` : ''}</div></div><button class="btn subject block" id="cqOk" style="margin-top:10px">${esc(t('chGoOn'))}</button>`;
-        let closed = false;
-        const close = () => { if (closed) return; closed = true; ov.remove(); C.pend = null; C.busy = false; commit(ev); };
-        $('#cqOk', ov).onclick = close;
-        setTimeout(close, 9000);
-        $('#cqOk', ov).scrollIntoView({ block: 'nearest' });
-      }
+      settle(ov, ok, i < 0, it, m, mover, lab, opts[ri].txt);
     };
     btns.forEach(b => b.onclick = () => finish(+b.dataset.i));
     const tick = () => {
@@ -3956,6 +4032,107 @@ async function renderQGame(main, gid) {
       if (bar) { bar.style.width = (100 * left / (cfg.secs * 1000)) + '%'; bar.classList.toggle('low', secs <= 5); }
       if (tt) { tt.textContent = secs; tt.classList.toggle('low', secs <= 5); }
       if (left <= 0) finish(-1);
+    };
+    S._cqTimer = setInterval(tick, 100); tick();
+  }
+  /* shared by both question sheets: mistakes book, sounds, the event, and the right/wrong message */
+  function settle(ov, ok, slow, it, m, mover, lab, rightTxt) {
+    const q = it.q;
+    const kidRec = S.kid && who.kid && (kind !== 'phone' || mover === who.id) && mover === S.kid.id ? S.kid : null;
+    if (kidRec) { noteMistake(kidRec, it.topic, q, ok); C.combo = ok ? C.combo + 1 : 0; funAnswer(ok, { quiet: true, streak: C.combo }); C.answered = (C.answered || 0) + 1; if (C.answered % 5 === 0) S.store.saveKid(kidRec).catch(() => {}); }
+    else sfx(ok ? 'ok' : 'bad');
+    const mv = G.finalize ? G.finalize(m, C.R.st) : m;
+    const ev = ok ? Object.assign({ t: 'mv', n: C.R.ply, by: mover, q: 1 }, mv) : Object.assign({ t: 'miss', n: C.R.ply, by: mover }, m, { p: lab.piece || m.p });
+    if (ok) {
+      $('#cqRes', ov).innerHTML = `<div class="cq-ok">${esc(t('chRight'))}</div>`;
+      setTimeout(() => { ov.remove(); C.pend = null; C.busy = false; C.anim = mv; commit(ev); }, 650);
+    } else {
+      const nextName = pname(cfg[CHESS.other(C.R.cur)], cfg);
+      $('#cqRes', ov).innerHTML = `<div class="cq-bad"><b>${esc(slow ? t('chTooSlow') : t('chWrong'))}</b> ${esc(tf('chTurnOver', { n: nextName }))}<div class="small" style="margin-top:6px">${esc(t('chRightAns'))} <b>${inline(rightTxt)}</b>${q.explain ? ` – ${inline(tx(q.explain))}` : ''}</div></div><button class="btn subject block" id="cqOk" style="margin-top:10px">${esc(t('chGoOn'))}</button>`;
+      let closed = false;
+      const close = () => { if (closed) return; closed = true; ov.remove(); C.pend = null; C.busy = false; commit(ev); };
+      $('#cqOk', ov).onclick = close;
+      setTimeout(close, 9000);
+      $('#cqOk', ov).scrollIntoView({ block: 'nearest' });
+    }
+  }
+  /* v10.12 Galgie "Vul in": the answer as tiles – some letters/digits are given, the player types the rest */
+  function askFill(m) {
+    if (C.fi >= C.fill.length) { C.fill = shuffle(C.fill); C.fi = 0; }
+    const F = C.fill[C.fi++], it = F.it, q = it.q, lab = G.label(m, C.R.st), mover = C.R.toMove;
+    const chars = [...F.ans], isF = (ch) => /[a-z0-9]/.test(fold(ch));
+    const slots = chars.map((ch, i) => isF(ch) ? i : -1).filter(i => i >= 0), n = slots.length;
+    const k = n <= 2 ? 0 : n <= 4 ? 1 : Math.round(n * 0.35);
+    const giv = new Set(); if (k) giv.add(slots[0]); shuffle(slots.slice(1)).forEach(i => { if (giv.size < k) giv.add(i); });
+    const typed = {};
+    const blanks = () => slots.filter(i => !giv.has(i)), empty = () => blanks().filter(i => !typed[i]);
+    const hasL = slots.some(i => /[a-z]/.test(fold(chars[i]))), hasD = slots.some(i => /[0-9]/.test(chars[i]));
+    const KEYS = (hasL ? 'abcdefghijklmnopqrstuvwxyz'.split('') : []).concat(hasD ? '1234567890'.split('') : []);
+    C.busy = true; C.pend = m; paint();
+    const lifeLeft = () => (C.life[mover] === undefined ? 2 : C.life[mover]);
+    const ov = document.createElement('div'); ov.className = 'overlay sheetwrap cqwrap'; ov.id = 'cqSheet';
+    ov.innerHTML = `<div class="sheet cq hgfill" role="dialog" aria-modal="true" aria-label="${esc(t('chQHead'))}"><div class="sh-grab"></div>
+      <div class="cq-head"><span class="cq-mv">${lab.icon}<span><b>${esc(t('chQHead'))}</b><br><span class="small muted">${kind === 'phone' ? esc(pname(mover, cfg)) + ' · ' : ''}${esc(lab.text)}</span></span></span><span class="cq-t num" id="cqT">${cfg.secs}</span></div>
+      <div class="cq-bar"><i id="cqBar"></i></div>
+      <div class="small muted" style="margin:8px 0 4px">${it.subj.icon} ${esc(tx(it.subj.short))} · ${esc(tx(it.topic.title))}</div>
+      <div class="sh-q">${inline(tx(q.q))}</div>
+      <div class="small muted center" style="margin-top:8px">✍️ ${esc(t(hasL ? 'hgFillHead' : 'hgFillNum'))}</div>
+      <div class="hword hgans${n > 10 ? ' long' : ''}" id="hgW"></div>
+      <div class="keys hgkeys${hasL ? '' : ' num'}" id="hgK">${KEYS.map(c => `<button class="key" data-k="${c}">${c.toUpperCase()}</button>`).join('')}<button class="key bs" data-k="bs" aria-label="${esc(t('hgDel'))}">⌫</button></div>
+      <div class="hgfoot"><button class="btn sm ghost" id="cqLL">💡 ${esc(t('hgGive'))} <span class="num">×${lifeLeft()}</span></button><button class="btn subject" id="hgOk" disabled>${esc(t('hgCheck'))} ✓</button></div>
+      <div id="cqRes"></div></div>`;
+    document.body.appendChild(ov);
+    const deadline = Date.now() + cfg.secs * 1000;
+    let done = false;
+    const paintW = () => {
+      const cur = empty()[0];
+      $('#hgW', ov).innerHTML = chars.map((ch, i) => {
+        if (!isF(ch)) return `<span class="hs">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`;
+        if (giv.has(i)) return `<span class="hl on giv">${esc(ch.toUpperCase())}</span>`;
+        const v = typed[i];
+        if (done) return `<span class="hl on ${fold(v || '') === fold(ch) ? 'ok' : 'miss'}">${esc(ch.toUpperCase())}</span>`;
+        return `<span class="hl ${v ? 'on' : ''} ${i === cur ? 'cur' : ''}" data-p="${i}">${v ? esc(v.toUpperCase()) : ''}</span>`;
+      }).join('');
+      ov.querySelectorAll('#hgW [data-p]').forEach(el => el.onclick = () => { if (done || !typed[+el.dataset.p]) return; delete typed[+el.dataset.p]; sfx('tap'); paintW(); });
+      const full = !empty().length, ok = $('#hgOk', ov);
+      if (ok && !done) { ok.disabled = !full; ok.classList.toggle('pulse', full); }
+      const ll = $('#cqLL', ov); if (ll && !done) ll.disabled = lifeLeft() <= 0 || blanks().filter(i => fold(typed[i] || '') !== fold(chars[i])).length <= 1;
+    };
+    const put = (c) => { const e = empty(); if (done || !e.length) return; typed[e[0]] = c; sfx('tap'); paintW(); };
+    const back = () => { const tb = blanks().filter(i => typed[i]); if (done || !tb.length) return; delete typed[tb[tb.length - 1]]; paintW(); };
+    const finish = (slow) => {
+      if (done) return; done = true;
+      if (S._cqTimer) { clearInterval(S._cqTimer); S._cqTimer = null; }
+      document.removeEventListener('keydown', onKey);
+      const ok = !slow && blanks().every(i => fold(typed[i] || '') === fold(chars[i]));
+      paintW(); ov.querySelectorAll('.key, #hgOk, #cqLL').forEach(b => { b.disabled = true; b.classList.remove('pulse'); });
+      settle(ov, ok, slow, it, m, mover, lab, F.ans);
+    };
+    const onKey = (e) => {
+      if (done || !document.body.contains(ov)) { document.removeEventListener('keydown', onKey); return; }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const c = fold(e.key || '');
+      if (c.length === 1 && KEYS.includes(c)) { e.preventDefault(); put(c); }
+      else if (e.key === 'Backspace') { e.preventDefault(); back(); }
+      else if (e.key === 'Enter' && !empty().length) { e.preventDefault(); finish(false); }
+    };
+    document.addEventListener('keydown', onKey);
+    ov.querySelectorAll('#hgK .key').forEach(b => b.onclick = () => b.dataset.k === 'bs' ? back() : put(b.dataset.k));
+    $('#hgOk', ov).onclick = () => { if (!empty().length) finish(false); };
+    $('#cqLL', ov).onclick = (e) => {
+      const cand = blanks().filter(i => fold(typed[i] || '') !== fold(chars[i]));
+      if (done || lifeLeft() <= 0 || cand.length <= 1) return;
+      const i = cand[Math.floor(Math.random() * cand.length)]; giv.add(i); delete typed[i];
+      C.life[mover] = lifeLeft() - 1; lsSet('lh.chess.life.' + cfg.id, C.life);
+      e.currentTarget.querySelector('.num').textContent = '×' + C.life[mover]; sfx('tap'); paintW();
+    };
+    paintW();
+    const tick = () => {
+      const left = Math.max(0, deadline - Date.now()), secs = Math.ceil(left / 1000);
+      const bar = $('#cqBar', ov), tt = $('#cqT', ov);
+      if (bar) { bar.style.width = (100 * left / (cfg.secs * 1000)) + '%'; bar.classList.toggle('low', secs <= 5); }
+      if (tt) { tt.textContent = secs; tt.classList.toggle('low', secs <= 5); }
+      if (left <= 0) finish(true);
     };
     S._cqTimer = setInterval(tick, 100); tick();
   }
@@ -4026,7 +4203,7 @@ async function renderQGame(main, gid) {
         const bucket = kind === 'app' ? (gs.app[cfg.lvl] = gs.app[cfg.lvl] || {}) : (gs.fam = gs.fam || {});
         ['w', 'l', 'd'].forEach(k => { bucket[k] = bucket[k] || 0; });
         bucket[outcome]++;
-        const APPXP = { chess: [15, 25, 40], checkers: [15, 25, 40], four: [10, 20, 35], ships: [15, 20, 30], snakes: [10, 12, 15] }[G.id] || [15, 25, 40];
+        const APPXP = { chess: [15, 25, 40], checkers: [15, 25, 40], four: [10, 20, 35], ships: [15, 20, 30], snakes: [10, 12, 15], hangman: [10, 18, 25] }[G.id] || [15, 25, 40];
         const li = { easy: 0, med: 1, hard: 2 }[cfg.lvl] || 0;
         const baseXp = kind === 'app' ? { w: APPXP[li], d: Math.round(APPXP[li] / 2), l: 5 }[outcome] : { w: 30, d: 15, l: 10 }[outcome];
         xp = baseXp + Math.min(20, s.ok);

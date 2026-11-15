@@ -8,9 +8,9 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<script>window.LH_VERSION="8b6f0ecaea";</script>
-<script src="config.js?v=8b6f0ecaea"></script>
-<script src="content.js?v=8b6f0ecaea"></script>
+<script>window.LH_VERSION="ae49304b36";</script>
+<script src="config.js?v=ae49304b36"></script>
+<script src="content.js?v=ae49304b36"></script>
 </head><body>
 <title>Leerhoek</title>
 <meta name="description" content="Leerhoek – your family’s study app: summaries, worked examples and tests for every CAPS subject, in English and Afrikaans.">
@@ -698,7 +698,7 @@ div.opt:hover { transform: none; }
 @media (max-width: 360px) { .topbar .who .nm { display: none; } .topbar .who { padding: 4px; } .topbar { gap: 6px; } }
 
 /* ---------- v8: Vraag-speletjies (5 games), notifications for the boys, study schedule ---------- */
-.qgpick { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.qgpick { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
 .qgp { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; padding: 10px 4px; border-radius: var(--radius-sm); border: 2px solid var(--line); background: var(--surface); color: var(--ink); min-width: 0; }
 .qgp .qgi { font-size: 28px; line-height: 1.1; }
 .qgp b { font-size: .84rem; line-height: 1.15; overflow-wrap: anywhere; }
@@ -762,6 +762,65 @@ button.shc:hover { background: rgba(255,255,255,.25); }
 .shc.boom { animation: shboom .6s ease-out; }
 @keyframes shboom { 0% { transform: scale(1.6); filter: brightness(1.8); } 100% { transform: none; } }
 .qg-ships { width: min(100%, 520px); }
+/* v10.12 🪢 Galgie */
+.qg-hangman { width: min(100%, 560px); }
+.qg-hangman .cplay { display: none; }
+.hgsplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.hgp { position: relative; min-width: 0; text-align: center; padding: 8px 8px 10px; border-radius: var(--radius); background: var(--surface); border: 2px solid var(--line); box-shadow: var(--shadow-sm); transition: border-color .2s, box-shadow .2s, opacity .3s; }
+.hgp.on { border-color: var(--hi); box-shadow: 0 0 0 3px color-mix(in srgb, var(--hi) 35%, transparent); }
+.hgp.win { border-color: var(--good); box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 30%, transparent); }
+.hgp.lost { opacity: .8; }
+.hgp.okf { animation: hgok .9s ease; }
+.hgp.badf { animation: hgshake .5s ease; }
+.hgwho { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 28px; font-size: .95rem; min-width: 0; }
+.hgwho b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hgav { font-size: 1.3rem; line-height: 1; }
+.hgfig { position: relative; }
+.hgsvg { display: block; width: 100%; height: auto; max-height: min(32dvh, 230px); margin: 0 auto; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.hgsvg .gal path { stroke: var(--muted); stroke-width: 4; }
+.hgsvg .rope { stroke: #b4853f; stroke-width: 3.2; stroke-dasharray: 2.6 1.4; }
+.hgsvg .hgpt { stroke: var(--ink); stroke-width: 3.6; visibility: hidden; }
+.hgsvg .hgpt.on { visibility: visible; }
+.hgsvg path.hgpt.new { stroke-dasharray: 100; stroke-dashoffset: 100; animation: hgdraw .7s ease-out forwards, hgink 1.8s ease forwards; }
+.hgsvg circle.hgpt.new { transform-box: fill-box; transform-origin: center; animation: hghead .45s ease-out both, hgink 1.8s ease forwards; }
+.hgsvg .face { display: none; }
+.hgsvg:not([data-m="0"]) .face { display: inline; animation: hgfade .4s .45s both; }
+.hgsvg .face circle { fill: var(--ink); stroke: none; }
+.hgsvg .face path { stroke: var(--ink); stroke-width: 1.6; }
+.hgsvg .mo, .hgsvg .ey.x { display: none; }
+.hgsvg[data-m="1"] .m1, .hgsvg[data-m="2"] .m2, .hgsvg[data-m="3"] .m3, .hgsvg[data-m="4"] .m3, .hgsvg[data-m="4"] .ey.x { display: inline; }
+.hgsvg[data-m="4"] .ey.n { display: none; }
+.hgpop { position: absolute; left: 50%; top: 30%; font-size: 1.6rem; font-weight: 800; pointer-events: none; opacity: 0; transform: translateX(-50%); }
+.hgpop.ok { color: var(--good); } .hgpop.bad { color: var(--bad); }
+.hgpop.go { animation: hgpop 1s ease-out; }
+.hgstars { font-size: 1.05rem; letter-spacing: 1px; margin-top: 2px; white-space: nowrap; }
+.hgstars i { font-style: normal; display: inline-block; filter: grayscale(1); opacity: .22; }
+.hgstars i.on { filter: none; opacity: 1; }
+.hgstars i.pop { animation: pop .45s both; }
+.hgmeta { margin-top: 2px; }
+.hgact { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 12px; text-align: center; }
+.hgbtn { min-width: min(100%, 240px); }
+.hgbtn.pulse, .hgfill #hgOk.pulse { animation: pickpulse 1.6s ease-in-out infinite; }
+.hgans .hl { width: 26px; height: 38px; }
+.hgans.long .hl { width: 20px; font-size: 1.1rem; }
+.hgans .hl[data-p] { cursor: pointer; }
+.hgans .hl.cur { border-bottom-color: var(--subject); background: color-mix(in srgb, var(--subject) 12%, transparent); border-radius: 6px 6px 0 0; }
+.hgans .hl.giv { color: var(--muted); }
+.hgans .hl.ok { color: var(--good); }
+.hgans .hl.miss { color: var(--bad); }
+.hgkeys .key { min-height: 38px; }
+.hgkeys.num { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.hgkeys.num .key { min-height: 44px; font-size: 1.1rem; }
+.hgkeys .key.bs { background: var(--bad-bg); color: var(--bad); }
+.hgfoot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+@keyframes hgdraw { to { stroke-dashoffset: 0; } }
+@keyframes hghead { from { transform: scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes hgink { 0%, 55% { stroke: var(--bad); } 100% { stroke: var(--ink); } }
+@keyframes hgfade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hgpop { 0% { opacity: 0; transform: translate(-50%, 10px) scale(.6); } 25% { opacity: 1; transform: translate(-50%, 0) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -28px) scale(1); } }
+@keyframes hgok { 0%, 100% { background: var(--surface); } 30% { background: var(--good-bg); } }
+@keyframes hgshake { 0%, 100% { transform: none; } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .hgp.okf, .hgp.badf, .hgpop.go, .hgsvg .hgpt.new { animation: none; } .hgsvg path.hgpt.new { stroke-dashoffset: 0; } }
 .qg-snakes { width: min(100%, 560px, calc(100dvh - 420px)); min-width: min(100%, 240px); }
 /* snakes & ladders */
 .slwrap { width: 100%; }
@@ -833,6 +892,6 @@ button.shc:hover { background: rgba(255,255,255,.25); }
   <div class="toast" id="toast"></div>
   <canvas id="confetti" hidden></canvas>
 </div>
-<script src="app.js?v=8b6f0ecaea"></script>
+<script src="app.js?v=ae49304b36"></script>
 
 </body></html>
